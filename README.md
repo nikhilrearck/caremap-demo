@@ -1,2 +1,5 @@
-# sso-demo
+# caremap-demo app
+```
+## sso-demo
 Single Sign On Demo
+```
