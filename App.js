@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Caremap App - Development Project</Text>
+      <Text>Caremap App - Demo Project</Text>
       <StatusBar style="auto" />
     </View>
   );
