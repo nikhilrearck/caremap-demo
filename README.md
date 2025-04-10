@@ -1,5 +1,5 @@
 # caremap-demo app
-```
-## sso-demo
-Single Sign On Demo
-```
+
+### Project Specs
+- React Native Expo (TypeScript template)
+- GlueStackUI init
