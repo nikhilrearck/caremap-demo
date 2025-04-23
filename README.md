@@ -2,4 +2,4 @@
 
 ### Project Specs
 - React Native Expo (TypeScript template)
-- GlueStackUI init
+- GlueStackUI-init
