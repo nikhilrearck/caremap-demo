@@ -22,7 +22,7 @@ export default function Counter() {
             action="primary"
             onPress={handleIncrease}
           >
-            <Text className="bg-white p-1">Increase</Text>
+            <Text className="bg-white p-1">Increase Value</Text>
           </Button>
           <Button
             size="md"
