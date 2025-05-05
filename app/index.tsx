@@ -1,19 +1,19 @@
-import { Text, View, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Redirect } from "expo-router";
+import { useAuth } from "./context/AuthProvider"; 
 
-export default function Index() {
-  const router = useRouter();
-  return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-lg text-black">
-        Index page
-        <TouchableOpacity onPress={() => router.push("/public/landing")}>
-          <Button size="md" variant="solid" action="primary">
-            <ButtonText>Go to landing</ButtonText>
-          </Button>
-        </TouchableOpacity>
-      </Text>
-    </View>
-  );
+export default function AppNavigator() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    console.log("AppNavigator: Loading auth state...");
+    return null; // Or a loading spinner
+  }
+
+  if (user) {
+    console.log("AppNavigator: User EXISTS - redirecting to /home/profile", user);
+    return <Redirect href="/home/profile" />;
+  } else {
+    console.log("AppNavigator: NO user - redirecting to /public/landing");
+    return <Redirect href="/public/landing" />;
+  }
 }
