@@ -1,103 +1,103 @@
-import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
+import { Divider } from "@/components/ui/divider";
+import {
+  getGoogleAuthRequest,
+  handleGoogleSignIn,
+} from "@/services/auth-service/google-auth";
+import { LinearGradient } from "expo-linear-gradient";
 import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
-import * as SecureStore from "expo-secure-store";
-import { useRouter, Redirect } from "expo-router";
-import { useAuth } from "../context/AuthProvider"; 
+import { useEffect } from "react";
+import { Image, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
-  const { user, setUser } = useAuth();
-  const router = useRouter();
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId:
-      "632730531479-bu7oo9o00u849kttciqbkvri3ght24ia.apps.googleusercontent.com",
-    redirectUri: "com.btsavvy.caremap:/oauthredirect",
-    scopes: ["openid", "profile", "email"],
-  });
-
-  useEffect(() => {
-    const checkAuthState = async () => {
-      const token = await SecureStore.getItemAsync("auth_token");
-      const userData = await SecureStore.getItemAsync("user");
-      console.log("Token:", token);
-      console.log("User Data1:", userData);
-      if (token && userData) {
-        setUser(JSON.parse(userData));
-        console.log("User Data2:", userData);
-
-        router.replace("/home/profile");
-      }
-    };
-
-    checkAuthState();
-  }, []);
+  const [request, response, promptAsync] = getGoogleAuthRequest();
 
   useEffect(() => {
     if (response?.type === "success") {
-      const { authentication } = response;
-      if (authentication?.accessToken) {
-        handleSignIn(authentication.accessToken);
-      }
+      handleGoogleSignIn(response, async (accessToken: string) => {
+        const res = await fetch("https://www.googleapis.com/userinfo/v2/me", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        return res.json();
+      });
     }
   }, [response]);
 
-  const handleSignIn = async (token: string) => {
-    try {
-      const userInfo = await fetchUserInfo(token);
-
-      await SecureStore.setItemAsync("auth_token", token);
-      await SecureStore.setItemAsync("user", JSON.stringify(userInfo));
-
-      setUser(userInfo);
-      router.replace("/home/profile");
-    } catch (error) {
-      console.error("Authentication error:", error);
-    }
-  };
-
-  const fetchUserInfo = async (token: string) => {
-    const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return await response.json();
-  };
-
-  if (user) {
-    return <Redirect href="/home/profile" />;
-  }
-
   return (
-    <View className="flex-1 justify-center items-center bg-white px-6">
-      <Text className="text-2xl font-bold text-center mb-8">Welcome</Text>
+    <LinearGradient colors={["#F1FDFF", "#DCFBFF"]} style={{ flex: 1 }}>
+      <SafeAreaView className="flex-1 justify-center px-6 ">
+        <Image
+          source={require("@/assets/careMap-logo.png")}
+          style={{ width: 120, height: 60, marginBottom: 30 }}
+          resizeMode="contain"
+        />
 
-      <Text className="text-center text-lg mb-10 px-4">
-        Teams of family members, doctors, nurses, and case managers work
-        together to care for children with complex medical issues.
-      </Text>
+        <Image
+          source={require("../../assets/intro4.png")}
+          className="w-[400px] h-[300px] rounded-lg"
+          resizeMode="contain"
+        />
 
-      <Button className="bg-black w-[80%] rounded-xl my-4">
-        <ButtonText className="text-lg text-white font-bold">
-          {" "}
-          Sign in with Apple
-        </ButtonText>
-      </Button>
+        <Text className="text-[30px] text-[#49AFBE] font-bold text-left py-4 ">
+          Welcome
+        </Text>
 
-      <Button
-        onPress={() => promptAsync()}
-        className="bg-[#49AFBE] w-[80%] rounded-xl my-6"
-      >
-        <ButtonText className="text-lg font-bold">
-          Sign in with Google
-        </ButtonText>
-      </Button>
-      <View className="flex-row">
-        <Text className="text-gray-500 mr-2">Terms of Use</Text>
-        <Text className="text-gray-500">Privacy Policy</Text>
-      </View>
-    </View>
+        <Text className="text-left text-base py-4 ">
+          Teams of family members, doctors, nurses, and case managers work
+          together to care for children with complex medical issues.
+        </Text>
+
+        <View className="flex items-left  py-4">
+          <Button
+            variant="solid"
+            action="secondary"
+            className="bg-white border border-gray-300 w-full rounded-sm my-2 h-14"
+            size="md"
+          >
+            <View className="flex-row items-center px-4 w-full">
+              <Image
+                source={require("@/assets/apple-logo.png")}
+                className="w-6 h-6 mr-3"
+                resizeMode="contain"
+              />
+              <ButtonText className="text-lg text-black text-left flex-1">
+                Continue with Apple
+              </ButtonText>
+            </View>
+          </Button>
+
+          <Button
+            variant="solid"
+            action="secondary"
+            className="bg-white border border-gray-300 w-full rounded-sm my-4 h-14"
+            disabled={!request}
+            onPress={() => promptAsync()}
+          >
+            <View className="flex-row items-center px-4 w-full">
+              <Image
+                source={require("@/assets/google-logo.png")}
+                className="w-6 h-6 mr-3"
+                resizeMode="contain"
+              />
+              <ButtonText className="text-lg text-black text-left flex-1">
+                Continue with Google
+              </ButtonText>
+            </View>
+          </Button>
+
+          <View className="flex-row justify-center items-center mt-10">
+            <Text className="text-[#0973A8]">Terms of Use</Text>
+            <Divider
+              orientation="vertical"
+              className="mx-2 h-[16px] bg-[#0973A8]"
+            />
+            <Text className="text-[#0973A8]">Privacy Policy</Text>
+          </View>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }

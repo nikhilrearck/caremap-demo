@@ -1,15 +1,19 @@
-import { Stack, Tabs } from "expo-router";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-
 import "@/global.css";
-import { AuthProvider } from "./context/AuthProvider";
+import { Stack } from "expo-router";
+import React from "react";
 
-export default function RootLayout() {
+const RootLayout = () => {
   return (
     <GluestackUIProvider mode="light">
-      <AuthProvider>
-        <Stack screenOptions={{ headerShown: false }} />
-      </AuthProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerBackVisible: false,
+        }}
+      />
     </GluestackUIProvider>
   );
-}
+};
+
+export default RootLayout;
