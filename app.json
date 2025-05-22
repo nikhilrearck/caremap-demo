@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "caremap-demo",
-    "slug": "caremap-demo",
+    "name": "caremap",
+    "slug": "caremap",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
