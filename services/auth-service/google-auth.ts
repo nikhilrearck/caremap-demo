@@ -1,16 +1,19 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { AuthTokens, UserInfo } from "@/services/common/types";
+import { AuthTokens } from "@/services/common/types";
 import { googleConfig, TOKEN_EXPIRY } from "@/utils/config";
 import * as Google from "expo-auth-session/providers/google";
 import { AuthSessionResult } from "expo-auth-session";
 import { router } from "expo-router";
 import { logger } from "@/services/logging/logger";
+import { User } from "../database/migrations/v1/schema_v1";
 
 
 const IOS_CLIENT_ID = googleConfig.GOOGLE_IOS_CLIENT_ID;
 const ANDROID_CLIENT_ID = googleConfig.GOOGLE_ANDROID_CLIENT_ID;
 const REDIRECT_URI = googleConfig.REDIRECT_URI;
+
+const TEST_EXPIRY_IN_SECONDS: number | null = TOKEN_EXPIRY;
 
 export const getGoogleAuthRequest = () => {
     return Google.useAuthRequest({
@@ -35,8 +38,7 @@ export const handleGoogleSignIn = async (
             accessToken: accessToken,
             refreshToken: refreshToken!,
             issuedAt: issuedAt?.toString(),
-            //   expiresIn: expiresIn.toString(),
-            expiresIn: "65", // TEST
+            expiresIn: (TEST_EXPIRY_IN_SECONDS != null ? TEST_EXPIRY_IN_SECONDS : expiresIn)!.toString(),
         });
 
         await saveUser(userInfo);
@@ -65,7 +67,15 @@ export const scheduleTokenRefresh = async () => {
         );
 
         if (refreshDelay > 0) {
+            logger.debug(`⏳ Scheduling token refresh in ${refreshDelay / 1000} seconds`);
             setTimeout(async () => {
+
+                const isLoggedIn = await hasStoredSession();
+                if (!isLoggedIn) {
+                    logger.debug("⛔ Skipping token refresh — user has signed out.");
+                    return;
+                }
+
                 const refreshed = await refreshAccessToken(refresh_token);
                 if (refreshed) {
                     logger.debug("✅ Token refreshed via scheduled refresh");
@@ -79,7 +89,7 @@ export const scheduleTokenRefresh = async () => {
 };
 
 export const initializeSession = async (
-    setUser: (user: UserInfo | null) => void
+    setUser: (user: User | null) => void
 ): Promise<void> => {
     logger.debug("🚀 Reinitializing MainView after reload...");
 
@@ -106,8 +116,6 @@ export const initializeSession = async (
 
 
 // --------------------------------------------------------------------------------------------------
-
-const TEST_EXPIRY_IN_SECONDS: number | null = TOKEN_EXPIRY; // or null to use actual expiresIn
 
 // --------- Checking for Stored Data
 export const hasStoredSession = async (): Promise<boolean> => {
@@ -204,7 +212,6 @@ export const refreshAccessToken = async (refresh_token: string): Promise<boolean
 
             await SecureStore.setItemAsync("access_token", data.access_token);
             await SecureStore.setItemAsync("issued_at", issuedAt);
-            // override to test short expiry
             await SecureStore.setItemAsync("expires_in", (TEST_EXPIRY_IN_SECONDS != null ? TEST_EXPIRY_IN_SECONDS : expiresIn)!.toString());
 
             logger.debug("✅ Token refreshed via scheduled refresh");

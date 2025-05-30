@@ -1,7 +1,2 @@
-# caremap-custom-template
-Template project to Get Started
-- This is the template file to get started for any caremap project.
-
-### List of dependencies added :
-- Expo React Native Navigation TypeScript template
-- Gluestack-UI
+# caremap
+- Caremap is a patient and family oriented application which allows for the secure storage and sharing of important medical information, often not found or easily accessible to families.

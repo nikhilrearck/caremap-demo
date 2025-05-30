@@ -1,19 +1,21 @@
 import { Spinner } from "@/components/ui/spinner";
 import { hasStoredSession } from "@/services/auth-service/google-auth";
+import { RESET_ONBOARDING } from "@/utils/config";
+import { ROUTES } from "@/utils/route";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Redirect, Route } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import colors from "tailwindcss/colors";
-import { ROUTES } from "@/utils/route";
 
 export default function Index() {
   const [redirectTo, setRedirectTo] = useState<Route | null>(null);
+
   useEffect(() => {
     const checkAndRedirect = async () => {
       try {
-        // Uncomment below line to Test the First Launch of the App.
-        // await AsyncStorage.setItem("isFirstLaunch", "false");
+        RESET_ONBOARDING &&
+          (await AsyncStorage.setItem("isFirstLaunch", "false"));
 
         const isFirstLaunch = await AsyncStorage.getItem("isFirstLaunch");
         const valid = await hasStoredSession();

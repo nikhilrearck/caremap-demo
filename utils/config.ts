@@ -1,4 +1,9 @@
+import { GoogleConfig } from "@/services/common/types";
+
+
 export const DEBUG_ON = false;
+
+export const RESET_ONBOARDING = false;
 
 export const TOKEN_EXPIRY: number | null = null; // (in seconds) OR null to use expires_in from the OAuth call
 
@@ -8,10 +13,4 @@ export const googleConfig: GoogleConfig = {
   GOOGLE_ANDROID_CLIENT_ID: "8428479757-koit87f26ulgm8cakiba05cbihv1rgg0.apps.googleusercontent.com",
 };
 
-//- -------------------------------------------------------------------------
-
-interface GoogleConfig {
-  REDIRECT_URI: string,
-  GOOGLE_IOS_CLIENT_ID: string;
-  GOOGLE_ANDROID_CLIENT_ID: string;
-}
+export const SQLITE_DB_NAME = "caremap_db.db";
