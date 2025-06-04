@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, Button } from "react-native";
-import { router } from "expo-router";
 import {
+  initializeMockSession,
   initializeSession,
+  isAndroid,
   signOut,
 } from "@/services/auth-service/google-auth";
 import { Patient, User } from "@/services/database/migrations/v1/schema_v1";
-import { useSQLiteContext } from "expo-sqlite";
-import { UserModel } from "@/services/database/models/UserModel";
 import { PatientModel } from "@/services/database/models/PatientModel";
+import { UserModel } from "@/services/database/models/UserModel";
+import { logger } from "@/services/logging/logger";
+import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
+import React, { useEffect, useState } from "react";
+import { Button, Image, Text, View } from "react-native";
 
 const Home = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -20,8 +23,13 @@ const Home = () => {
   const patientModel = new PatientModel(db);
 
   useEffect(() => {
-    console.log(`DB Path : "${db.databasePath}"`);
-    initializeSession(setUser).finally(() => setLoading(false));
+    logger.debug(`DB Path : "${db.databasePath}"`);
+    if (isAndroid) {
+      console.log("Android? :", isAndroid);
+      initializeMockSession(setUser).finally(() => setLoading(false));
+    } else {
+      initializeSession(setUser).finally(() => setLoading(false));
+    }
   }, []);
 
   useEffect(() => {
@@ -90,7 +98,14 @@ const Home = () => {
   }
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 5,
+      }}
+    >
       <Image
         source={{ uri: user.picture }}
         style={{ width: 100, height: 100, borderRadius: 50 }}

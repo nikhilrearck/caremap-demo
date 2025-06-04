@@ -3,6 +3,8 @@ import { Divider } from "@/components/ui/divider";
 import {
   getGoogleAuthRequest,
   handleGoogleSignIn,
+  handleMockSignIn,
+  isAndroid,
 } from "@/services/auth-service/google-auth";
 import { LinearGradient } from "expo-linear-gradient";
 import * as WebBrowser from "expo-web-browser";
@@ -25,6 +27,14 @@ export default function Login() {
       });
     }
   }, [response]);
+
+  const handleGoogleSSO = () => {
+    if (isAndroid) {
+      handleMockSignIn();
+    } else {
+      promptAsync();
+    }
+  };
 
   return (
     <LinearGradient colors={["#F1FDFF", "#DCFBFF"]} style={{ flex: 1 }}>
@@ -74,7 +84,7 @@ export default function Login() {
             action="secondary"
             className="bg-white border border-gray-300 w-full rounded-sm my-4 h-14"
             disabled={!request}
-            onPress={() => promptAsync()}
+            onPress={handleGoogleSSO}
           >
             <View className="flex-row items-center px-4 w-full">
               <Image

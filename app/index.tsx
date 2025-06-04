@@ -1,5 +1,9 @@
 import { Spinner } from "@/components/ui/spinner";
-import { hasStoredSession } from "@/services/auth-service/google-auth";
+import {
+  getUserFromStorage,
+  hasStoredSession,
+  isAndroid,
+} from "@/services/auth-service/google-auth";
 import { RESET_ONBOARDING } from "@/utils/config";
 import { ROUTES } from "@/utils/route";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,7 +22,10 @@ export default function Index() {
           (await AsyncStorage.setItem("isFirstLaunch", "false"));
 
         const isFirstLaunch = await AsyncStorage.getItem("isFirstLaunch");
-        const valid = await hasStoredSession();
+
+        const valid = await (isAndroid
+          ? !!getUserFromStorage()
+          : hasStoredSession());
 
         if (isFirstLaunch === null || isFirstLaunch === "false") {
           setRedirectTo(ROUTES.LAUNCH);

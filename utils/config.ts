@@ -1,7 +1,7 @@
 import { GoogleConfig } from "@/services/common/types";
 
 
-export const DEBUG_ON = false;
+export const DEBUG_ON = true;
 
 export const RESET_ONBOARDING = false;
 
