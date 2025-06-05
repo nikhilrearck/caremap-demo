@@ -268,7 +268,7 @@ export const handleMockSignIn = async () => {
     const keys = ["access_token", "refresh_token", "issued_at", "expires_in"];
     await Promise.all(keys.map((key) => SecureStore.deleteItemAsync(key)));
     logger.debug("Tokens cleared.");
-    router.replace(ROUTES.MYHEALTH);
+    router.replace(ROUTES.MY_HEALTH);
 };
 
 export const initializeMockSession = async (

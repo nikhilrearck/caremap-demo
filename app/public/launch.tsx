@@ -13,7 +13,7 @@ export default function Landing() {
       >
       <SafeAreaView className="flex-1 justify-center items-center "> 
         <Image
-          source={require("@/assets/careMap-logo.png")}
+          source={require("@/assets/images/careMap-logo.png")}
           style={{ width: 343, height: 158, marginBottom: 150 }}
           resizeMode="contain"
         />

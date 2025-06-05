@@ -40,13 +40,13 @@ export default function Login() {
     <LinearGradient colors={["#F1FDFF", "#DCFBFF"]} style={{ flex: 1 }}>
       <SafeAreaView className="flex-1 justify-center px-6 ">
         <Image
-          source={require("@/assets/careMap-logo.png")}
+          source={require("@/assets/images/careMap-logo.png")}
           style={{ width: 120, height: 60, marginBottom: 30 }}
           resizeMode="contain"
         />
 
         <Image
-          source={require("../../assets/intro4.png")}
+          source={require("../../assets/images/intro4.png")}
           className="w-[400px] h-[300px] rounded-lg"
           resizeMode="contain"
         />
@@ -69,7 +69,7 @@ export default function Login() {
           >
             <View className="flex-row items-center px-4 w-full">
               <Image
-                source={require("@/assets/apple-logo.png")}
+                source={require("@/assets/images/apple-logo.png")}
                 className="w-6 h-6 mr-3"
                 resizeMode="contain"
               />
@@ -84,11 +84,11 @@ export default function Login() {
             action="secondary"
             className="bg-white border border-gray-300 w-full rounded-sm my-4 h-14"
             disabled={!request}
-            onPress={handleGoogleSSO}
+            onPress={ handleGoogleSSO}
           >
             <View className="flex-row items-center px-4 w-full">
               <Image
-                source={require("@/assets/google-logo.png")}
+                source={require("@/assets/images/google-logo.png")}
                 className="w-6 h-6 mr-3"
                 resizeMode="contain"
               />

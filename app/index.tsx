@@ -32,7 +32,7 @@ export default function Index() {
         } else if (!valid) {
           setRedirectTo(ROUTES.LOGIN);
         } else {
-          setRedirectTo(ROUTES.MYHEALTH);
+          setRedirectTo(ROUTES.MY_HEALTH);
         }
       } catch (err) {
         console.error("Auth check failed:", err);
