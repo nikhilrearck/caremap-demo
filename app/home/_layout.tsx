@@ -1,19 +1,16 @@
+import palette from "@/theme/color";
 import { Tabs } from "expo-router";
 
 export default function TabLayout() {
-  const MyHealthIconActive =
-    require("@/assets/svg/health-active.svg").default;
-  const TrackIconActive =
-    require("@/assets/svg/track-active.svg").default;
-  const InsightIconActive =
-    require("@/assets/svg/insight-active.svg").default;
+  const MyHealthIconActive = require("@/assets/svg/health-active.svg").default;
+  const TrackIconActive = require("@/assets/svg/track-active.svg").default;
+  const InsightIconActive = require("@/assets/svg/insight-active.svg").default;
   const CareTeamIconActive =
     require("@/assets/svg/careteam-active.svg").default;
 
   const MyHealthIconInActive =
     require("@/assets/svg/health-inactive.svg").default;
-  const TrackIconInActive =
-    require("@/assets/svg/track-inactive.svg").default;
+  const TrackIconInActive = require("@/assets/svg/track-inactive.svg").default;
   const InsightIconInActive =
     require("@/assets/svg/insight-inactive.svg").default;
   const CareTeamIconInActive =
@@ -22,16 +19,14 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#00FFEA",
-        tabBarInactiveTintColor: "#FFFFFF80",
+        tabBarActiveTintColor: palette.tabIconActiveColor,
+        tabBarInactiveTintColor: palette.tabIconInactiveColor,
 
         tabBarStyle: {
-         
-          paddingTop: 0, 
-          marginTop: 0,   
-          backgroundColor: "#378793",
-          borderTopColor: "#E5E7EB",
-           paddingHorizontal: 16, 
+          paddingTop: 0,
+          marginTop: 0,
+          backgroundColor: palette.tabBackgroundColor,
+          paddingHorizontal: 16,
         },
         tabBarLabelStyle: {
           fontSize: 16,

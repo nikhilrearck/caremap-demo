@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Slide } from "@/services/common/interface";
+import palette from "@/theme/color";
 
 const slides: Slide[] = [
   {
@@ -32,7 +33,10 @@ export default function Onboarding() {
   };
 
   return (
-    <LinearGradient colors={["#F1FDFF", "#DCFBFF"]} style={{ flex: 1 }}>
+    <LinearGradient
+      colors={[palette.gradientStart, palette.gradientEnd]}
+      style={{ flex: 1 }}
+    >
       <SafeAreaView className="flex-1 justify-center items-center  px-6">
         <Image
           source={slides[currentSlide].image}
@@ -48,9 +52,14 @@ export default function Onboarding() {
           {slides.map((_, index) => (
             <TouchableOpacity
               key={index}
-              className={`h-2 rounded-full ${
-                index === currentSlide ? "w-8 bg-[#49AFBE] " : "w-4 bg-gray-300"
-              } mx-1`}
+              style={{
+                height: 8,
+                borderRadius: 999,
+                width: index === currentSlide ? 32 : 16,
+                backgroundColor:
+                  index === currentSlide ? palette.primary : palette.gray300,
+                marginHorizontal: 4,
+              }}
               onPress={() => handleDotPress(index)}
             />
           ))}
@@ -59,7 +68,8 @@ export default function Onboarding() {
         <View className="w-full items-center">
           {currentSlide < slides.length - 1 ? (
             <Button
-              className="bg-[#49AFBE] py-3 px-7  rounded-[30px] h-[45px]"
+              style={{ backgroundColor: palette.primary }}
+              className=" py-3 px-7  rounded-[30px] h-[45px]"
               variant="solid"
               action="secondary"
               onPress={async () => {
@@ -73,7 +83,8 @@ export default function Onboarding() {
             </Button>
           ) : (
             <Button
-              className="bg-[#49AFBE] w-[150px] rounded-[30px] h-[45px]"
+              style={{ backgroundColor: palette.primary }}
+              className=" w-[150px] rounded-[30px] h-[45px]"
               variant="solid"
               action="secondary"
               onPress={async () => {
