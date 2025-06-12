@@ -1,131 +1,107 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { Divider } from "@/components/ui/divider";
-import { Patient, User } from "@/services/database/migrations/v1/schema_v1";
-import { Box } from "@/components/ui/box";
-import { router } from "expo-router";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { ROUTES } from "@/utils/route";
 import { Badge, BadgeText } from "@/components/ui/badge";
-import { Icon, EditIcon, ShareIcon } from "@/components/ui/icon";
-import { Camera } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { Box } from "@/components/ui/box";
+import { Divider } from "@/components/ui/divider";
+import { EditIcon, Icon, ShareIcon } from "@/components/ui/icon";
+import { PatientContext } from "@/context/PatientContext";
+import { UserContext } from "@/context/UserContext";
 import {
   initializeMockSession,
   initializeSession,
-  isAndroid,
-  signOut,
+  isAndroid
 } from "@/services/auth-service/google-auth";
-import { useSQLiteContext } from "expo-sqlite";
-import { UserModel } from "@/services/database/models/UserModel";
-import { PatientModel } from "@/services/database/models/PatientModel";
 import { logger } from "@/services/logging/logger";
-import palette from "@/theme/color";
+import { ROUTES } from "@/utils/route";
+import { Route, router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
+import { Camera } from "lucide-react-native";
+import { useContext, useEffect, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HealthProfile() {
-  const [user, setUser] = useState<User | null>(null);
-  const [patient, setPatient] = useState<Patient | null>(null);
+const{user, setUserData }= useContext(UserContext)
+  const { patient, setPatientData } = useContext(PatientContext)
+
+  // const [user, setUser] = useState<User | null>(null);
+  // const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
 
   const db = useSQLiteContext();
-  const userModel = new UserModel(db);
-  const patientModel = new PatientModel(db);
+  // const userModel = new UserModel(db);
+  // const patientModel = new PatientModel(db);
 
   useEffect(() => {
     logger.debug(`DB Path : "${db.databasePath}"`);
     if (isAndroid) {
       console.log("Android? :", isAndroid);
-      initializeMockSession(setUser).finally(() => setLoading(false));
+      initializeMockSession(setUserData).finally(() => setLoading(false));
     } else {
-      initializeSession(setUser).finally(() => setLoading(false));
+      initializeSession(setUserData).finally(() => setLoading(false));
     }
   }, []);
 
   useEffect(() => {
+    const init = async () => {
+      await setUserData();
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
     if (user) {
-      handleUserInsert(user);
+      setPatientData(user.id).finally(() => setLoading(false));
     }
   }, [user]);
-
-  const handleUserInsert = async (currentUser: User) => {
-    const existingUser = await userModel.getUser(currentUser.email);
-    try {
-      if (!existingUser) {
-        await userModel.insert({
-          id: currentUser.id,
-
-          name: currentUser.name,
-          email: currentUser.email,
-        });
-      }
-      handlePatientData(currentUser);
-    } catch (err) {
-      console.log("User insert error: ", err);
-    }
-  };
-
-  const handlePatientData = async (currentUser: User) => {
-    try {
-      const existingPatient = await patientModel.getPatientByUserId(
-        currentUser.id
-      );
-      if (existingPatient) {
-        setPatient(existingPatient);
-      } else {
-        await patientModel.insert({
-          user_id: currentUser.id,
-          name: currentUser.name,
-        });
-        const newPatient = await patientModel.getPatientByUserId(
-          currentUser.id
-        );
-        setPatient(newPatient);
-      }
-    } catch (err) {
-      console.log("Patient error: ", err);
-    }
-  };
-
+  
   const medicalTiles = [
     {
       name: "Medical overview",
       image: require("../../../assets/images/medicalOverview.png"),
       badge: 5,
+      link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Emergency Care",
       image: require("../../../assets/images/emergencyCare.png"),
       badge: 3,
+      link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Allergies",
       image: require("../../../assets/images/allergies.png"),
       badge: 2,
+      link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Medications",
       image: require("../../../assets/images/medications.png"),
       badge: 6,
+      link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Medical History",
       image: require("../../../assets/images/medical-history.png"),
       badge: 1,
+      link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Hospitalization",
       image: require("../../../assets/images/hospitalization.png"),
       badge: 4,
+      link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Test 1",
       image: require("../../../assets/images/medicalOverview.png"),
       badge: 6,
+      link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Test 2",
       image: require("../../../assets/images/emergencyCare.png"),
       badge: 9,
+      link: ROUTES.MEDICAL_OVERVIEW,
     },
   ];
 
@@ -146,11 +122,8 @@ export default function HealthProfile() {
   }
 
   return (
-    <SafeAreaView className="flex-1 m-0 ">
-      <View
-        style={{ backgroundColor: palette.primary }}
-        className="py-4  px-6 "
-      >
+    <SafeAreaView className="flex-1 m-0">
+      <View className="py-4 px-6  bg-[#49AFBE]">
         <Text className="text-xl text-white font-bold text-center ">
           My Health
         </Text>
@@ -196,8 +169,11 @@ export default function HealthProfile() {
                     const tile = medicalTiles[tileIndex];
                     return (
                       <TouchableOpacity
+                        onPress={() => router.push(tile.link as Route)}
                         key={tileIndex}
-                        className="flex-1 items-center"
+                        className="flex-1
+                         
+                         items-center"
                       >
                         <View className="p-10 flex-row items-center justify-stretch">
                           <Box className="items-center w-[125px]">

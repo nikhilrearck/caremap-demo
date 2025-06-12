@@ -1,4 +1,6 @@
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { PatientProvider } from "@/context/PatientContext";
+import { UserProvider } from "@/context/UserContext";
 import "@/global.css";
 import { useDatabase } from "@/services/database/db";
 import { SQLITE_DB_NAME } from "@/utils/config";
@@ -16,14 +18,18 @@ const RootLayout = () => {
         console.log(`Migration completed.`);
       }}
     >
-      <GluestackUIProvider mode="light">
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            headerBackVisible: false,
-          }}
-        />
-      </GluestackUIProvider>
+        <GluestackUIProvider mode="light">
+          <UserProvider>
+            <PatientProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              headerBackVisible: false,
+            }}
+          />
+          </PatientProvider>
+          </UserProvider>
+        </GluestackUIProvider>
     </SQLiteProvider>
   );
 };
