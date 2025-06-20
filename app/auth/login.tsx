@@ -1,12 +1,14 @@
+import {
+  handleMockSignIn,
+  isAndroid,
+} from "@/android-bypass/google-auth-android";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
 import {
   getGoogleAuthRequest,
   handleGoogleSignIn,
-  handleMockSignIn,
-  isAndroid,
 } from "@/services/auth-service/google-auth";
-import palette from "@/theme/color";
+import palette from "@/utils/theme/color";
 import { LinearGradient } from "expo-linear-gradient";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";

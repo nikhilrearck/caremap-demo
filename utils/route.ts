@@ -1,13 +1,3 @@
-// export const ROUTES = {
-//   LAUNCH: "/public/launch" as const,
-//   ONBOARDING: "/public/onboarding" as const,
-//   LOGIN: "/auth/login" as const,
-//   MY_HEALTH: "/home/myHealth" as const,
-//   EDIT_PROFILE: "/home/myHealth/profile/editProfile" as const,
-
-// } as const;
-// export type AppRoutes = keyof typeof ROUTES;
-
 export const ROUTE_PREFIX = {
   PUBLIC: "/public",
   AUTH: "/auth",
@@ -25,9 +15,10 @@ export const ROUTES = {
 
   MEDICAL_OVERVIEW: `${ROUTE_PREFIX.MEDICAL_OVERVIEW}` as const,
   SNAPSHOT: `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/snapshot` as const,
-  MEDICAL_CONDITIONS: `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalCondition` as const,
-  MEDICAL_EQUIPMENTS: `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalEquipments` as const,
-
+  MEDICAL_CONDITIONS:
+    `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalCondition` as const,
+  MEDICAL_EQUIPMENTS:
+    `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalEquipments` as const,
 } as const;
 
 export type AppRoutes = keyof typeof ROUTES;

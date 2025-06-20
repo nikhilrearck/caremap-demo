@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Slide } from "@/services/common/interface";
-import palette from "@/theme/color";
+import palette from "@/utils/theme/color";
 
 const slides: Slide[] = [
   {

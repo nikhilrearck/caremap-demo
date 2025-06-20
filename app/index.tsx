@@ -1,8 +1,8 @@
+import { isAndroid } from "@/android-bypass/google-auth-android";
 import { Spinner } from "@/components/ui/spinner";
 import {
   getUserFromStorage,
   hasStoredSession,
-  isAndroid,
 } from "@/services/auth-service/google-auth";
 import { RESET_ONBOARDING } from "@/utils/config";
 import { ROUTES } from "@/utils/route";

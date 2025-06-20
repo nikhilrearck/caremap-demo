@@ -1,4 +1,4 @@
-import palette from "@/theme/color";
+import palette from "@/utils/theme/color";
 import { View, Text } from "react-native";
 function track() {
   return (

@@ -4,7 +4,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import palette from "@/theme/color";
+import palette from "@/utils/theme/color";
 export default function Landing() {
   const router = useRouter();
   return (

@@ -1,10 +1,12 @@
 import { View, Text } from "react-native";
 import { signOut } from "@/services/auth-service/google-auth";
 function careTeam() {
+
   const handleSignOut = async () => {
     await signOut();
-    router.replace("/auth/login");
+    router.replace(`${ROUTES.LOGIN}`);
   };
+
   return (
     <View className="flex-1 justify-center items-center bg-white">
       <Text style={{ color: palette.primary }} className="text-2xl font-bold ">
@@ -26,6 +28,7 @@ function careTeam() {
 
 export default careTeam;
 
-import palette from "@/theme/color";
 import { router } from "expo-router";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Button, ButtonText } from "@/components/ui/button";import palette from "@/utils/theme/color";
+import { ROUTES } from "@/utils/route";
+

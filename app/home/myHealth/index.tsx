@@ -1,3 +1,7 @@
+import {
+  initializeMockSession,
+  isAndroid,
+} from "@/android-bypass/google-auth-android";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
@@ -5,55 +9,50 @@ import { Divider } from "@/components/ui/divider";
 import { EditIcon, Icon, ShareIcon } from "@/components/ui/icon";
 import { PatientContext } from "@/context/PatientContext";
 import { UserContext } from "@/context/UserContext";
-import {
-  initializeMockSession,
-  initializeSession,
-  isAndroid
-} from "@/services/auth-service/google-auth";
+import { initializeAuthSession } from "@/services/auth-service/google-auth";
+import { syncPatientSession } from "@/services/auth-service/session-service";
+import { ShowAlert } from "@/services/common/ShowAlert";
 import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
+import palette from "@/utils/theme/color";
 import { Route, router } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
 import { Camera } from "lucide-react-native";
 import { useContext, useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HealthProfile() {
-const{user, setUserData }= useContext(UserContext)
-  const { patient, setPatientData } = useContext(PatientContext)
-
-  // const [user, setUser] = useState<User | null>(null);
-  // const [patient, setPatient] = useState<Patient | null>(null);
+  const { user, setUserData } = useContext(UserContext);
+  const { patient, setPatientData } = useContext(PatientContext);
   const [loading, setLoading] = useState(true);
 
-  const db = useSQLiteContext();
-  // const userModel = new UserModel(db);
-  // const patientModel = new PatientModel(db);
-
   useEffect(() => {
-    logger.debug(`DB Path : "${db.databasePath}"`);
     if (isAndroid) {
-      console.log("Android? :", isAndroid);
+      logger.debug("Android? :", isAndroid);
       initializeMockSession(setUserData).finally(() => setLoading(false));
     } else {
-      initializeSession(setUserData).finally(() => setLoading(false));
+      initializeAuthSession(setUserData).finally(() => setLoading(false));
     }
   }, []);
 
   useEffect(() => {
-    const init = async () => {
-      await setUserData();
+    const sync = async () => {
+      try {
+        if (!user) return;
+        await syncPatientSession(user).then((patientData) => {
+          setPatientData(patientData);
+        });
+      } catch (err) {
+        logger.debug("Failed to sync patient session:", err);
+        return ShowAlert("e", `${err}`);
+      } finally {
+        setLoading(false);
+      }
     };
-    init();
-  }, []);
 
-  useEffect(() => {
-    if (user) {
-      setPatientData(user.id).finally(() => setLoading(false));
-    }
+    sync();
   }, [user]);
-  
+
   const medicalTiles = [
     {
       name: "Medical overview",
@@ -123,14 +122,14 @@ const{user, setUserData }= useContext(UserContext)
 
   return (
     <SafeAreaView className="flex-1 m-0">
-      <View className="py-4 px-6  bg-[#49AFBE]">
+      <View style={{ backgroundColor: palette.primary }} className="py-4 px-6 ">
         <Text className="text-xl text-white font-bold text-center ">
           My Health
         </Text>
 
         <View className="flex-row items-center justify-between">
           <Avatar size="xl">
-            <AvatarImage source={{ uri: user.picture }} />
+            <AvatarImage source={{ uri: user.profile_picture_url }} />
             <View className="absolute bottom-0 right-0 bg-white rounded-full p-1">
               <Icon as={Camera} size="sm" className="text-black" />
             </View>
@@ -179,7 +178,10 @@ const{user, setUserData }= useContext(UserContext)
                           <Box className="items-center w-[125px]">
                             <Image source={tile.image} resizeMode="contain" />
                             {tile.badge !== null && (
-                              <Badge className="absolute -top-1 -right-1 rounded-full z-10 h-[22px] w-[22px] bg-[#49AFBE]">
+                              <Badge
+                                style={{ backgroundColor: palette.primary }}
+                                className="absolute -top-1 -right-1 rounded-full z-10 h-[22px] w-[22px]"
+                              >
                                 <BadgeText className="text-xs text-white">
                                   {tile.badge}
                                 </BadgeText>

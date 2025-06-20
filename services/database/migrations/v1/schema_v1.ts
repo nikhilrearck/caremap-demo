@@ -2,11 +2,11 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  picture: string;
+  profile_picture_url: string;
 };
 
 export interface Patient {
-  id?: number;
+  id: number;
   user_id: string;
   name: string;
   age?: number;

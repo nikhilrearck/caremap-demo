@@ -1,4 +1,4 @@
-import { DEBUG_ON } from "../../utils/config";
+import { DEBUG_ON } from "@/utils/config";
 
 interface Logger {
   debug: (message: string, ...optionalParams: any[]) => void;
@@ -7,7 +7,7 @@ interface Logger {
 export const logger: Logger = {
   debug: (message: string, ...optionalParams: any[]) => {
     if (DEBUG_ON) {
-      console.debug(`[DEBUG] ${message}`, ...optionalParams);
+      console.debug(`${message}`, ...optionalParams);
     }
   },
 };

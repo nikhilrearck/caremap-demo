@@ -1,4 +1,4 @@
-import palette from "@/theme/color";
+import palette from "@/utils/theme/color";
 import { Tabs } from "expo-router";
 
 export default function TabLayout() {
