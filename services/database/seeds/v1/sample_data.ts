@@ -1,4 +1,4 @@
-import { PatientSnapshot, MedicalCondition, MedicalEquipment, HighLevelGoal } from "../../migrations/v1/schema_v1";
+import { PatientSnapshot, MedicalCondition, MedicalEquipment, HighLevelGoal } from "@/services/database/migrations/v1/schema_v1";
 
 export const patientSnapshots: Partial<PatientSnapshot>[] = [
   {
