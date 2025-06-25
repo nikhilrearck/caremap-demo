@@ -1,15 +1,16 @@
 import { SQLiteDatabase } from "expo-sqlite";
-import { tables } from "../../migrations/v1/schema_v1";
-import { 
-  patientSnapshots, 
-  medicalConditions, 
-  medicalEquipment, 
-  highLevelGoals 
+import { tables } from "@/services/database/migrations/v1/schema_v1";
+import {
+  patientSnapshots,
+  medicalConditions,
+  medicalEquipment,
+  highLevelGoals
 } from "./sample_data";
+import { logger } from "@/services/logging/logger";
 
 export const seed = async (db: SQLiteDatabase) => {
   try {
-    // Seed patient snapshots
+
     for (const snapshot of patientSnapshots) {
       await db.execAsync(`
         INSERT INTO ${tables.PATIENT_SNAPSHOT} (patient_id, summary, health_issues)
@@ -17,7 +18,6 @@ export const seed = async (db: SQLiteDatabase) => {
       `);
     }
 
-    // Seed medical conditions
     for (const condition of medicalConditions) {
       await db.execAsync(`
         INSERT INTO ${tables.MEDICAL_CONDITION} 
@@ -32,7 +32,6 @@ export const seed = async (db: SQLiteDatabase) => {
       `);
     }
 
-    // Seed medical equipment
     for (const equipment of medicalEquipment) {
       await db.execAsync(`
         INSERT INTO ${tables.MEDICAL_EQUIPMENT}
@@ -46,7 +45,6 @@ export const seed = async (db: SQLiteDatabase) => {
       `);
     }
 
-    // Seed high-level goals
     for (const goal of highLevelGoals) {
       await db.execAsync(`
         INSERT INTO ${tables.HIGH_LEVEL_GOAL}
@@ -61,8 +59,8 @@ export const seed = async (db: SQLiteDatabase) => {
       `);
     }
 
-    console.log('Sample data seeded successfully.');
+    logger.debug('Sample data seeded successfully.');
   } catch (error) {
-    console.error('Error seeding data:', error);
+    logger.debug('Error seeding data:', error);
   }
 }; 
