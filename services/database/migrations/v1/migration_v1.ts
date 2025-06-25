@@ -65,5 +65,13 @@ export const up = async (db: SQLiteDatabase) => {
     );
   `);
 
+  // Check if profile_picture_url column exists and add if missing
+  const columns = await db.getAllAsync(`PRAGMA table_info(${tables.USER});`);
+  const hasProfilePicture = columns.some((col: any) => col.name === 'profile_picture_url');
+
+  if (!hasProfilePicture) {
+    await db.execAsync(`ALTER TABLE ${tables.USER} ADD COLUMN profile_picture_url TEXT;`);
+  }
+
   logger.debug(`Tables created for V1.`);
 };
