@@ -1,48 +1,48 @@
 import { useDB } from '@/services/database/db';
-import { Patient, User } from '@/services/database/migrations/v1/schema_v1';
+import { Patient, User, PatientSnapshot, MedicalCondition, MedicalEquipment } from '@/services/database/migrations/v1/schema_v1';
 import { PatientModel } from '@/services/database/models/PatientModel';
+import { PatientSnapshotModel } from '@/services/database/models/PatientSnapshotModel';
+import { MedicalConditionModel } from '@/services/database/models/MedicalConditionModel';
+import { MedicalEquipmentModel } from '@/services/database/models/MedicalEquipmentModel';
 import { logger } from '@/services/logging/logger';
 
-// Single shared instance of PatientModel
+// Single shared instances of models
 const patientModel = new PatientModel();
+const snapshotModel = new PatientSnapshotModel();
+const medicalConditionModel = new MedicalConditionModel();
+const medicalEquipmentModel = new MedicalEquipmentModel();
 
-// Runs a callback with a PatientModel instance that is lazily initialized with the database.
-async function usePatientModel<T>(fn: (model: PatientModel) => Promise<T>): Promise<T> {
+// Helper function to lazily initialize a model with the DB instance.
+async function useModel<T>(model: any, fn: (model: any) => Promise<T>): Promise<T> {
     return useDB(async (db) => {
-        if (!patientModel['db']) {
-            patientModel.setDB(db);
-        }
-        return fn(patientModel);
+        model.setDB(db);
+        return fn(model);
     });
 }
 
 export const isExistingPatient = async (userId: string): Promise<boolean> => {
     const existingPatient = await getPatientByUserId(userId);
-    if (existingPatient) {
-        return true;
-    }
-    return false;
+    return !!existingPatient;
 }
 
-
 export const createPatient = async (user: User): Promise<Patient> => {
-    return usePatientModel(async (model) => {
-        let patient;
-        patient = await getPatientByUserId(user.id);
+    return useModel(patientModel, async (model) => {
+        let patient = await getPatientByUserId(user.id);
         if (!patient) {
             const newPatient: Partial<Patient> = {
                 user_id: user.id,
                 name: user.name
             };
-            patient = await model.insert(newPatient);
+            await model.insert(newPatient);
+            patient = await getPatientByUserId(user.id);
             logger.debug(`Patient saved to DB successfully`, `${newPatient.name}`);
         }
-        return patient;
+        return patient!;
     });
 }
 
 export const getPatientByUserId = async (userId: string): Promise<Patient | null> => {
-    return usePatientModel(async (model) => {
+    return useModel(patientModel, async (model) => {
         const result = await model.getFirstByFields({ user_id: userId });
         logger.debug("DB Patient data: ", result);
         return result;
@@ -50,25 +50,123 @@ export const getPatientByUserId = async (userId: string): Promise<Patient | null
 }
 
 export const getPatient = async (id: number): Promise<Patient | null> => {
-    return usePatientModel(async (model) => {
-        const result = await model.getFirstByFields({ id: id });
+    return useModel(patientModel, async (model) => {
+        const result = await model.getFirstByFields({ id });
         logger.debug("DB Patient data: ", result);
         return result;
     });
 }
 
-export const updatePatient = async (patient: Partial<Patient>, conditions: Partial<Patient>): Promise<Patient> => {
-    return usePatientModel(async (model) => {
-        let updatedPatient;
-        updatedPatient = await model.updateByFields(patient, conditions);
-        logger.debug("Updated DB Patient data: ", `${updatedPatient}`);
-        return updatedPatient;
+export const updatePatient = async (patient: Partial<Patient>, patientUpdate: Partial<Patient>): Promise<Patient> => {
+    return useModel(patientModel, async (model) => {
+        const updatedPatient = await model.updateByFields(patient, patientUpdate);
+        logger.debug("Updated DB Patient data: ", updatedPatient);
+        return updatedPatient!;
     });
 }
 
 export const getAllPatients = async (): Promise<Patient[]> => {
-    return usePatientModel(async (model) => {
-        return await model.getAll();
+    return useModel(patientModel, async (model) => {
+        return model.getAll();
+    });
+}
+
+// PatientSnapshot Methods (Read, Update)
+export const getPatientSnapshot = async (patientId: number): Promise<PatientSnapshot | null> => {
+    return useModel(snapshotModel, async (model) => {
+        const result = await model.getFirstByFields({ patient_id: patientId });
+        logger.debug("DB Patient Snapshot data: ", result);
+        return result;
+    });
+}
+
+export const updatePatientSnapshot = async (snapshot: Partial<PatientSnapshot>, snapshotUpdate: Partial<PatientSnapshot>): Promise<PatientSnapshot> => {
+    return useModel(snapshotModel, async (model) => {        
+        const updatedSnapshot = await model.updateByFields(snapshot, snapshotUpdate);
+        logger.debug("Updated DB Patient Snapshot data: ", updatedSnapshot);
+        return updatedSnapshot!;
+    });
+}
+
+// MedicalCondition Methods (CRUD)
+export const createMedicalCondition = async (condition: Partial<MedicalCondition>): Promise<MedicalCondition> => {
+    return useModel(medicalConditionModel, async (model) => {
+        await model.insert(condition);
+        const newCondition = await model.getFirstByFields(condition);
+        logger.debug("Medical Condition created: ", newCondition);
+        return newCondition!;
+    });
+}
+
+export const getMedicalCondition = async (id: number): Promise<MedicalCondition | null> => {
+    return useModel(medicalConditionModel, async (model) => {
+        const result = await model.getFirstByFields({ id });
+        logger.debug("DB Medical Condition data: ", result);
+        return result;
+    });
+}
+
+export const getMedicalConditionsByPatient = async (patientId: number): Promise<MedicalCondition[]> => {
+    return useModel(medicalConditionModel, async (model) => {
+        const results = await model.getByFields({ patient_id: patientId });
+        logger.debug("DB Medical Conditions for patient: ", results);
+        return results;
+    });
+}
+
+export const updateMedicalCondition = async (condition: Partial<MedicalCondition>, conditionUpdate: Partial<MedicalCondition>): Promise<MedicalCondition> => {
+    return useModel(medicalConditionModel, async (model) => {
+        const updatedCondition = await model.updateByFields(condition, conditionUpdate);
+        logger.debug("Updated Medical Condition: ", updatedCondition);
+        return updatedCondition!;
+    });
+}
+
+export const deleteMedicalCondition = async (id: number): Promise<void> => {
+    return useModel(medicalConditionModel, async (model) => {
+        await model.deleteByFields({ id });
+        logger.debug("Deleted Medical Condition: ", id);
+    });
+}
+
+// MedicalEquipment Methods (CRUD)
+export const createMedicalEquipment = async (equipment: Partial<MedicalEquipment>): Promise<MedicalEquipment> => {
+    return useModel(medicalEquipmentModel, async (model) => {
+        await model.insert(equipment);
+        const newEquipment = await model.getFirstByFields(equipment);
+        logger.debug("Medical Equipment created: ", newEquipment);
+        return newEquipment!;
+    });
+}
+
+export const getMedicalEquipment = async (id: number): Promise<MedicalEquipment | null> => {
+    return useModel(medicalEquipmentModel, async (model) => {
+        const result = await model.getFirstByFields({ id });
+        logger.debug("DB Medical Equipment data: ", result);
+        return result;
+    });
+}
+
+export const getMedicalEquipmentByPatient = async (patientId: number): Promise<MedicalEquipment[]> => {
+    return useModel(medicalEquipmentModel, async (model) => {
+        const results = await model.getByFields({ patient_id: patientId });
+        logger.debug("DB Medical Equipment for patient: ", results);
+        return results;
+    });
+}
+
+export const updateMedicalEquipment = async (equipment: Partial<MedicalEquipment>, equipmentUpdate: Partial<MedicalEquipment>): Promise<MedicalEquipment> => {
+    return useModel(medicalEquipmentModel, async (model) => {
+        const updatedEquipment = await model.updateByFields(equipment, equipmentUpdate);
+        logger.debug("Updated Medical Equipment: ", updatedEquipment);
+        return updatedEquipment!;
+    });
+}
+
+export const deleteMedicalEquipment = async (id: number): Promise<void> => {
+    return useModel(medicalEquipmentModel, async (model) => {
+        await model.deleteByFields({ id });
+        logger.debug("Deleted Medical Equipment: ", id);
     });
 }
 
