@@ -8,6 +8,7 @@ const palette = {
   tabBackgroundColor: "#378793",
   tabIconActiveColor: "#00FFEA",
   tabIconInactiveColor: "#FFFFFF80",
+  heading: "#378793",
 };
 
 export default palette;

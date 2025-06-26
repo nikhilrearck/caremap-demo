@@ -20,8 +20,6 @@ import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import palette from "@/utils/theme/color";
 
 function MedicalConditionsPage({ onClose }: { onClose: () => void }) {
-  //   const [condition, setCondition] = useState('');
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
@@ -38,7 +36,10 @@ function MedicalConditionsPage({ onClose }: { onClose: () => void }) {
       </View>
 
       <View className="px-6 py-8">
-        <Text className="text-lg font-medium mb-3 text-teal-700">
+        <Text
+          className="text-lg font-medium mb-3"
+          style={{ color: palette.heading }}
+        >
           Add your child's current medical condition
         </Text>
 
@@ -116,7 +117,10 @@ export default function MedicalConditions() {
       {/* Linked System */}
       <View className="p-5 flex-1">
         <View className="mb-6 mt-4">
-          <Text className="text-lg font-semibold text-teal-700 mb-2">
+          <Text
+            className="text-lg font-semibold"
+            style={{ color: palette.heading }}
+          >
             Medical Conditions (Linked Health System)
           </Text>
 
@@ -135,7 +139,10 @@ export default function MedicalConditions() {
 
         {/* User Entered */}
         <View className="mb-6 flex-1">
-          <Text className="text-lg font-semibold text-teal-700">
+          <Text
+            className="text-lg font-semibold"
+            style={{ color: palette.heading }}
+          >
             Medical Conditions (User entered)
           </Text>
 
@@ -186,8 +193,16 @@ export default function MedicalConditions() {
             />
           </View>
 
-          <TouchableOpacity className="bg-gray-100 rounded-md p-1 w-24 self-end border border-teal-700">
-            <Text className="text-center text-lg color-teal-700">Delete</Text>
+          <TouchableOpacity
+            className="bg-gray-100 rounded-md p-1 w-24 self-end border"
+            style={{ borderBlockColor: palette.primary }}
+          >
+            <Text
+              className="text-center text-lg"
+              style={{ color: palette.primary }}
+            >
+              Delete
+            </Text>
           </TouchableOpacity>
 
           {/* Like hr */}
