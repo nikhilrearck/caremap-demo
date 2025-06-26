@@ -116,8 +116,7 @@ export const getMedicalConditionsByPatient = async (patientId: number): Promise<
 
 export const updateMedicalCondition = async (condition: Partial<MedicalCondition>, conditionUpdate: Partial<MedicalCondition>): Promise<MedicalCondition> => {
     return useModel(medicalConditionModel, async (model) => {
-        await model.updateByFields(condition, conditionUpdate);
-        const updatedCondition = await model.getFirstByFields(conditionUpdate);
+        const updatedCondition = await model.updateByFields(condition, conditionUpdate);
         logger.debug("Updated Medical Condition: ", updatedCondition);
         return updatedCondition!;
     });
