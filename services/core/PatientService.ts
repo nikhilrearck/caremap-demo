@@ -12,7 +12,7 @@ const snapshotModel = new PatientSnapshotModel();
 const medicalConditionModel = new MedicalConditionModel();
 const medicalEquipmentModel = new MedicalEquipmentModel();
 
-// Helper functions to use models with DB
+// Helper function to lazily initialize a model with the DB instance.
 async function useModel<T>(model: any, fn: (model: any) => Promise<T>): Promise<T> {
     return useDB(async (db) => {
         model.setDB(db);
@@ -57,10 +57,9 @@ export const getPatient = async (id: number): Promise<Patient | null> => {
     });
 }
 
-export const updatePatient = async (patient: Partial<Patient>, conditions: Partial<Patient>): Promise<Patient> => {
+export const updatePatient = async (patient: Partial<Patient>, patientUpdate: Partial<Patient>): Promise<Patient> => {
     return useModel(patientModel, async (model) => {
-        await model.updateByFields(patient, conditions);
-        const updatedPatient = await model.getFirstByFields(conditions);
+        const updatedPatient = await model.updateByFields(patient, patientUpdate);
         logger.debug("Updated DB Patient data: ", updatedPatient);
         return updatedPatient!;
     });
@@ -81,10 +80,9 @@ export const getPatientSnapshot = async (patientId: number): Promise<PatientSnap
     });
 }
 
-export const updatePatientSnapshot = async (snapshot: Partial<PatientSnapshot>, conditions: Partial<PatientSnapshot>): Promise<PatientSnapshot> => {
-    return useModel(snapshotModel, async (model) => {
-        await model.updateByFields(snapshot, conditions);
-        const updatedSnapshot = await model.getFirstByFields(conditions);
+export const updatePatientSnapshot = async (snapshot: Partial<PatientSnapshot>, snapshotUpdate: Partial<PatientSnapshot>): Promise<PatientSnapshot> => {
+    return useModel(snapshotModel, async (model) => {        
+        const updatedSnapshot = await model.updateByFields(snapshot, snapshotUpdate);
         logger.debug("Updated DB Patient Snapshot data: ", updatedSnapshot);
         return updatedSnapshot!;
     });
@@ -116,10 +114,10 @@ export const getMedicalConditionsByPatient = async (patientId: number): Promise<
     });
 }
 
-export const updateMedicalCondition = async (condition: Partial<MedicalCondition>, conditions: Partial<MedicalCondition>): Promise<MedicalCondition> => {
+export const updateMedicalCondition = async (condition: Partial<MedicalCondition>, conditionUpdate: Partial<MedicalCondition>): Promise<MedicalCondition> => {
     return useModel(medicalConditionModel, async (model) => {
-        await model.updateByFields(condition, conditions);
-        const updatedCondition = await model.getFirstByFields(conditions);
+        await model.updateByFields(condition, conditionUpdate);
+        const updatedCondition = await model.getFirstByFields(conditionUpdate);
         logger.debug("Updated Medical Condition: ", updatedCondition);
         return updatedCondition!;
     });
@@ -158,10 +156,9 @@ export const getMedicalEquipmentByPatient = async (patientId: number): Promise<M
     });
 }
 
-export const updateMedicalEquipment = async (equipment: Partial<MedicalEquipment>, conditions: Partial<MedicalEquipment>): Promise<MedicalEquipment> => {
+export const updateMedicalEquipment = async (equipment: Partial<MedicalEquipment>, equipmentUpdate: Partial<MedicalEquipment>): Promise<MedicalEquipment> => {
     return useModel(medicalEquipmentModel, async (model) => {
-        await model.updateByFields(equipment, conditions);
-        const updatedEquipment = await model.getFirstByFields(conditions);
+        const updatedEquipment = await model.updateByFields(equipment, equipmentUpdate);
         logger.debug("Updated Medical Equipment: ", updatedEquipment);
         return updatedEquipment!;
     });
