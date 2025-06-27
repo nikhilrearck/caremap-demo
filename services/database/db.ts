@@ -16,6 +16,7 @@ const dbReadyPromise = new Promise<SQLiteDatabase>((resolve) => {
 });
 
 export const initializeDatabase = async (db: SQLiteDatabase): Promise<void> => {
+    await handleAndroidDBReset(DB_NAME);
     _db = db;
     dbReadyResolver?.(db);
     logger.debug(`DB Path: "${_db.databasePath}"`);
