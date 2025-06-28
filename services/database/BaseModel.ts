@@ -75,7 +75,7 @@ export abstract class BaseModel<T> {
 
         const sql = `INSERT INTO ${this.tableName} (${keys.join(',')}) VALUES (${placeholders})`;
         let result = await this.run(sql, values);
-        return result;
+        return result.lastID;
     }
 
     async insertAll(data: Partial<T>[]): Promise<any> {

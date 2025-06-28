@@ -30,6 +30,7 @@ export const up = async (db: SQLiteDatabase) => {
       summary TEXT,
       health_issues TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
     );
 
@@ -37,9 +38,10 @@ export const up = async (db: SQLiteDatabase) => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       patient_id INTEGER NOT NULL,
       condition_name TEXT NOT NULL,
-      source TEXT,
-      diagnosed_date TEXT,
-      notes TEXT,
+      diagnosed_at TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      linked_health_system INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
     );
 
@@ -47,20 +49,20 @@ export const up = async (db: SQLiteDatabase) => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       patient_id INTEGER NOT NULL,
       equipment_name TEXT NOT NULL,
-      usage_description TEXT,
-      is_daily_use INTEGER NOT NULL DEFAULT 0,
-      added_at TEXT NOT NULL DEFAULT (datetime('now')),
+      description TEXT,
+      linked_health_system INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS ${tables.HIGH_LEVEL_GOAL} (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       patient_id INTEGER NOT NULL,
-      goal_title TEXT NOT NULL,
-      description TEXT,
+      goal_description TEXT NOT NULL,
       target_date TEXT,
-      source TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
     );
   `);

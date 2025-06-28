@@ -23,34 +23,36 @@ export interface PatientSnapshot {
   summary: string;
   health_issues: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface MedicalCondition {
   id: number;
   patient_id: number;
   condition_name: string;
-  source: string;
-  diagnosed_date: string;
-  notes: string;
+  diagnosed_at?: string;
+  created_at: string;
+  updated_at: string;
+  linked_health_system: boolean;
 }
 
 export interface MedicalEquipment {
   id: number;
   patient_id: number;
   equipment_name: string;
-  usage_description: string;
-  is_daily_use: boolean;
-  added_at: string;
+  description: string;
+  linked_health_system: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface HighLevelGoal {
   id: number;
   patient_id: number;
-  goal_title: string;
-  description: string;
+  goal_description: string;
   target_date: string;
-  source: string;
   created_at: string;
+  updated_at: string;
 }
 
 export const tables = {

@@ -49,7 +49,7 @@ export const runMigrations = async (db: SQLiteDatabase): Promise<void> => {
             await db.withTransactionAsync(async () => {
                 if (currentVersion < 1) {
                     await v1.up(db);
-                    await seed_v1.seed(db);
+                    await seed_v1.seedDatabase(db);
                 }
                 await db.execAsync(`PRAGMA user_version = ${DB_VERSION}`);
             });

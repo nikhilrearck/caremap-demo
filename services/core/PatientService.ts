@@ -57,9 +57,9 @@ export const getPatient = async (id: number): Promise<Patient | null> => {
     });
 }
 
-export const updatePatient = async (patient: Partial<Patient>, patientUpdate: Partial<Patient>): Promise<Patient> => {
+export const updatePatient = async (patientUpdate: Partial<Patient>, whereMap: Partial<Patient>): Promise<Patient> => {
     return useModel(patientModel, async (model) => {
-        const updatedPatient = await model.updateByFields(patient, patientUpdate);
+        const updatedPatient = await model.updateByFields(patientUpdate, whereMap);
         logger.debug("Updated DB Patient data: ", updatedPatient);
         return updatedPatient!;
     });
@@ -80,9 +80,13 @@ export const getPatientSnapshot = async (patientId: number): Promise<PatientSnap
     });
 }
 
-export const updatePatientSnapshot = async (snapshot: Partial<PatientSnapshot>, snapshotUpdate: Partial<PatientSnapshot>): Promise<PatientSnapshot> => {
-    return useModel(snapshotModel, async (model) => {        
-        const updatedSnapshot = await model.updateByFields(snapshot, snapshotUpdate);
+export const updatePatientSnapshot = async (snapshotUpdate: Partial<PatientSnapshot>, whereMap: Partial<PatientSnapshot>): Promise<PatientSnapshot> => {
+    return useModel(snapshotModel, async (model) => {
+        const updateData = {
+            ...snapshotUpdate,
+            updated_at: new Date().toISOString()
+        };
+        const updatedSnapshot = await model.updateByFields(updateData, whereMap);
         logger.debug("Updated DB Patient Snapshot data: ", updatedSnapshot);
         return updatedSnapshot!;
     });
@@ -91,10 +95,18 @@ export const updatePatientSnapshot = async (snapshot: Partial<PatientSnapshot>, 
 // MedicalCondition Methods (CRUD)
 export const createMedicalCondition = async (condition: Partial<MedicalCondition>): Promise<MedicalCondition> => {
     return useModel(medicalConditionModel, async (model) => {
-        await model.insert(condition);
-        const newCondition = await model.getFirstByFields(condition);
-        logger.debug("Medical Condition created: ", newCondition);
-        return newCondition!;
+        const now = new Date().toISOString();
+        const newCondition = {
+            ...condition,
+            diagnosed_at: condition.diagnosed_at || now,
+            created_at: now,
+            updated_at: now,
+            linked_health_system: condition.linked_health_system || false
+        };
+        const lastId = await model.insert(newCondition);
+        const created = await model.getFirstByFields({ id: lastId });
+        logger.debug("Medical Condition created: ", created);
+        return created!;
     });
 }
 
@@ -114,9 +126,13 @@ export const getMedicalConditionsByPatient = async (patientId: number): Promise<
     });
 }
 
-export const updateMedicalCondition = async (condition: Partial<MedicalCondition>, conditionUpdate: Partial<MedicalCondition>): Promise<MedicalCondition> => {
+export const updateMedicalCondition = async (medicalConditionUpdate: Partial<MedicalCondition>, whereMap: Partial<MedicalCondition>): Promise<MedicalCondition> => {
     return useModel(medicalConditionModel, async (model) => {
-        const updatedCondition = await model.updateByFields(condition, conditionUpdate);
+        const updateData = {
+            ...medicalConditionUpdate,
+            updated_at: new Date().toISOString()
+        };
+        const updatedCondition = await model.updateByFields(updateData, whereMap);
         logger.debug("Updated Medical Condition: ", updatedCondition);
         return updatedCondition!;
     });
@@ -132,10 +148,17 @@ export const deleteMedicalCondition = async (id: number): Promise<void> => {
 // MedicalEquipment Methods (CRUD)
 export const createMedicalEquipment = async (equipment: Partial<MedicalEquipment>): Promise<MedicalEquipment> => {
     return useModel(medicalEquipmentModel, async (model) => {
-        await model.insert(equipment);
-        const newEquipment = await model.getFirstByFields(equipment);
-        logger.debug("Medical Equipment created: ", newEquipment);
-        return newEquipment!;
+        const now = new Date().toISOString();
+        const newEquipment = {
+            ...equipment,
+            created_at: now,
+            updated_at: now,
+            linked_health_system: equipment.linked_health_system || false
+        };
+        const lastId = await model.insert(newEquipment);
+        const created = await model.getFirstByFields({ id: lastId });
+        logger.debug("Medical Equipment created: ", created);
+        return created!;
     });
 }
 
@@ -155,9 +178,13 @@ export const getMedicalEquipmentByPatient = async (patientId: number): Promise<M
     });
 }
 
-export const updateMedicalEquipment = async (equipment: Partial<MedicalEquipment>, equipmentUpdate: Partial<MedicalEquipment>): Promise<MedicalEquipment> => {
+export const updateMedicalEquipment = async (medicalEquipmentUpdate: Partial<MedicalEquipment>, whereMap: Partial<MedicalEquipment>): Promise<MedicalEquipment> => {
     return useModel(medicalEquipmentModel, async (model) => {
-        const updatedEquipment = await model.updateByFields(equipment, equipmentUpdate);
+        const updateData = {
+            ...medicalEquipmentUpdate,
+            updated_at: new Date().toISOString()
+        };
+        const updatedEquipment = await model.updateByFields(updateData, whereMap);
         logger.debug("Updated Medical Equipment: ", updatedEquipment);
         return updatedEquipment!;
     });
