@@ -59,11 +59,11 @@ export abstract class BaseModel<T> {
 
     async getByFields(fields: Partial<T>): Promise<T[]> {
         const keys = Object.keys(fields);
-        const values = Object.values(fields);
+        const values = Object.values(fields) as SQLiteBindParams;
         if (keys.length === 0) return [];
         const conditions = keys.map((key) => `${key} = ?`).join(' AND ');
         const sql = `SELECT * FROM ${this.tableName} WHERE ${conditions}`;
-        const result = await this.run(sql, values);
+        const result = await this.db.getAllAsync<T>(sql,values);
         return result;
     }
 
@@ -75,7 +75,7 @@ export abstract class BaseModel<T> {
 
         const sql = `INSERT INTO ${this.tableName} (${keys.join(',')}) VALUES (${placeholders})`;
         let result = await this.run(sql, values);
-        return result.lastID;
+        return result;
     }
 
     async insertAll(data: Partial<T>[]): Promise<any> {

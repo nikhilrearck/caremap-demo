@@ -1,9 +1,9 @@
 import { useDB } from '@/services/database/db';
-import { Patient, User, PatientSnapshot, MedicalCondition, MedicalEquipment } from '@/services/database/migrations/v1/schema_v1';
-import { PatientModel } from '@/services/database/models/PatientModel';
-import { PatientSnapshotModel } from '@/services/database/models/PatientSnapshotModel';
+import { MedicalCondition, MedicalEquipment, Patient, PatientSnapshot, User } from '@/services/database/migrations/v1/schema_v1';
 import { MedicalConditionModel } from '@/services/database/models/MedicalConditionModel';
 import { MedicalEquipmentModel } from '@/services/database/models/MedicalEquipmentModel';
+import { PatientModel } from '@/services/database/models/PatientModel';
+import { PatientSnapshotModel } from '@/services/database/models/PatientSnapshotModel';
 import { logger } from '@/services/logging/logger';
 
 // Single shared instances of models
@@ -71,7 +71,22 @@ export const getAllPatients = async (): Promise<Patient[]> => {
     });
 }
 
-// PatientSnapshot Methods (Read, Update)
+// PatientSnapshot Methods (Create, Read, Update)
+export const createPatientSnapshot = async (snapshot: Partial<PatientSnapshot>): Promise<PatientSnapshot> => {
+    return useModel(snapshotModel, async (model) => {
+        const now = new Date().toISOString();
+        const newSnapshot = {
+            ...snapshot,
+            created_at: now,
+            updated_at: now,
+        };
+
+        const created = await model.insert(newSnapshot);
+        logger.debug("Snapshot created: ", created);
+        return created!;
+    });
+}
+
 export const getPatientSnapshot = async (patientId: number): Promise<PatientSnapshot | null> => {
     return useModel(snapshotModel, async (model) => {
         const result = await model.getFirstByFields({ patient_id: patientId });
@@ -103,8 +118,8 @@ export const createMedicalCondition = async (condition: Partial<MedicalCondition
             updated_at: now,
             linked_health_system: condition.linked_health_system || false
         };
-        const lastId = await model.insert(newCondition);
-        const created = await model.getFirstByFields({ id: lastId });
+
+        const created = await model.insert(newCondition);
         logger.debug("Medical Condition created: ", created);
         return created!;
     });
@@ -155,8 +170,7 @@ export const createMedicalEquipment = async (equipment: Partial<MedicalEquipment
             updated_at: now,
             linked_health_system: equipment.linked_health_system || false
         };
-        const lastId = await model.insert(newEquipment);
-        const created = await model.getFirstByFields({ id: lastId });
+        const created = await model.insert(newEquipment);
         logger.debug("Medical Equipment created: ", created);
         return created!;
     });
