@@ -26,6 +26,10 @@ import {
 } from "@/services/core/PatientService";
 import { PatientContext } from "@/context/PatientContext";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
+import DraggableFlatList, {
+  ScaleDecorator,
+} from "react-native-draggable-flatlist";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 function MedicalConditionsPage({
   onClose,
@@ -239,7 +243,7 @@ export default function MedicalConditions() {
   }
 
   return (
-    <SafeAreaView className="flex-1  bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View
         className="py-3 flex-row items-center"
@@ -253,8 +257,8 @@ export default function MedicalConditions() {
         </Text>
       </View>
 
-      {/* Linked System */}
       <View className="p-5 flex-1">
+        {/* Linked System */}
         <View className="mb-6 mt-4">
           <Text
             className="text-lg font-semibold"
@@ -288,53 +292,102 @@ export default function MedicalConditions() {
           {/* Like hr */}
           <View className="h-px bg-gray-300 my-3" />
 
-          <View>
-            <FlatList
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <View>
+              {/* <FlatList
               data={userConditions}
               keyExtractor={(item) => item.id.toString()}
               scrollEnabled={true}
               showsVerticalScrollIndicator={true}
               ListEmptyComponent={
                 <Text className="text-gray-500">
-                  No Medical conditions found.
+                No Medical conditions found.
                 </Text>
-              }
-              style={{ maxHeight: 380 }}
-              renderItem={({ item: condition }) => (
-                <View
+                }
+                style={{ maxHeight: 380 }}
+                renderItem={({ item: condition }) => (
+                  <View
                   key={condition.id}
                   className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3"
-                >
+                  >
                   <View className="flex-row items-center space-x-2">
-                    <Checkbox
-                      value={condition.name}
-                      isChecked={condition.checked}
-                      onChange={() => handleToggleCheck(condition.id)}
-                    >
-                      <CheckboxIndicator>
-                        <CheckboxIcon as={CheckIcon} />
-                      </CheckboxIndicator>
-                    </Checkbox>
-                    <Text className="text-lg ml-3 max-w-52 text-left">
-                      {condition.name}
-                    </Text>
+                  <Checkbox
+                  value={condition.name}
+                  isChecked={condition.checked}
+                  onChange={() => handleToggleCheck(condition.id)}
+                  >
+                  <CheckboxIndicator>
+                  <CheckboxIcon as={CheckIcon} />
+                  </CheckboxIndicator>
+                  </Checkbox>
+                  <Text className="text-lg ml-3 max-w-52 text-left">
+                  {condition.name}
+                  </Text>
                   </View>
                   <View className="flex-row items-center">
-                    <Text className="text-md text-gray-500 mr-2">
-                      {condition.date}
-                    </Text>
-                    <TouchableOpacity onPress={() => handleEdit(condition)}>
-                      <MaterialIcons
-                        name="more-vert"
-                        size={20}
-                        // color="#9E9E9E"
-                      />
-                    </TouchableOpacity>
+                  <Text className="text-md text-gray-500 mr-2">
+                  {condition.date}
+                  </Text>
+                  <TouchableOpacity onPress={() => handleEdit(condition)}>
+                  <MaterialIcons
+                  name="more-vert"
+                  size={20}
+                  // color="#9E9E9E"
+                  />
+                  </TouchableOpacity>
                   </View>
-                </View>
-              )}
-            />
-          </View>
+                  </View>
+                  )}
+                  /> */}
+              <DraggableFlatList
+                data={userConditions}
+                keyExtractor={(item) => item.id.toString()}
+                scrollEnabled={true}
+                showsVerticalScrollIndicator={true}
+                onDragEnd={({ data }) => setUserConditions(data)}
+                renderItem={({ item: condition, drag, isActive }) => (
+                  <ScaleDecorator>
+                    <TouchableOpacity
+                      onLongPress={drag}
+                      disabled={isActive}
+                      activeOpacity={1}
+                      className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3"
+                      style={{ backgroundColor: isActive ? "#f0f0f0" : "#fff" }}
+                    >
+                      <View className="flex-row items-center space-x-2">
+                        <Checkbox
+                          value={condition.name}
+                          isChecked={condition.checked}
+                          onChange={() => handleToggleCheck(condition.id)}
+                        >
+                          <CheckboxIndicator>
+                            <CheckboxIcon as={CheckIcon} />
+                          </CheckboxIndicator>
+                        </Checkbox>
+                        <Text className="text-lg ml-3 max-w-52 text-left">
+                          {condition.name}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center">
+                        <Text className="text-md text-gray-500 mr-2">
+                          {condition.date}
+                        </Text>
+                        <TouchableOpacity onPress={() => handleEdit(condition)}>
+                          <MaterialIcons name="more-vert" size={20} />
+                        </TouchableOpacity>
+                      </View>
+                    </TouchableOpacity>
+                  </ScaleDecorator>
+                )}
+                ListEmptyComponent={
+                  <Text className="text-gray-500">
+                    No Medical conditions found.
+                  </Text>
+                }
+                style={{ maxHeight: 380 }}
+              />
+            </View>
+          </GestureHandlerRootView>
 
           <TouchableOpacity
             className="bg-gray-100 rounded-md p-1 w-24 self-end border"
