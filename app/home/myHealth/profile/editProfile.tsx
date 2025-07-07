@@ -69,7 +69,7 @@ export default function EditProfilePage() {
       prev
         ? {
             ...prev,
-            birthdate: formatted,
+            birthdate: date,
             age: age !== null ? age : prev.age,
           }
         : prev

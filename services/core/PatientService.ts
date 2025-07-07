@@ -104,12 +104,10 @@ export const getAllPatients = async (): Promise<Patient[]> => {
 // PatientSnapshot Methods (Create, Read, Update)
 export const createPatientSnapshot = async (snapshot: Partial<PatientSnapshot>): Promise<PatientSnapshot | null> => {
     return useModel(snapshotModel, async (model) => {
-
         if (!snapshot.patient_id || !(await isExistingPatientById(snapshot.patient_id))) {
             logger.debug("Cannot create snapshot: Patient does not exist", snapshot.patient_id);
             return null;
         }
-
 
         const existingSnapshot = await getPatientSnapshot(snapshot.patient_id);
         if (existingSnapshot) {
@@ -120,8 +118,8 @@ export const createPatientSnapshot = async (snapshot: Partial<PatientSnapshot>):
         const now = new Date().toISOString();
         const newSnapshot = {
             ...snapshot,
-            created_at: now,
-            updated_at: now,
+            created_at: new Date(),
+            updated_at: new Date(),
         };
 
         const created = await model.insert(newSnapshot);
@@ -140,7 +138,6 @@ export const getPatientSnapshot = async (patientId: number): Promise<PatientSnap
 
 export const updatePatientSnapshot = async (snapshotUpdate: Partial<PatientSnapshot>, whereMap: Partial<PatientSnapshot>): Promise<PatientSnapshot | null> => {
     return useModel(snapshotModel, async (model) => {
-
         const existingSnapshot = await model.getFirstByFields(whereMap);
         if (!existingSnapshot) {
             logger.debug("Snapshot not found for update: ", whereMap);
@@ -149,7 +146,7 @@ export const updatePatientSnapshot = async (snapshotUpdate: Partial<PatientSnaps
 
         const updateData = {
             ...snapshotUpdate,
-            updated_at: new Date().toISOString()
+            updated_at: new Date()
         };
         const updatedSnapshot = await model.updateByFields(updateData, whereMap);
         logger.debug("Updated DB Patient Snapshot data: ", updatedSnapshot);
@@ -160,7 +157,6 @@ export const updatePatientSnapshot = async (snapshotUpdate: Partial<PatientSnaps
 // MedicalCondition Methods (CRUD)
 export const createMedicalCondition = async (condition: Partial<MedicalCondition>): Promise<MedicalCondition | null> => {
     return useModel(medicalConditionModel, async (model) => {
-
         if (!condition.patient_id || !(await isExistingPatientById(condition.patient_id))) {
             logger.debug("Cannot create medical condition: Patient does not exist", condition.patient_id);
             return null;
@@ -199,7 +195,6 @@ export const getMedicalConditionsByPatient = async (patientId: number): Promise<
 
 export const updateMedicalCondition = async (medicalConditionUpdate: Partial<MedicalCondition>, whereMap: Partial<MedicalCondition>): Promise<MedicalCondition | null> => {
     return useModel(medicalConditionModel, async (model) => {
-
         const existingCondition = await model.getFirstByFields(whereMap);
         if (!existingCondition) {
             logger.debug("Medical Condition not found for update: ", whereMap);
@@ -208,7 +203,7 @@ export const updateMedicalCondition = async (medicalConditionUpdate: Partial<Med
 
         const updateData = {
             ...medicalConditionUpdate,
-            updated_at: new Date().toISOString()
+            updated_at: new Date()
         };
         const updatedCondition = await model.updateByFields(updateData, whereMap);
         logger.debug("Updated Medical Condition: ", updatedCondition);
@@ -233,7 +228,6 @@ export const deleteMedicalCondition = async (id: number): Promise<boolean> => {
 // MedicalEquipment Methods (CRUD)
 export const createMedicalEquipment = async (equipment: Partial<MedicalEquipment>): Promise<MedicalEquipment | null> => {
     return useModel(medicalEquipmentModel, async (model) => {
-
         if (!equipment.patient_id || !(await isExistingPatientById(equipment.patient_id))) {
             logger.debug("Cannot create medical equipment: Patient does not exist", equipment.patient_id);
             return null;
@@ -270,7 +264,6 @@ export const getMedicalEquipmentByPatient = async (patientId: number): Promise<M
 
 export const updateMedicalEquipment = async (medicalEquipmentUpdate: Partial<MedicalEquipment>, whereMap: Partial<MedicalEquipment>): Promise<MedicalEquipment | null> => {
     return useModel(medicalEquipmentModel, async (model) => {
-
         const existingEquipment = await model.getFirstByFields(whereMap);
         if (!existingEquipment) {
             logger.debug("Medical Equipment not found for update: ", whereMap);
@@ -279,7 +272,7 @@ export const updateMedicalEquipment = async (medicalEquipmentUpdate: Partial<Med
 
         const updateData = {
             ...medicalEquipmentUpdate,
-            updated_at: new Date().toISOString()
+            updated_at: new Date()
         };
         const updatedEquipment = await model.updateByFields(updateData, whereMap);
         logger.debug("Updated Medical Equipment: ", updatedEquipment);
