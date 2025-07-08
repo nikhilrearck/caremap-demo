@@ -243,56 +243,56 @@ export default function MedicalConditions() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      <View
-        className="py-3 flex-row items-center"
-        style={{ backgroundColor: palette.primary }}
-      >
-        <TouchableOpacity onPress={() => router.back()} className="p-2 ml-2">
-          <ChevronLeft color="white" size={24} />
-        </TouchableOpacity>
-        <Text className="text-xl text-white font-bold ml-4">
-          Medical Conditions
-        </Text>
-      </View>
-
-      <View className="p-5 flex-1">
-        {/* Linked System */}
-        <View className="mb-6 mt-4">
-          <Text
-            className="text-lg font-semibold"
-            style={{ color: palette.heading }}
-          >
-            Medical Conditions (Linked Health System)
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView className="flex-1 bg-white">
+        {/* Header */}
+        <View
+          className="py-3 flex-row items-center"
+          style={{ backgroundColor: palette.primary }}
+        >
+          <TouchableOpacity onPress={() => router.back()} className="p-2 ml-2">
+            <ChevronLeft color="white" size={24} />
+          </TouchableOpacity>
+          <Text className="text-xl text-white font-bold ml-4">
+            Medical Conditions
           </Text>
-
-          {/* Like hr */}
-          <View className="h-px bg-gray-300 my-3" />
-
-          <View className="border border-gray-200 rounded-lg p-2 mb-2 mt-1 bg-gray-100">
-            <Text className="text-lg">
-              Attention Deficient and Hyperactivity Disorder (ADHD)
-            </Text>
-          </View>
-          <View className="border border-gray-200 rounded-lg p-2 bg-gray-100">
-            <Text className="text-lg">Irritable Bowel Syndrome (IBS)</Text>
-          </View>
         </View>
 
-        {/* User Entered */}
-        <View className="mb-6 flex-1">
-          <Text
-            className="text-lg font-semibold"
-            style={{ color: palette.heading }}
-          >
-            Medical Conditions (User entered)
-          </Text>
+        <View className="p-5 flex-1">
+          {/* Linked System */}
+          <View className="mb-6 mt-4">
+            <Text
+              className="text-lg font-semibold"
+              style={{ color: palette.heading }}
+            >
+              Medical Conditions (Linked Health System)
+            </Text>
 
-          {/* Like hr */}
-          <View className="h-px bg-gray-300 my-3" />
+            {/* Like hr */}
+            <View className="h-px bg-gray-300 my-3" />
 
-          <GestureHandlerRootView style={{ flex: 1 }}>
+            <View className="border border-gray-200 rounded-lg p-2 mb-2 mt-1 bg-gray-100">
+              <Text className="text-lg">
+                Attention Deficient and Hyperactivity Disorder (ADHD)
+              </Text>
+            </View>
+            <View className="border border-gray-200 rounded-lg p-2 bg-gray-100">
+              <Text className="text-lg">Irritable Bowel Syndrome (IBS)</Text>
+            </View>
+          </View>
+
+          {/* User Entered */}
+          <View className="mb-6 flex-1">
+            <Text
+              className="text-lg font-semibold"
+              style={{ color: palette.heading }}
+            >
+              Medical Conditions (User entered)
+            </Text>
+
+            {/* Like hr */}
+            <View className="h-px bg-gray-300 my-3" />
+
             <View>
               {/* <FlatList
               data={userConditions}
@@ -387,40 +387,40 @@ export default function MedicalConditions() {
                 style={{ maxHeight: 380 }}
               />
             </View>
-          </GestureHandlerRootView>
 
-          <TouchableOpacity
-            className="bg-gray-100 rounded-md p-1 w-24 self-end border"
-            style={{
-              borderBlockColor: palette.primary,
-              opacity: anyChecked ? 1 : 0.6,
-            }}
-            disabled={!anyChecked}
-            onPress={handleDelete}
-          >
-            <Text
-              className="text-center text-lg"
-              style={{ color: palette.primary }}
+            <TouchableOpacity
+              className="bg-gray-100 rounded-md p-1 w-24 self-end border"
+              style={{
+                borderBlockColor: palette.primary,
+                opacity: anyChecked ? 1 : 0.6,
+              }}
+              disabled={!anyChecked}
+              onPress={handleDelete}
             >
-              Delete
-            </Text>
-          </TouchableOpacity>
+              <Text
+                className="text-center text-lg"
+                style={{ color: palette.primary }}
+              >
+                Delete
+              </Text>
+            </TouchableOpacity>
 
-          {/* Like hr */}
-          <View className="h-px bg-gray-300 my-3" />
+            {/* Like hr */}
+            <View className="h-px bg-gray-300 my-3" />
 
-          {/* Add Condition Button */}
-          <TouchableOpacity
-            className="rounded-md py-3 items-center mt-1"
-            onPress={() => setShowAddForm(true)}
-            style={{ backgroundColor: palette.primary }}
-          >
-            <Text className="text-white font-medium text-md">
-              Add your child's current medical condition
-            </Text>
-          </TouchableOpacity>
+            {/* Add Condition Button */}
+            <TouchableOpacity
+              className="rounded-md py-3 items-center mt-1"
+              onPress={() => setShowAddForm(true)}
+              style={{ backgroundColor: palette.primary }}
+            >
+              <Text className="text-white font-medium text-md">
+                Add your child's current medical condition
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
