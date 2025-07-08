@@ -2,7 +2,6 @@ import { logger } from '@/services/logging/logger';
 import { SQLiteBindParams, SQLiteDatabase } from 'expo-sqlite';
 
 export abstract class BaseModel<T> {
-
     protected db!: SQLiteDatabase;
     protected tableName: string;
 
@@ -14,6 +13,45 @@ export abstract class BaseModel<T> {
         this.db = db;
     }
 
+    // Simple ISO date string pattern matcher
+    private isISODateString(value: any): boolean {
+        if (typeof value !== 'string') return false;
+        return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value);
+    }
+
+    // Automatically handle date conversions
+    // toDatabase: true -> convert Date to ISO string (while inserting into the database)
+    // toDatabase: false -> convert ISO string to Date (while retrieving from the database)
+    private convertDates(data: any, toDatabase: boolean): any {
+        if (!data) return data;
+        
+        if (data instanceof Date) {
+            return toDatabase ? data.toISOString() : data;
+        }
+
+        if (typeof data !== 'object') {
+            if (!toDatabase && this.isISODateString(data)) {
+                return new Date(data);
+            }
+            return data;
+        }
+
+        const result: Record<string, any> = Array.isArray(data) ? [] : {};
+        for (const key in data) {
+            const value = data[key];
+            if (value instanceof Date) {
+                result[key] = toDatabase ? value.toISOString() : value;
+            } else if (!toDatabase && this.isISODateString(value)) {
+                result[key] = new Date(value);
+            } else if (typeof value === 'object' && value !== null) {
+                result[key] = this.convertDates(value, toDatabase);
+            } else {
+                result[key] = value;
+            }
+        }
+        return result;
+    }
+
     // Wrapper method to run any SQL query safely inside a transaction using prepared statements
     protected async run(sql: string, params: any[] = []) {
         logger.debug("SQL: ", sql);
@@ -22,13 +60,12 @@ export abstract class BaseModel<T> {
         await this.db.withTransactionAsync(async () => {
             const stmt = await this.db.prepareAsync(sql);
             try {
-                result = await stmt.executeAsync(...params); // store the result
+                result = await stmt.executeAsync(...this.convertDates(params, true));
             }
             finally {
-                await stmt.finalizeAsync(); // always finalize the statement
+                await stmt.finalizeAsync();
             }
         });
-
         return result;
     }
 
@@ -36,8 +73,7 @@ export abstract class BaseModel<T> {
         const sql = `SELECT * FROM ${this.tableName};`;
         logger.debug("SQL: ", sql);
         const result = await this.db.getAllAsync<T>(sql);
-        logger.debug("Result: ", result.toString());
-        return result;
+        return this.convertDates(result, false);
     }
 
     async getFirstByFields(fields: Partial<T>): Promise<T | null> {
@@ -53,8 +89,8 @@ export abstract class BaseModel<T> {
         const conditions = keys.map((key) => `${key} = ?`).join(' AND ');
         const sql = `SELECT * FROM ${this.tableName} WHERE ${conditions} LIMIT 1`;
 
-        const result = await this.db.getFirstAsync<T>(sql, values);
-        return result ?? null;
+        const result = await this.db.getFirstAsync<T>(sql, this.convertDates(values, true));
+        return result ? this.convertDates(result, false) : null;
     }
 
     async getByFields(fields: Partial<T>): Promise<T[]> {
@@ -63,8 +99,8 @@ export abstract class BaseModel<T> {
         if (keys.length === 0) return [];
         const conditions = keys.map((key) => `${key} = ?`).join(' AND ');
         const sql = `SELECT * FROM ${this.tableName} WHERE ${conditions}`;
-        const result = await this.db.getAllAsync<T>(sql,values);
-        return result;
+        const result = await this.db.getAllAsync<T>(sql, this.convertDates(values, true));
+        return this.convertDates(result, false);
     }
 
     async insert(data: Partial<T>): Promise<any> {
@@ -92,8 +128,8 @@ export abstract class BaseModel<T> {
     }
 
     async updateByFields(
-        data: Partial<T>,         // fields to update
-        conditions: Partial<T>    // where clause conditions
+        data: Partial<T>,
+        conditions: Partial<T>
     ): Promise<any> {
         const setKeys = Object.keys(data);
         const setValues = Object.values(data);
@@ -125,5 +161,4 @@ export abstract class BaseModel<T> {
 
         await this.run(sql, values);
     }
-
 }
