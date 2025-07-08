@@ -31,6 +31,14 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import {
+  Popover,
+  PopoverBackdrop,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+} from "@/components/ui/popover";
+
 function MedicalConditionsPage({
   onClose,
   handleAddMedicalCondition,
@@ -131,12 +139,20 @@ export default function MedicalConditions() {
     // { id: 5, name: "Condition 4", date: "18 Apr, 2025", checked: false },
   ]);
 
+  const linkedHealthSystem = [
+    "Attention Deficient and Hyperactivity Disorder (ADHD)",
+    "Irritable Bowel Syndrome (IBS)",
+    // "Irritable Bowel Syndrome (IBS)",
+    // "Irritable Bowel Syndrome (IBS)",
+    // "Irritable Bowel Syndrome (IBS)",
+    // "Irritable Bowel Syndrome (IBS)",
+  ];
+
   const fetchConditions = async () => {
     if (!patient?.id) {
       console.log("No patient id found");
       return;
     }
-
     try {
       const conditions = await getMedicalConditionsByPatient(patient.id);
       // console.log(conditions);
@@ -243,103 +259,214 @@ export default function MedicalConditions() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1 bg-white">
-        {/* Header */}
-        <View
-          className="py-3 flex-row items-center"
-          style={{ backgroundColor: palette.primary }}
-        >
-          <TouchableOpacity onPress={() => router.back()} className="p-2 ml-2">
-            <ChevronLeft color="white" size={24} />
-          </TouchableOpacity>
-          <Text className="text-xl text-white font-bold ml-4">
-            Medical Conditions
+    // <GestureHandlerRootView style={{ flex: 1 }}>
+    <SafeAreaView className="flex-1 bg-white">
+      {/* Header */}
+      <View
+        className="py-3 flex-row items-center"
+        style={{ backgroundColor: palette.primary }}
+      >
+        <TouchableOpacity onPress={() => router.back()} className="p-2 ml-2">
+          <ChevronLeft color="white" size={24} />
+        </TouchableOpacity>
+        <Text className="text-xl text-white font-bold ml-4">
+          Medical Conditions
+        </Text>
+      </View>
+
+      <View className="px-6 pt-4 flex-1">
+        {/* Linked Health System */}
+        <View className="mb-6 mt-4">
+          <Text
+            className="text-lg font-semibold"
+            style={{ color: palette.heading }}
+          >
+            Medical Conditions (Linked Health System)
           </Text>
+
+          {/* Like hr */}
+          <View className="h-px bg-gray-300 my-3" />
+
+          <View>
+            <FlatList
+              data={linkedHealthSystem}
+              renderItem={({ item }) => (
+                <View className="border border-gray-200 rounded-lg p-2 bg-gray-100 mb-2">
+                  <Text className="text-lg">{item}</Text>
+                </View>
+              )}
+              keyExtractor={(_, index) => index.toString()}
+              ListEmptyComponent={
+                <Text className="text-gray-500">
+                  No user linked health system found.
+                </Text>
+              }
+              showsVerticalScrollIndicator={true}
+              scrollEnabled={true}
+              style={{ minHeight: 50, maxHeight: 200 }}
+            />
+          </View>
         </View>
 
-        <View className="p-5 flex-1">
-          {/* Linked System */}
-          <View className="mb-6 mt-4">
-            <Text
-              className="text-lg font-semibold"
-              style={{ color: palette.heading }}
-            >
-              Medical Conditions (Linked Health System)
-            </Text>
+        {/* User Entered */}
+        <View>
+          <Text
+            className="text-lg font-semibold"
+            style={{ color: palette.heading }}
+          >
+            Medical Conditions (User entered)
+          </Text>
 
-            {/* Like hr */}
-            <View className="h-px bg-gray-300 my-3" />
+          {/* Like hr */}
+          <View className="h-px bg-gray-300 my-3" />
 
-            <View className="border border-gray-200 rounded-lg p-2 mb-2 mt-1 bg-gray-100">
-              <Text className="text-lg">
-                Attention Deficient and Hyperactivity Disorder (ADHD)
-              </Text>
-            </View>
-            <View className="border border-gray-200 rounded-lg p-2 bg-gray-100">
-              <Text className="text-lg">Irritable Bowel Syndrome (IBS)</Text>
-            </View>
-          </View>
-
-          {/* User Entered */}
-          <View className="mb-6 flex-1">
-            <Text
-              className="text-lg font-semibold"
-              style={{ color: palette.heading }}
-            >
-              Medical Conditions (User entered)
-            </Text>
-
-            {/* Like hr */}
-            <View className="h-px bg-gray-300 my-3" />
-
-            <View>
-              {/* <FlatList
+          <View>
+            <FlatList
               data={userConditions}
               keyExtractor={(item) => item.id.toString()}
               scrollEnabled={true}
               showsVerticalScrollIndicator={true}
               ListEmptyComponent={
                 <Text className="text-gray-500">
-                No Medical conditions found.
+                  No Medical conditions found.
                 </Text>
-                }
-                style={{ maxHeight: 380 }}
-                renderItem={({ item: condition }) => (
-                  <View
+              }
+              style={{ maxHeight: 300 }}
+              renderItem={({ item: condition }) => (
+                <View
                   key={condition.id}
                   className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3"
-                  >
+                >
                   <View className="flex-row items-center space-x-2">
-                  <Checkbox
-                  value={condition.name}
-                  isChecked={condition.checked}
-                  onChange={() => handleToggleCheck(condition.id)}
-                  >
-                  <CheckboxIndicator>
-                  <CheckboxIcon as={CheckIcon} />
-                  </CheckboxIndicator>
-                  </Checkbox>
-                  <Text className="text-lg ml-3 max-w-52 text-left">
-                  {condition.name}
-                  </Text>
+                    <Checkbox
+                      value={condition.name}
+                      isChecked={condition.checked}
+                      onChange={() => handleToggleCheck(condition.id)}
+                    >
+                      <CheckboxIndicator>
+                        <CheckboxIcon as={CheckIcon} />
+                      </CheckboxIndicator>
+                    </Checkbox>
+                    <Text className="text-lg ml-3 max-w-52 text-left">
+                      {condition.name}
+                    </Text>
                   </View>
+
                   <View className="flex-row items-center">
-                  <Text className="text-md text-gray-500 mr-2">
-                  {condition.date}
-                  </Text>
-                  <TouchableOpacity onPress={() => handleEdit(condition)}>
-                  <MaterialIcons
-                  name="more-vert"
-                  size={20}
-                  // color="#9E9E9E"
-                  />
-                  </TouchableOpacity>
+                    <Text className="text-md text-gray-500 mr-2">
+                      {condition.date}
+                    </Text>
+                    {/* <TouchableOpacity onPress={() => handleEdit(condition)}>
+                      <MaterialIcons
+                        name="more-vert"
+                        size={20}
+                        // color="#9E9E9E"
+                      />
+                    </TouchableOpacity> */}
+                    {/* Popover for Edit/Delete */}
+                    <Popover
+                      // isOpen={isOpen}
+                      // onClose={handleClose}
+                      // onOpen={handleOpen}
+                      placement="left"
+                      size="md"
+                      // crossOffset={5}
+                      trigger={(triggerProps) => {
+                        return (
+                          <TouchableOpacity {...triggerProps}>
+                            <MaterialIcons name="more-vert" size={20} />
+                          </TouchableOpacity>
+                        );
+                      }}
+                    >
+                      <PopoverBackdrop />
+                      <PopoverContent
+                        className="bg-gray-50 py-2 px-5"
+                        style={{
+                          alignItems: "center",
+                          // minWidth: 120,
+                        }}
+                      >
+                        <PopoverArrow
+                          style={{ marginTop: -30 }}
+                          className="bg-gray-50"
+                        />
+                        <PopoverBody>
+                          <TouchableOpacity
+                            className="flex-row items-center py-2"
+                            onPress={() => {
+                              handleEdit(condition);
+                            }}
+                          >
+                            <MaterialIcons
+                              name="edit"
+                              size={22}
+                              style={{ marginRight: 8 }}
+                            />
+                            <Text className="text-xl">Edit</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            className="flex-row items-center py-2"
+                            onPress={async () => {
+                              await deleteMedicalCondition(condition.id);
+                              await fetchConditions();
+                            }}
+                          >
+                            <MaterialIcons
+                              name="delete"
+                              size={22}
+                              style={{ marginRight: 8 }}
+                            />
+                            <Text className="text-xl">Delete</Text>
+                          </TouchableOpacity>
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
                   </View>
-                  </View>
-                  )}
-                  /> */}
-              <DraggableFlatList
+                </View>
+              )}
+            />
+          </View>
+        </View>
+
+        {/* <TouchableOpacity
+          className="bg-gray-100 rounded-md p-1 w-24 self-end border"
+          style={{
+            borderBlockColor: palette.primary,
+            opacity: anyChecked ? 1 : 0.6,
+          }}
+          disabled={!anyChecked}
+          onPress={handleDelete}
+        >
+          <Text
+            className="text-center text-lg"
+            style={{ color: palette.primary }}
+          >
+            Delete
+          </Text>
+        </TouchableOpacity> */}
+
+        {/* Like hr */}
+        <View className="h-px bg-gray-300 my-3" />
+
+        {/* Add Condition Button */}
+        <TouchableOpacity
+          className="rounded-md py-3 items-center mt-1"
+          onPress={() => setShowAddForm(true)}
+          style={{ backgroundColor: palette.primary }}
+        >
+          <Text className="text-white font-medium text-md">
+            Add your child's current medical condition
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+    // </GestureHandlerRootView>
+  );
+}
+
+{
+  /* <DraggableFlatList
                 data={userConditions}
                 keyExtractor={(item) => item.id.toString()}
                 scrollEnabled={true}
@@ -385,42 +512,5 @@ export default function MedicalConditions() {
                   </Text>
                 }
                 style={{ maxHeight: 380 }}
-              />
-            </View>
-
-            <TouchableOpacity
-              className="bg-gray-100 rounded-md p-1 w-24 self-end border"
-              style={{
-                borderBlockColor: palette.primary,
-                opacity: anyChecked ? 1 : 0.6,
-              }}
-              disabled={!anyChecked}
-              onPress={handleDelete}
-            >
-              <Text
-                className="text-center text-lg"
-                style={{ color: palette.primary }}
-              >
-                Delete
-              </Text>
-            </TouchableOpacity>
-
-            {/* Like hr */}
-            <View className="h-px bg-gray-300 my-3" />
-
-            {/* Add Condition Button */}
-            <TouchableOpacity
-              className="rounded-md py-3 items-center mt-1"
-              onPress={() => setShowAddForm(true)}
-              style={{ backgroundColor: palette.primary }}
-            >
-              <Text className="text-white font-medium text-md">
-                Add your child's current medical condition
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
-    </GestureHandlerRootView>
-  );
+              /> */
 }
