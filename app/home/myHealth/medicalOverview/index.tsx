@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import { Route, router } from "expo-router";
 import { ROUTES } from "@/utils/route";
+import Header from "@/components/shared/Header";
 
 function medicalOverview() {
 
@@ -44,14 +45,7 @@ function medicalOverview() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="py-3 bg-[#49AFBE] flex-row items-center ">
-        <TouchableOpacity onPress={() => router.back()} className="p-2 ml-2">
-          <ChevronLeft color="white" size={24} />
-        </TouchableOpacity>
-        <Text className="text-xl ml-10 text-white font-bold">
-          Medical Overview
-        </Text>
-      </View>
+       <Header title=" Medical Overview" />
 
       <View className="p-4">
         <View className=" rounded-lg">

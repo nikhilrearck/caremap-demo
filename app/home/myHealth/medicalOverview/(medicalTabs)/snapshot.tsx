@@ -1,55 +1,133 @@
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
 import palette from "@/utils/theme/color";
+import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import { PatientContext } from "@/context/PatientContext";
+import {
+  createPatientSnapshot,
+  updatePatientSnapshot,
+  getPatientSnapshot,
+} from "@/services/core/PatientService";
+import { PatientSnapshot } from "@/services/database/migrations/v1/schema_v1";
 
+import { Divider } from "@/components/ui/divider";
+import Header from "@/components/shared/Header";
 export default function Snapshot() {
+  const { patient } = useContext(PatientContext);
+  const [summary, setSummary] = useState("");
+  const [healthIssues, setHealthIssues] = useState("");
+  const [snapshot, setSnapshot] = useState<PatientSnapshot | null>(null);
+
+  useEffect(() => {
+    if (patient?.id) {
+      getPatientSnapshot(patient.id).then(
+        (existing: PatientSnapshot | null) => {
+          if (existing) {
+            setSnapshot(existing);
+            setSummary(existing.summary);
+            setHealthIssues(existing.health_issues);
+          }
+        }
+      );
+    }
+  }, [patient]);
+const isDisabled = summary.trim() === "" && healthIssues.trim() === "";
+  const handleSave = async () => {
+    if (!patient?.id) {
+      Alert.alert("Error", "Patient not found.");
+      return;
+    }
+
+    const data: Partial<PatientSnapshot> = {
+      patient_id: patient.id,
+      summary: summary,
+      health_issues: healthIssues,
+    };
+
+    try {
+      if (snapshot?.id) {
+        await updatePatientSnapshot(data, { id: snapshot.id });
+        Alert.alert("Success", "Snapshot updated successfully.");
+      } else {
+        await createPatientSnapshot(data);
+        Alert.alert("Success", "Snapshot created successfully.");
+      }
+
+      router.back();
+    } catch (err) {
+      console.error("Failed to save snapshot:", err);
+      Alert.alert("Error", "Failed to save snapshot.");
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View
-        style={{ backgroundColor: palette.primary }}
-        className="py-3  flex-row items-center"
-      >
-        <TouchableOpacity onPress={() => router.back()} className="p-2 ml-2">
-          <ChevronLeft color="white" size={24} />
-        </TouchableOpacity>
-        <Text className="text-xl text-white font-bold ml-4 items-center">
-          Snapshot
-        </Text>
-      </View>
-
+      <Header title="Snapshot" />
       <View className="p-4">
-        <Text className="text-lg font-semibold mb-2">
-          Describe about you / your child in 2-3 sentences
+        <Text
+          style={{ color: palette.heading }}
+          className="text-lg font-semibold mb-2"
+        >
+          Describe about yourself.
         </Text>
         <Text className="text-gray-500 mb-4">
-          E.g. You may include your / your child's preferences, what they like
-          or dislike. What are their motivations, goals and favorite things.
+          E.g. You may include your preferences, what they like or dislike. What
+          are their motivations, goals and favorite things.
         </Text>
 
-        <TextInput
-          className="border border-gray-300 rounded-lg p-4 mb-6 h-32 text-gray-700"
-          multiline
-          placeholder="Type here..."
-        />
+        <Textarea
+          size="md"
+          isDisabled={false}
+          isInvalid={false}
+          isReadOnly={false}
+          className="mb-6 border border-gray-300"
+        >
+          <TextareaInput
+            value={summary}
+            onChangeText={setSummary}
+            placeholder="Type here..."
+            multiline
+            numberOfLines={5}
+            textAlignVertical="top"
+          />
+        </Textarea>
 
-        <View className="border-t border-gray-300 my-4" />
+        <Divider className="bg-gray-300" />
 
-        <Text className="text-lg font-semibold mb-2">
-          Describe your / your child's health issues in 2-3 sentences
+        <Text
+          style={{ color: palette.heading }}
+          className="text-lg font-semibold mb-2"
+        >
+          Describe your health issues.
         </Text>
 
-        <TextInput
-          className="border border-gray-300 rounded-lg p-4 mb-6 h-32 text-gray-700"
-          multiline
-          placeholder="Type here..."
-          defaultValue={`Our daughter Isabella is 9 year old girl with Attention Deficit Hyperactivity Disorder (ADHD) and possibly Generalized Anxiety Disorder (GAD). Isabella is on a medication to manager her ADHD which has been working well and is fairly stable on most days. She does wet the bed and has episodes of Irritable Bowel Syndrome (IBS) which are highly uncomfortable for her. She is an active and engaging child whose favorite activities are swimming and dancing to musicals (her favorite soundtracks are Hamilton, Phantom of the Opera, Frozen and newsies).`}
-        />
+        <Textarea
+          size="md"
+          isDisabled={false}
+          isInvalid={false}
+          isReadOnly={false}
+          className="mb-6 border border-gray-300"
+        >
+          <TextareaInput
+            value={healthIssues}
+            onChangeText={setHealthIssues}
+            placeholder="Type here..."
+            multiline
+            numberOfLines={5}
+            textAlignVertical="top"
+          />
+        </Textarea>
 
         <TouchableOpacity
-          style={{ backgroundColor: palette.primary }}
-          className=" py-3 rounded-lg"
+          style={{
+            backgroundColor: palette.primary,
+            opacity: isDisabled ? 0.5 : 1,
+          }}
+          className="py-3 rounded-lg"
+          onPress={isDisabled ? undefined : handleSave}
+          disabled={isDisabled}
         >
           <Text className="text-white font-bold text-center">Save</Text>
         </TouchableOpacity>
