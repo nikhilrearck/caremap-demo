@@ -1,438 +1,311 @@
-# CareMap Service Methods Documentation
+# CareMap Service Layer Documentation
 
 ## Table of Contents
-- [Patient Snapshot Methods](#patient-snapshot-methods)
-- [Medical Condition Methods](#medical-condition-methods)
-- [Medical Equipment Methods](#medical-equipment-methods)
-- [Notes & Best Practices](#notes--best-practices)
+- [Overview](#overview)
+- [Common Patterns](#common-patterns)
+- [Services](#services)
+  - [Patient Snapshot Service](#patient-snapshot-service)
+  - [Patient Condition Service](#patient-condition-service)
+  - [Patient Equipment Service](#patient-equipment-service)
+  - [Patient Goal Service](#patient-goal-service)
+  - [Patient Emergency Care Service](#patient-emergency-care-service)
+  - [Patient Allergy Service](#patient-allergy-service)
+  - [Patient Medication Service](#patient-medication-service)
+  - [Patient Note Service](#patient-note-service)
+- [Best Practices](#best-practices)
 
-## Patient Snapshot Methods
+## Overview
 
-### Get Patient Snapshot
-Retrieves the latest health snapshot for a specific patient.
+The CareMap service layer provides a comprehensive API for managing patient health data. Each service follows consistent patterns for CRUD operations while handling specific data requirements for different health aspects.
 
-**Request:**
+## Common Patterns
+
+All services follow these common patterns:
+
+### Method Naming Convention
+- `create[Entity]`: Creates a new record
+- `get[Entity]`: Retrieves a single record by ID
+- `get[Entity]ByPatientId`: Retrieves all records for a patient
+- `update[Entity]`: Updates an existing record
+- `delete[Entity]`: Deletes a record
+
+### Common Parameters
+- `patientId`: number (required) - The unique identifier for a patient
+- `id`: number (required) - The unique identifier for a record
+- `linked_health_system`: boolean - Indicates if the record is linked to an external health system
+- `created_date`: Date - Automatically set on creation
+- `updated_date`: Date - Automatically updated on modifications
+
+### Response Format
+All responses follow a consistent structure:
+```typescript
+{
+    id: number;
+    patient_id: number;
+    linked_health_system?: boolean;
+    created_date: Date;
+    updated_date: Date;
+    // Entity-specific fields...
+}
+```
+
+## Services
+
+### Patient Snapshot Service
+
+Manages overall patient health snapshots.
+
+#### Methods
+
 ```typescript
 getPatientSnapshot(patientId: number): Promise<PatientSnapshot | null>
 ```
-
-**Parameters:**
-- `patientId` (number, required): The ID of the patient
+Returns the latest health snapshot for a patient.
 
 **Response:**
 ```typescript
 {
     id: number;
     patient_id: number;
-    summary: string;
+    patient_overview: string;
     health_issues: string;
-    created_at: string;    // ISO date string
-    updated_at: string;    // ISO date string
+    created_date: Date;
+    updated_date: Date;
 }
 ```
 
 **Example:**
 ```typescript
-// Request
 const snapshot = await getPatientSnapshot(123);
+// {
+//     id: 1,
+//     patient_id: 123,
+//     patient_overview: "Patient is stable and responding well to treatment",
+//     health_issues: "Blood pressure normalized, mild joint pain persists",
+//     created_date: "2024-01-15T10:00:00Z",
+//     updated_date: "2024-01-20T15:30:00Z"
+// }
+```
 
-// Response
+### Patient Condition Service
+
+Manages patient medical conditions.
+
+#### Methods
+
+```typescript
+createPatientCondition(condition: Partial<PatientCondition>): Promise<PatientCondition>
+getPatientCondition(id: number): Promise<PatientCondition | null>
+getPatientConditionsByPatientId(patientId: number): Promise<PatientCondition[]>
+updatePatientCondition(condition: Partial<PatientCondition>): Promise<PatientCondition>
+deletePatientCondition(id: number): Promise<void>
+```
+
+**Data Structure:**
+```typescript
 {
-    id: 1,
-    patient_id: 123,
-    summary: "Patient is stable and responding well to treatment",
-    health_issues: "Blood pressure normalized, mild joint pain persists",
-    created_at: "2024-01-15T10:00:00Z",
-    updated_at: "2024-01-20T15:30:00Z"
+    id: number;
+    patient_id: number;
+    condition_name: string;
+    linked_health_system: boolean;
+    created_date: Date;
+    updated_date: Date;
 }
 ```
 
-### Update Patient Snapshot
-Updates an existing patient snapshot.
+### Patient Equipment Service
 
-**Request:**
+Manages patient medical equipment.
+
+#### Methods
+
 ```typescript
-updatePatientSnapshot(
-    snapshot: Partial<PatientSnapshot>,
-    snapshotUpdate: Partial<PatientSnapshot>
-): Promise<PatientSnapshot>
+createPatientEquipment(equipment: Partial<PatientEquipment>): Promise<PatientEquipment>
+getPatientEquipment(id: number): Promise<PatientEquipment | null>
+getPatientEquipmentByPatientId(patientId: number): Promise<PatientEquipment[]>
+updatePatientEquipment(equipment: Partial<PatientEquipment>): Promise<PatientEquipment>
+deletePatientEquipment(id: number): Promise<void>
 ```
 
-**Parameters:**
-- `snapshot` (object, required): The fields to update
-  - All fields are optional
-- `snapshotUpdate` (object, required): The conditions to identify the snapshot to update
-
-**Example:**
+**Data Structure:**
 ```typescript
-// Request
-const updatedSnapshot = await updatePatientSnapshot(
-    {
-        summary: "Updated health status",
-        health_issues: "Blood pressure normal"
-    },
-    { patient_id: 123 }
-);
-
-// Response
 {
-    id: 1,
-    patient_id: 123,
-    summary: "Updated health status",
-    health_issues: "Blood pressure normal",
-    created_at: "2024-01-15T10:00:00Z",
-    updated_at: "2024-01-21T09:15:00Z"  // Automatically updated
+    id: number;
+    patient_id: number;
+    equipment_name: string;
+    equipment_description?: string;
+    linked_health_system: boolean;
+    created_date: Date;
+    updated_date: Date;
 }
 ```
 
-## Medical Condition Methods
+### Patient Goal Service
 
-### Create Medical Condition
-Creates a new medical condition record for a patient.
+Manages patient health goals.
 
-**Request:**
+#### Methods
+
 ```typescript
-createMedicalCondition(condition: Partial<MedicalCondition>): Promise<MedicalCondition>
+createPatientGoal(goal: Partial<PatientGoal>): Promise<PatientGoal>
+getPatientGoal(id: number): Promise<PatientGoal | null>
+getPatientGoalsByPatientId(patientId: number): Promise<PatientGoal[]>
+updatePatientGoal(goal: Partial<PatientGoal>): Promise<PatientGoal>
+deletePatientGoal(id: number): Promise<void>
 ```
 
-**Parameters:**
-- `condition` (object, required):
-  - `patient_id` (number, required): The ID of the patient
-  - `condition_name` (string, required): Name of the condition
-  - `diagnosed_at` (string, optional): ISO date string of diagnosis
-  - `linked_health_system` (boolean, optional): Default false
-
-**Example:**
+**Data Structure:**
 ```typescript
-// Request
-const newCondition = await createMedicalCondition({
-    patient_id: 123,
-    condition_name: "Type 2 Diabetes",
-    diagnosed_at: "2024-01-15T10:00:00Z",
-    linked_health_system: true
-});
-
-// Response
 {
-    id: 1,
-    patient_id: 123,
-    condition_name: "Type 2 Diabetes",
-    diagnosed_at: "2024-01-15T10:00:00Z",
-    linked_health_system: true,
-    created_at: "2024-01-21T09:15:00Z",
-    updated_at: "2024-01-21T09:15:00Z"
+    id: number;
+    patient_id: number;
+    goal_description: string;
+    target_date?: Date;
+    status?: 'Active' | 'Completed' | 'On Hold' | 'Cancelled';
+    linked_health_system: boolean;
+    created_date: Date;
+    updated_date: Date;
 }
 ```
 
-### Get Medical Condition
-Retrieves a specific medical condition by ID.
+### Patient Emergency Care Service
 
-**Request:**
+Manages patient emergency care information.
+
+#### Methods
+
 ```typescript
-getMedicalCondition(id: number): Promise<MedicalCondition | null>
+createPatientEmergencyCare(care: Partial<PatientEmergencyCare>): Promise<PatientEmergencyCare>
+getPatientEmergencyCare(id: number): Promise<PatientEmergencyCare | null>
+getPatientEmergencyCareByPatientId(patientId: number): Promise<PatientEmergencyCare[]>
+updatePatientEmergencyCare(care: Partial<PatientEmergencyCare>): Promise<PatientEmergencyCare>
+deletePatientEmergencyCare(id: number): Promise<void>
 ```
 
-**Parameters:**
-- `id` (number, required): The ID of the medical condition
-
-**Example:**
+**Data Structure:**
 ```typescript
-// Request
-const condition = await getMedicalCondition(1);
-
-// Response
 {
-    id: 1,
-    patient_id: 123,
-    condition_name: "Type 2 Diabetes",
-    diagnosed_at: "2024-01-15T10:00:00Z",
-    linked_health_system: true,
-    created_at: "2024-01-21T09:15:00Z",
-    updated_at: "2024-01-21T09:15:00Z"
+    id: number;
+    patient_id: number;
+    topic: string;
+    details?: string;
+    linked_health_system: boolean;
+    created_date: Date;
+    updated_date: Date;
 }
 ```
 
-### Get Medical Conditions By Patient
-Retrieves all medical conditions for a specific patient.
+### Patient Allergy Service
 
-**Request:**
+Manages patient allergies.
+
+#### Methods
+
 ```typescript
-getMedicalConditionsByPatient(patientId: number): Promise<MedicalCondition[]>
+createPatientAllergy(allergy: Partial<PatientAllergy>): Promise<PatientAllergy>
+getPatientAllergy(id: number): Promise<PatientAllergy | null>
+getPatientAllergiesByPatientId(patientId: number): Promise<PatientAllergy[]>
+updatePatientAllergy(allergy: Partial<PatientAllergy>): Promise<PatientAllergy>
+deletePatientAllergy(id: number): Promise<void>
 ```
 
-**Parameters:**
-- `patientId` (number, required): The ID of the patient
-
-**Example:**
+**Data Structure:**
 ```typescript
-// Request
-const conditions = await getMedicalConditionsByPatient(123);
-
-// Response
-[
-    {
-        id: 1,
-        patient_id: 123,
-        condition_name: "Type 2 Diabetes",
-        diagnosed_at: "2024-01-15T10:00:00Z",
-        linked_health_system: true,
-        created_at: "2024-01-21T09:15:00Z",
-        updated_at: "2024-01-21T09:15:00Z"
-    },
-    // ... more conditions
-]
-```
-
-### Update Medical Condition
-Updates an existing medical condition.
-
-**Request:**
-```typescript
-updateMedicalCondition(
-    condition: Partial<MedicalCondition>,
-    conditionUpdate: Partial<MedicalCondition>
-): Promise<MedicalCondition>
-```
-
-**Parameters:**
-- `condition` (object, required): The fields to update
-- `conditionUpdate` (object, required): The conditions to identify the condition to update
-
-**Example:**
-```typescript
-// Request
-const updated = await updateMedicalCondition(
-    {
-        condition_name: "Type 2 Diabetes - Controlled",
-        linked_health_system: false
-    },
-    { id: 1 }
-);
-
-// Response
 {
-    id: 1,
-    patient_id: 123,
-    condition_name: "Type 2 Diabetes - Controlled",
-    diagnosed_at: "2024-01-15T10:00:00Z",
-    linked_health_system: false,
-    created_at: "2024-01-21T09:15:00Z",
-    updated_at: "2024-01-21T10:30:00Z"  // Automatically updated
+    id: number;
+    patient_id: number;
+    topic: string;
+    details?: string;
+    severity?: 'Mild' | 'Moderate' | 'Severe';
+    onset_date: Date;
+    linked_health_system: boolean;
+    created_date: Date;
+    updated_date: Date;
 }
 ```
 
-### Delete Medical Condition
-Deletes a medical condition record.
+### Patient Medication Service
 
-**Request:**
+Manages patient medications.
+
+#### Methods
+
 ```typescript
-deleteMedicalCondition(id: number): Promise<void>
+createPatientMedication(medication: Partial<PatientMedication>): Promise<PatientMedication>
+getPatientMedication(id: number): Promise<PatientMedication | null>
+getPatientMedicationsByPatientId(patientId: number): Promise<PatientMedication[]>
+updatePatientMedication(medication: Partial<PatientMedication>): Promise<PatientMedication>
+deletePatientMedication(id: number): Promise<void>
 ```
 
-**Parameters:**
-- `id` (number, required): The ID of the medical condition to delete
-
-**Example:**
+**Data Structure:**
 ```typescript
-// Request
-await deleteMedicalCondition(1);
-
-// Response
-// No response body (void)
-```
-
-
-## Medical Equipment Methods
-
-### Create Medical Equipment
-Creates a new medical equipment record for a patient.
-
-**Request:**
-```typescript
-createMedicalEquipment(equipment: Partial<MedicalEquipment>): Promise<MedicalEquipment>
-```
-
-**Parameters:**
-- `equipment` (object, required):
-  - `patient_id` (number, required): The ID of the patient
-  - `equipment_name` (string, required): Name of the equipment
-  - `description` (string, optional): Description of the equipment
-  - `linked_health_system` (boolean, optional): Default false
-
-**Example:**
-```typescript
-// Request
-const newEquipment = await createMedicalEquipment({
-    patient_id: 123,
-    equipment_name: "Glucose Monitor",
-    description: "Continuous glucose monitoring system",
-    linked_health_system: true
-});
-
-// Response
 {
-    id: 1,
-    patient_id: 123,
-    equipment_name: "Glucose Monitor",
-    description: "Continuous glucose monitoring system",
-    linked_health_system: true,
-    created_at: "2024-01-21T09:15:00Z",
-    updated_at: "2024-01-21T09:15:00Z"
+    id: number;
+    patient_id: number;
+    name: string;
+    details: string;
+    linked_health_system: boolean;
+    created_date: Date;
+    updated_date: Date;
 }
 ```
 
-### Get Medical Equipment
-Retrieves a specific medical equipment by ID.
+### Patient Note Service
 
-**Request:**
+Manages patient notes.
+
+#### Methods
+
 ```typescript
-getMedicalEquipment(id: number): Promise<MedicalEquipment | null>
+createPatientNote(note: Partial<PatientNote>): Promise<PatientNote>
+getPatientNote(id: number): Promise<PatientNote | null>
+getPatientNotesByPatientId(patientId: number): Promise<PatientNote[]>
+updatePatientNote(note: Partial<PatientNote>): Promise<PatientNote>
+deletePatientNote(id: number): Promise<void>
 ```
 
-**Parameters:**
-- `id` (number, required): The ID of the medical equipment
-
-**Example:**
+**Data Structure:**
 ```typescript
-// Request
-const equipment = await getMedicalEquipment(1);
-
-// Response
 {
-    id: 1,
-    patient_id: 123,
-    equipment_name: "Glucose Monitor",
-    description: "Continuous glucose monitoring system",
-    linked_health_system: true,
-    created_at: "2024-01-21T09:15:00Z",
-    updated_at: "2024-01-21T09:15:00Z"
+    id: number;
+    patient_id: number;
+    topic: string;
+    details?: string;
+    reminder_date?: Date;
+    created_date: Date;
+    updated_date: Date;
 }
 ```
 
-### Get Medical Equipment By Patient
-Retrieves all medical equipment for a specific patient.
-
-**Request:**
-```typescript
-getMedicalEquipmentByPatient(patientId: number): Promise<MedicalEquipment[]>
-```
-
-**Parameters:**
-- `patientId` (number, required): The ID of the patient
-
-**Example:**
-```typescript
-// Request
-const equipment = await getMedicalEquipmentByPatient(123);
-
-// Response
-[
-    {
-        id: 1,
-        patient_id: 123,
-        equipment_name: "Glucose Monitor",
-        description: "Continuous glucose monitoring system",
-        linked_health_system: true,
-        created_at: "2024-01-21T09:15:00Z",
-        updated_at: "2024-01-21T09:15:00Z"
-    },
-    // ... more equipment
-]
-```
-
-### Update Medical Equipment
-Updates an existing medical equipment record.
-
-**Request:**
-```typescript
-updateMedicalEquipment(
-    equipment: Partial<MedicalEquipment>,
-    equipmentUpdate: Partial<MedicalEquipment>
-): Promise<MedicalEquipment>
-```
-
-**Parameters:**
-- `equipment` (object, required): The fields to update
-- `equipmentUpdate` (object, required): The conditions to identify the equipment to update
-
-**Example:**
-```typescript
-// Request
-const updated = await updateMedicalEquipment(
-    {
-        description: "Updated monitoring system with alerts",
-        linked_health_system: true
-    },
-    { id: 1 }
-);
-
-// Response
-{
-    id: 1,
-    patient_id: 123,
-    equipment_name: "Glucose Monitor",
-    description: "Updated monitoring system with alerts",
-    linked_health_system: true,
-    created_at: "2024-01-21T09:15:00Z",
-    updated_at: "2024-01-21T11:45:00Z"  // Automatically updated
-}
-```
-
-### Delete Medical Equipment
-Deletes a medical equipment record.
-
-**Request:**
-```typescript
-deleteMedicalEquipment(id: number): Promise<void>
-```
-
-**Parameters:**
-- `id` (number, required): The ID of the medical equipment to delete
-
-**Example:**
-```typescript
-// Request
-await deleteMedicalEquipment(1);
-
-// Response
-// No response body (void)
-```
-
-## Notes & Best Practices
-
-### Timestamps
-- All timestamps (`created_at`, `updated_at`, `diagnosed_at`) must be in ISO 8601 format
-- `updated_at` is automatically set on all update operations
-- `created_at` is automatically set on creation
-- If `diagnosed_at` is not provided for medical conditions, it defaults to `created_at`
-
-### Data Types
-- Boolean fields (`linked_health_system`) are stored as INTEGER (0/1) in SQLite but exposed as boolean in TypeScript
-- All IDs are auto-generated integers
-- Text fields have no length limit (SQLite dynamic typing)
+## Best Practices
 
 ### Error Handling
-- All methods may throw errors that should be handled by the caller
-- Common error scenarios:
-  - Invalid patient_id (foreign key constraint)
-  - Invalid ID for update/delete operations
-  - Network/database connection issues
-  - Invalid data types
+- Always wrap service calls in try-catch blocks
+- Handle null responses from get operations
+- Validate required fields before making service calls
+- Check foreign key constraints (patient_id must exist)
 
-### Best Practices
-1. Always handle the null case for get operations
-2. Use try-catch blocks for error handling
-3. Validate data before sending to the service methods
-4. Check foreign key constraints before creating records
-5. Use typescript types for better type safety
+### Data Validation
+- Ensure dates are in ISO format
+- Validate enum values (e.g., severity, status)
+- Check string length and content where appropriate
+- Validate numeric values are positive
 
-### Database Constraints
-- Foreign key constraints are enforced
-- `patient_id` must exist in patients table
-- Required fields cannot be null
-- IDs are unique and auto-incrementing
-
-### Performance Considerations
-- Use `getByPatient` methods for bulk retrieval
+### Performance
+- Use getByPatientId for bulk retrieval
 - Consider pagination for large datasets
-- Index queries use primary keys for optimal performance 
+- Cache frequently accessed data
+- Use transactions for multiple operations
+
+### Security
+- Validate patient access permissions
+- Sanitize input data
+- Handle sensitive health information appropriately
+- Log access to sensitive records
+
+### Database
+- Foreign key constraints are enforced
+- Indexes are available on common query fields
+- Automatic timestamp handling
+- SQLite-specific considerations documented 

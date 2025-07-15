@@ -9,7 +9,7 @@ export async function syncPatientSession(user: User): Promise<Patient> {
     }
 
     // Storing user in DB if not already exists
-    const existingUser = await isExistingUser(user);
+    const existingUser = await isExistingUser(user.id);
     if (!existingUser) {
         await createUser(user);
     }
@@ -23,8 +23,12 @@ export async function syncPatientSession(user: User): Promise<Patient> {
         return fullPatient;
     }
 
-    // Create patient
-    let newPatient = await createPatient(user);
+    let newPatient = await createPatient({
+        user_id: user.id,
+        first_name: "John",
+        last_name: "Doe"
+    });
+    
     if (!newPatient) throw new Error("Patient creation failed.");
 
     return newPatient;
