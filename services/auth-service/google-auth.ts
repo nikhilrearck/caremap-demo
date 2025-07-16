@@ -240,8 +240,7 @@ export const getUserFromStorage = async (): Promise<User> => {
     userInfo = {
         id: userJson.id,
         name: userJson.name,
-        email: userJson.email,
-        profile_picture_url: userJson.picture
+        email: userJson.email
     }
 
     return userInfo;
