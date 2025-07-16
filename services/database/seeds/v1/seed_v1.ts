@@ -1,4 +1,3 @@
-import { SQLiteDatabase } from "expo-sqlite";
 import { tables } from "@/services/database/migrations/v1/schema_v1";
 import { 
     samplePatientSnapshots, 
@@ -11,6 +10,7 @@ import {
     sample_data
 } from "@/services/database/seeds/v1/sample_data";
 import { logger } from "@/services/logging/logger";
+import { SQLiteDatabase } from "expo-sqlite";
 
 // To escape single quotes in SQL strings to prevent SQL injection
 const escapeSQL = (str: string | undefined) => (str || '').replace(/'/g, "''");

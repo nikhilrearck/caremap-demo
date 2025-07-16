@@ -20,13 +20,14 @@ import { Patient } from "@/services/database/migrations/v1/schema_v1";
 import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
-import { differenceInYears, format } from "date-fns";
+import { format } from "date-fns";
 import { useRouter } from "expo-router";
 import { Camera, ChevronDownIcon } from "lucide-react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {calculateAge} from "@/services/core/utils";
 
 export default function EditProfilePage() {
   const { user } = useContext(UserContext);
@@ -46,17 +47,6 @@ export default function EditProfilePage() {
     setNewPatient(patient);
     setLoading(false);
   }, [patient]);
-
-  const calculateAge = (date: Date | undefined | null): number | null => {
-    if (!date) return null;
-    try {
-      const today = new Date();
-      return differenceInYears(today, date);
-    } catch (error) {
-      console.error("Error calculating age:", error);
-      return null;
-    }
-  };
 
   const getDisplayName = (patient: Patient): string => {
     return `${patient.first_name} ${patient.middle_name ? patient.middle_name + ' ' : ''}${patient.last_name}`;
