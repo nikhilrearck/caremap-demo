@@ -38,7 +38,7 @@ function AddMedicalConditionsPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Medical Conditions" />
+        <Header title="Medical Conditions" onBackPress={onClose} />
 
         <View className="px-6 py-8">
           <Text
@@ -46,8 +46,8 @@ function AddMedicalConditionsPage({
             style={{ color: palette.heading }}
           >
             {editingCondition
-              ? "Edit your child's current medical condition"
-              : "Add your child's current medical condition"}
+              ? "Edit your current medical condition"
+              : "Add your current medical condition"}
           </Text>
 
           <Textarea
