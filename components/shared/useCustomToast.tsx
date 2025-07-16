@@ -5,13 +5,12 @@ import {
   ToastDescription,
 } from "@/components/ui/toast";
 
-import { Icon, CloseIcon } from "@/components/ui/icon";
-import palette from "@/utils/theme/color";
-import { TouchableOpacity } from "react-native";
+import { Icon } from "@/components/ui/icon";
+import { CheckCircleIcon } from "@/components/ui/icon";
 
 type ToastOptions = {
   title: string;
-  description: string;
+  description?: string;
   placement?:
     | "top"
     | "top right"
@@ -31,11 +30,11 @@ export function useCustomToast() {
   const showToast = ({
     title,
     description,
-    placement = "top",
-    duration = 2000,
-    action = "success",
+    placement = "bottom",
+    duration = 3000,
+    action = "muted",
     variant = "solid",
-    containerStyle = { marginTop: 100, width: 300 },
+    containerStyle = { marginBottom: 90 },
   }: ToastOptions) => {
     const toastId = Math.random().toString();
     toast.show({
@@ -48,21 +47,12 @@ export function useCustomToast() {
           nativeID={"toast-" + id}
           action={action}
           variant={variant}
-          style={{ backgroundColor: palette.primary }}
+          className="gap-2 items-center flex-row pl-4 pr-8 py-6 shadow-soft-1 mx-8"
+          // style={{ backgroundColor: palette.primary }}
         >
+          <Icon as={CheckCircleIcon} className="text-typography-50" size="xl" />
           <ToastTitle>{title}</ToastTitle>
-          <ToastDescription>{description}</ToastDescription>
-          <TouchableOpacity
-            onPress={() => toast.close(id)}
-            style={{
-              position: "absolute",
-              top: 8,
-              right: 8,
-              zIndex: 1,
-            }}
-          >
-            <Icon as={CloseIcon} style={{ color: "white" }} />
-          </TouchableOpacity>
+          {description && <ToastDescription>{description}</ToastDescription>}
         </Toast>
       ),
     });

@@ -102,8 +102,7 @@ export default function MedicalConditions() {
       );
       await fetchConditions(); // Refresh list after editing
       showToast({
-        title: "Condition Updated",
-        description: "Medical condition updated successfully!",
+        title: "Medical condition updated successfully!",
       });
     } else {
       // Add new condition
@@ -113,8 +112,7 @@ export default function MedicalConditions() {
       });
       await fetchConditions(); // Refresh list after adding
       showToast({
-        title: "Condition Added",
-        description: "Medical condition added successfully!",
+        title: "Medical condition added successfully!",
       });
     }
   };
@@ -264,8 +262,7 @@ export default function MedicalConditions() {
             await deletePatientCondition(conditionToDelete.id);
             await fetchConditions();
             showToast({
-              title: "Condition Deleted",
-              description: "Medical condition deleted successfully!",
+              title: "Medical condition deleted successfully!",
             });
           }
           setShowAlertDialog(false);
@@ -275,14 +272,14 @@ export default function MedicalConditions() {
           style: { backgroundColor: palette.primary, marginLeft: 8 },
         }}
       >
-        {/* children */}
+        {/* children prop */}
         {/* <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
-            <View className="flex-row items-center">
-              <Text className="text-lg ml-3 max-w-[220px] text-left">
-                {conditionToDelete?.name}
-              </Text>
-            </View>
-          </View> */}
+          <View className="flex-row items-center">
+            <Text className="text-lg px-1 text-left">
+              {conditionToDelete?.name}
+            </Text>
+          </View>
+        </View> */}
       </CustomAlertDialog>
     </SafeAreaView>
   );
@@ -304,7 +301,7 @@ function AddMedicalConditionsPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Medical Conditions" />
+        <Header title="Medical Conditions" onBackPress={onClose} />
 
         <View className="px-6 py-8">
           <Text
@@ -312,8 +309,8 @@ function AddMedicalConditionsPage({
             style={{ color: palette.heading }}
           >
             {editingCondition
-              ? "Edit your child's current medical condition"
-              : "Add your child's current medical condition"}
+              ? "Update your current medical condition"
+              : "Add your current medical condition"}
           </Text>
 
           <Textarea
