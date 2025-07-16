@@ -12,11 +12,12 @@ import { UserContext } from "@/context/UserContext";
 import { initializeAuthSession } from "@/services/auth-service/google-auth";
 import { syncPatientSession } from "@/services/auth-service/session-service";
 import { ShowAlert } from "@/services/common/ShowAlert";
+import { calculateAge } from "@/services/core/utils";
 import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
 import { Route, router } from "expo-router";
-import { Camera } from "lucide-react-native";
+import { Camera, User } from "lucide-react-native";
 import { useContext, useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -137,9 +138,14 @@ export default function HealthProfile() {
 
           <View className="mr-4">
             <Text className="text-lg text-white font-semibold">
-              {user.name}
+              {`${patient?.first_name} ${patient?.last_name}`}
             </Text>
-            <Text className="text-white">Age: {patient?.age ?? "Not set"}</Text>
+            <Text className="text-white">
+              Age:{" "}
+              {calculateAge(patient?.date_of_birth)
+                ? `${calculateAge(patient?.date_of_birth)} years`
+                : "Not set"}
+            </Text>
             <Text className="text-white">
               Weight: {patient?.weight ? `${patient.weight} kg` : "Not set"}
             </Text>

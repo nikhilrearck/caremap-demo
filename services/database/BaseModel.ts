@@ -1,5 +1,6 @@
 import { logger } from '@/services/logging/logger';
 import { SQLiteBindParams, SQLiteDatabase } from 'expo-sqlite';
+import { useDB } from '@/services/database/db';
 
 export abstract class BaseModel<T> {
     protected db!: SQLiteDatabase;
@@ -161,4 +162,13 @@ export abstract class BaseModel<T> {
 
         await this.run(sql, values);
     }
+
+}
+
+// Helper function to lazily initialize a model with the DB instance.
+export async function useModel<T>(model: any, fn: (model: any) => Promise<T>): Promise<T> {
+    return useDB(async (db) => {
+        model.setDB(db);
+        return fn(model);
+    });
 }

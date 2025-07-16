@@ -149,8 +149,13 @@ export const saveTokens = async (auth: {
 
 // --------- Saving User Data
 export const saveUser = async (user: any) => {
-    logger.debug(`\n👤 Saving user: ${JSON.stringify(user)}`);
-    await SecureStore.setItemAsync("user", JSON.stringify(user));
+    try {
+        logger.debug(`Saving user: ${JSON.stringify(user)}`);
+        await SecureStore.setItemAsync("user", JSON.stringify(user));
+        logger.debug("User saved successfully.");
+    } catch (error) {
+        console.error("Failed to save user:", error);
+    }
 };
 
 // --------- Getting Stored Tokens
@@ -209,14 +214,12 @@ export const refreshAccessToken = async (refresh_token: string): Promise<boolean
         if (data.access_token) {
             const issuedAt = Math.floor(Date.now() / 1000).toString();
             const expiresIn = data.expires_in;
-            logger.debug(expiresIn);
 
             await SecureStore.setItemAsync("access_token", data.access_token);
             await SecureStore.setItemAsync("issued_at", issuedAt);
             await SecureStore.setItemAsync("expires_in", (TEST_EXPIRY_IN_SECONDS != null ? TEST_EXPIRY_IN_SECONDS : expiresIn)!.toString());
 
-            logger.debug("✅ Token refreshed via scheduled refresh");
-            logger.debug(`✅ Token refreshed: access_token=${data.access_token.slice(0, 8)}..., issued_at=${issuedAt}`);
+            logger.debug(`✅ Token refreshed via scheduled refresh: access_token=${data.access_token.slice(0, 8)}..., issued_at=${issuedAt} .`);
             return true;
         } else {
             console.error("❌ Failed to refresh token:", data);

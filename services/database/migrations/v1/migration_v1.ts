@@ -1,6 +1,6 @@
+import { tables } from "@/services/database/migrations/v1/schema_v1";
 import { logger } from "@/services/logging/logger";
 import { SQLiteDatabase } from "expo-sqlite";
-import { tables } from "@/services/database/migrations/v1/schema_v1";
 
 export const up = async (db: SQLiteDatabase) => {
   await db.execAsync(`

@@ -1,7 +1,8 @@
 import { Patient } from '@/services/database/migrations/v1/schema_v1';
 import { PatientModel } from '@/services/database/models/PatientModel';
 import { logger } from '@/services/logging/logger';
-import { useModel, getCurrentTimestamp } from '@/services/core/utils';
+import { getCurrentTimestamp } from '@/services/core/utils';
+import { useModel } from '@/services/database/BaseModel';
 import { isExistingUser } from '@/services/core/UserService';
 
 // Single shared instance of model
