@@ -4,11 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import palette from "@/utils/theme/color";
 import {
-  getMedicalConditionsByPatient,
-  createMedicalCondition,
-  deleteMedicalCondition,
-  updateMedicalCondition,
-} from "@/services/core/PatientService";
+  createPatientCondition,
+  getPatientConditionsByPatientId,
+  updatePatientCondition,
+  deletePatientCondition,
+} from "@/services/core/PatientConditionService";
 import { PatientContext } from "@/context/PatientContext";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { Spinner } from "@/components/ui/spinner";
@@ -21,72 +21,6 @@ const linkedHealthSystem = [
   "Attention Deficient and Hyperactivity Disorder (ADHD)",
   "Irritable Bowel Syndrome (IBS)",
 ];
-
-function AddMedicalConditionsPage({
-  onClose,
-  handleAddMedicalCondition,
-  editingCondition,
-}: {
-  onClose: () => void;
-  handleAddMedicalCondition: (condition: { id?: number; name: string }) => void;
-  editingCondition?: { id: number; name: string };
-}) {
-  const [condition, setCondition] = useState(editingCondition?.name || "");
-  // console.log(condition);
-
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView className="flex-1 bg-white">
-        {/* Header */}
-        <Header title="Medical Conditions" onBackPress={onClose} />
-
-        <View className="px-6 py-8">
-          <Text
-            className="text-lg font-medium mb-3"
-            style={{ color: palette.heading }}
-          >
-            {editingCondition
-              ? "Edit your current medical condition"
-              : "Add your current medical condition"}
-          </Text>
-
-          <Textarea
-            size="md"
-            isReadOnly={false}
-            isInvalid={false}
-            isDisabled={false}
-            className="w-full"
-          >
-            <TextareaInput
-              placeholder="Enter condition"
-              style={{ textAlignVertical: "top", fontSize: 16 }}
-              value={condition}
-              onChangeText={setCondition}
-            />
-          </Textarea>
-
-          <TouchableOpacity
-            className="py-3 rounded-md mt-3"
-            style={{ backgroundColor: palette.primary }}
-            onPress={() => {
-              if (condition.trim()) {
-                handleAddMedicalCondition({
-                  id: editingCondition?.id,
-                  name: condition.trim(),
-                });
-              }
-              onClose(); // Go back to list
-            }}
-          >
-            <Text className="text-white font-bold text-center">
-              {editingCondition ? "Update" : "Save"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
-  );
-}
 
 interface Condition {
   id: number;
@@ -120,13 +54,14 @@ export default function MedicalConditions() {
     }
     setLoading(true);
     try {
-      const conditions = await getMedicalConditionsByPatient(patient.id);
+      const conditions = await getPatientConditionsByPatientId(patient.id);
       // console.log(conditions);
       setUserConditions(
         conditions.map((c) => {
-          // Use updated_at if it's different from created_at, else use created_at
-          const showUpdated = c.updated_at && c.updated_at !== c.created_at;
-          const dateToShow = showUpdated ? c.updated_at : c.created_at;
+          // Use updated_date if it's different from created_date, else use created_date
+          const showUpdated =
+            c.updated_date && c.updated_date !== c.created_date;
+          const dateToShow = showUpdated ? c.updated_date : c.created_date;
           return {
             id: c.id,
             name: c.condition_name,
@@ -161,7 +96,7 @@ export default function MedicalConditions() {
     if (!patient?.id) return;
     if (condition.id) {
       //edit
-      await updateMedicalCondition(
+      await updatePatientCondition(
         { condition_name: condition.name }, // fields to update
         { id: condition.id } // where clause
       );
@@ -172,7 +107,7 @@ export default function MedicalConditions() {
       });
     } else {
       // Add new condition
-      await createMedicalCondition({
+      await createPatientCondition({
         patient_id: patient.id,
         condition_name: condition.name,
       });
@@ -326,7 +261,7 @@ export default function MedicalConditions() {
         cancelText="Cancel"
         onConfirm={async () => {
           if (conditionToDelete) {
-            await deleteMedicalCondition(conditionToDelete.id);
+            await deletePatientCondition(conditionToDelete.id);
             await fetchConditions();
             showToast({
               title: "Condition Deleted",
@@ -350,6 +285,72 @@ export default function MedicalConditions() {
           </View> */}
       </CustomAlertDialog>
     </SafeAreaView>
+  );
+}
+
+function AddMedicalConditionsPage({
+  onClose,
+  handleAddMedicalCondition,
+  editingCondition,
+}: {
+  onClose: () => void;
+  handleAddMedicalCondition: (condition: { id?: number; name: string }) => void;
+  editingCondition?: { id: number; name: string };
+}) {
+  const [condition, setCondition] = useState(editingCondition?.name || "");
+  // console.log(condition);
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView className="flex-1 bg-white">
+        {/* Header */}
+        <Header title="Medical Conditions" />
+
+        <View className="px-6 py-8">
+          <Text
+            className="text-lg font-medium mb-3"
+            style={{ color: palette.heading }}
+          >
+            {editingCondition
+              ? "Edit your child's current medical condition"
+              : "Add your child's current medical condition"}
+          </Text>
+
+          <Textarea
+            size="md"
+            isReadOnly={false}
+            isInvalid={false}
+            isDisabled={false}
+            className="w-full"
+          >
+            <TextareaInput
+              placeholder="Enter condition"
+              style={{ textAlignVertical: "top", fontSize: 16 }}
+              value={condition}
+              onChangeText={setCondition}
+            />
+          </Textarea>
+
+          <TouchableOpacity
+            className="py-3 rounded-md mt-3"
+            style={{ backgroundColor: palette.primary }}
+            onPress={() => {
+              if (condition.trim()) {
+                handleAddMedicalCondition({
+                  id: editingCondition?.id,
+                  name: condition.trim(),
+                });
+              }
+              onClose(); // Go back to list
+            }}
+          >
+            <Text className="text-white font-bold text-center">
+              {editingCondition ? "Update" : "Save"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
