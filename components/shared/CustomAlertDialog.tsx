@@ -7,7 +7,7 @@ import {
   AlertDialogBackdrop,
 } from "@/components/ui/alert-dialog";
 import { Button, ButtonText } from "@/components/ui/button";
-import { Text, View } from "react-native";
+import { Text } from "react-native";
 
 interface CustomAlertDialogProps {
   isOpen: boolean;
@@ -27,9 +27,9 @@ export const CustomAlertDialog: React.FC<CustomAlertDialogProps> = ({
   isOpen,
   onClose,
   size = "lg",
-  title = "Are you sure?",
+  title = "Are you sure you want to delete?",
   description,
-  confirmText = "Confirm",
+  confirmText = "Delete",
   cancelText = "Cancel",
   onConfirm,
   confirmButtonProps,

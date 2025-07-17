@@ -252,11 +252,7 @@ export default function MedicalConditions() {
       <CustomAlertDialog
         isOpen={showAlertDialog}
         onClose={() => setShowAlertDialog(false)}
-        size="lg"
-        title="Are you sure you want to delete?"
         description={conditionToDelete?.name}
-        confirmText="Delete"
-        cancelText="Cancel"
         onConfirm={async () => {
           if (conditionToDelete) {
             await deletePatientCondition(conditionToDelete.id);
