@@ -74,7 +74,8 @@ export default function MedicalConditions() {
       );
       await fetchConditions(); // Refresh list after editing
       showToast({
-        title: "Medical condition updated successfully!",
+        title: "Condition updated",
+        description: "Medical condition updated successfully!",
       });
     } else {
       // Add new condition
@@ -84,7 +85,8 @@ export default function MedicalConditions() {
       });
       await fetchConditions(); // Refresh list after adding
       showToast({
-        title: "Medical condition added successfully!",
+        title: "Condition added",
+        description: "Medical condition added successfully!",
       });
     }
   };
@@ -254,7 +256,8 @@ export default function MedicalConditions() {
             await deletePatientCondition(conditionToDelete.id);
             await fetchConditions();
             showToast({
-              title: "Medical condition deleted successfully!",
+              title: "Condition deleted",
+              description: "Medical condition deleted successfully!",
             });
           }
           setShowAlertDialog(false);
@@ -268,7 +271,7 @@ export default function MedicalConditions() {
         {/* <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
           <View className="flex-row items-center">
             <Text className="text-lg px-1 text-left">
-              {conditionToDelete?.name}
+              {conditionToDelete?.condition_name}
             </Text>
           </View>
         </View> */}

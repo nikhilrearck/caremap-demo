@@ -40,7 +40,7 @@ export const CustomAlertDialog: React.FC<CustomAlertDialogProps> = ({
     <AlertDialogBackdrop />
     <AlertDialogContent className="bg-white">
       <AlertDialogHeader>
-        <Text className="font-medium mb-2 text-lg">{title}</Text>
+        <Text className="font-medium mb-1 text-lg">{title}</Text>
       </AlertDialogHeader>
       <AlertDialogBody>
         {children ? (
@@ -49,7 +49,7 @@ export const CustomAlertDialog: React.FC<CustomAlertDialogProps> = ({
           <Text className="text-base">{description}</Text>
         ) : null}
       </AlertDialogBody>
-      <AlertDialogFooter>
+      <AlertDialogFooter className="mt-3">
         <Button
           variant="solid"
           action="secondary"
