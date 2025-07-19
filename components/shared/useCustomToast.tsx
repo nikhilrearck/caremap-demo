@@ -32,7 +32,7 @@ export function useCustomToast() {
     title,
     description,
     placement = "top",
-    duration = 2000,
+    duration = 3000,
     action = "success",
     variant = "solid",
     containerStyle = { marginTop: 100, width: 300 },
@@ -53,6 +53,7 @@ export function useCustomToast() {
           <ToastTitle>{title}</ToastTitle>
           <ToastDescription>{description}</ToastDescription>
           <TouchableOpacity
+            hitSlop={10}
             onPress={() => toast.close(id)}
             style={{
               position: "absolute",
