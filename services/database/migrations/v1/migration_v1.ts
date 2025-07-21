@@ -1,6 +1,6 @@
-import { tables } from "@/services/database/migrations/v1/schema_v1";
 import { logger } from "@/services/logging/logger";
 import { SQLiteDatabase } from "expo-sqlite";
+import { tables } from "@/services/database/migrations/v1/schema_v1";
 
 export const up = async (db: SQLiteDatabase) => {
   await db.execAsync(`
@@ -67,7 +67,6 @@ export const up = async (db: SQLiteDatabase) => {
       linked_health_system INTEGER NOT NULL DEFAULT 0,
       goal_description TEXT NOT NULL,
       target_date TEXT DEFAULT NULL,
-      status TEXT CHECK(status IN ('Active', 'Completed', 'On Hold', 'Cancelled')) DEFAULT NULL,
       created_date TEXT NOT NULL DEFAULT (datetime('now')),
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
@@ -114,6 +113,45 @@ export const up = async (db: SQLiteDatabase) => {
       topic TEXT NOT NULL,
       details TEXT DEFAULT NULL,
       reminder_date TEXT DEFAULT NULL,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS ${tables.HOSPITALIZATION} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id INTEGER NOT NULL,
+      linked_health_system INTEGER NOT NULL DEFAULT 0,
+      admission_date TEXT NOT NULL,
+      discharge_date TEXT NOT NULL,
+      details TEXT DEFAULT NULL,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS ${tables.SURGERY_PROCEDURE} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id INTEGER NOT NULL,
+      linked_health_system INTEGER NOT NULL DEFAULT 0,
+      procedure_name TEXT NOT NULL,
+      facility TEXT DEFAULT NULL,
+      complications TEXT DEFAULT NULL,
+      surgeon_name TEXT DEFAULT NULL,
+      procedure_date TEXT NOT NULL,
+      details TEXT DEFAULT NULL,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS ${tables.DISCHARGE_INSTRUCTION} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id INTEGER NOT NULL,
+      linked_health_system INTEGER NOT NULL DEFAULT 0,
+      summary TEXT NOT NULL,
+      discharge_date TEXT NOT NULL,
+      details TEXT DEFAULT NULL,
       created_date TEXT NOT NULL DEFAULT (datetime('now')),
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
