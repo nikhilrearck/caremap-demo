@@ -57,7 +57,6 @@ export interface PatientGoal {
   linked_health_system: boolean;
   goal_description: string;
   target_date?: Date;
-  status?: 'Active' | 'Completed' | 'On Hold' | 'Cancelled';
   created_date: Date;
   updated_date: Date;
 }

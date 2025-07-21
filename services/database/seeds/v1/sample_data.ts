@@ -92,7 +92,6 @@ export const samplePatientGoals: Partial<PatientGoal>[] = [
     patient_id: 1,
     goal_description: "Improve asthma control",
     target_date: new Date(nextMonth),
-    status: "Active",
     linked_health_system: true,
     created_date: new Date(lastWeek),
     updated_date: new Date(now)
@@ -101,7 +100,6 @@ export const samplePatientGoals: Partial<PatientGoal>[] = [
     patient_id: 1,
     goal_description: "Regular blood pressure monitoring",
     target_date: new Date(nextMonth),
-    status: "Active",
     linked_health_system: true,
     created_date: new Date(lastWeek),
     updated_date: new Date(now)
@@ -110,7 +108,6 @@ export const samplePatientGoals: Partial<PatientGoal>[] = [
     patient_id: 1,
     goal_description: "Maintain healthy diet",
     target_date: new Date(nextMonth),
-    status: "On Hold",
     linked_health_system: false,
     created_date: new Date(yesterday),
     updated_date: new Date(now)
