@@ -104,6 +104,42 @@ export interface PatientNote {
   updated_date: Date;
 }
 
+export interface Hospitalization {
+  id: number;
+  patient_id: number;
+  linked_health_system: boolean;
+  admission_date: Date;
+  discharge_date: Date;
+  details?: string;
+  created_date: Date;
+  updated_date: Date;
+}
+
+export interface SurgeryProcedure {
+  id: number;
+  patient_id: number;
+  linked_health_system: boolean;
+  procedure_name: string;
+  facility?: string;
+  complications?: string;
+  surgeon_name?: string;
+  procedure_date: Date;
+  details?: string;
+  created_date: Date;
+  updated_date: Date;
+}
+
+export interface DischargeInstruction {
+  id: number;
+  patient_id: number;
+  linked_health_system: boolean;
+  summary: string;
+  discharge_date: Date;
+  details?: string;
+  created_date: Date;
+  updated_date: Date;
+}
+
 export const tables = {
   USER: 'USER',
   PATIENT: 'PATIENT',
@@ -114,5 +150,8 @@ export const tables = {
   PATIENT_EMERGENCY_CARE: 'PATIENT_EMERGENCY_CARE',
   PATIENT_ALLERGY: 'PATIENT_ALLERGY',
   PATIENT_MEDICATION: 'PATIENT_MEDICATION',
-  PATIENT_NOTE: 'PATIENT_NOTE'
+  PATIENT_NOTE: 'PATIENT_NOTE',
+  HOSPITALIZATION: 'HOSPITALIZATION',
+  SURGERY_PROCEDURE: 'SURGERY_PROCEDURE',
+  DISCHARGE_INSTRUCTION: 'DISCHARGE_INSTRUCTION'
 }
