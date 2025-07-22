@@ -263,9 +263,6 @@ export default function MedicalConditions() {
           setShowAlertDialog(false);
           setConditionToDelete(null);
         }}
-        confirmButtonProps={{
-          style: { backgroundColor: palette.primary, marginLeft: 8 },
-        }}
       >
         {/* children prop */}
         {/* <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">

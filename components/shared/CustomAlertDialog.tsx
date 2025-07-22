@@ -7,6 +7,7 @@ import {
   AlertDialogBackdrop,
 } from "@/components/ui/alert-dialog";
 import { Button, ButtonText } from "@/components/ui/button";
+import palette from "@/utils/theme/color";
 import { Text } from "react-native";
 
 interface CustomAlertDialogProps {
@@ -32,7 +33,9 @@ export const CustomAlertDialog: React.FC<CustomAlertDialogProps> = ({
   confirmText = "Delete",
   cancelText = "Cancel",
   onConfirm,
-  confirmButtonProps,
+  confirmButtonProps = {
+    style: { backgroundColor: palette.primary, marginLeft: 8 },
+  },
   cancelButtonProps,
   children,
 }) => (
