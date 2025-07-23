@@ -63,7 +63,7 @@ export default function HighLevelGoals() {
   }, [patient]);
 
   // Add/Update HighLevelsGoals
-  const handleAddGoal = async (goal: {
+  const handleAddUpdateGoal = async (goal: {
     id?: number;
     goal_description: string;
     target_date?: Date;
@@ -135,7 +135,7 @@ export default function HighLevelGoals() {
           setShowAddForm(false);
           setEditingGoal(undefined);
         }}
-        handleAddGoal={handleAddGoal}
+        handleAddUpdateGoal={handleAddUpdateGoal}
         editingGoal={editingGoal}
       />
     );
@@ -299,11 +299,11 @@ export default function HighLevelGoals() {
 
 function AddYourGoalsPage({
   onClose,
-  handleAddGoal,
+  handleAddUpdateGoal,
   editingGoal,
 }: {
   onClose: () => void;
-  handleAddGoal: (goal: {
+  handleAddUpdateGoal: (goal: {
     id?: number;
     goal_description: string;
     target_date?: Date;
@@ -334,7 +334,7 @@ function AddYourGoalsPage({
 
   const handleSave = () => {
     if (goalDescription.trim()) {
-      handleAddGoal({
+      handleAddUpdateGoal({
         id: editingGoal?.id,
         goal_description: goalDescription.trim(),
         target_date: completionDate ?? undefined, // Pass Date object

@@ -61,7 +61,7 @@ export default function MedicalConditions() {
   }, [patient]);
 
   // add/update medicalCondition
-  const handleAddMedicalCondition = async (condition: {
+  const handleAddUpdateMedicalCondition = async (condition: {
     id?: number;
     condition_name: string;
   }) => {
@@ -104,7 +104,7 @@ export default function MedicalConditions() {
           setShowAddForm(false);
           setEditingCondition(undefined);
         }}
-        handleAddMedicalCondition={handleAddMedicalCondition}
+        handleAddUpdateMedicalCondition={handleAddUpdateMedicalCondition}
         editingCondition={editingCondition}
       />
     );
@@ -276,11 +276,11 @@ export default function MedicalConditions() {
 
 function AddMedicalConditionsPage({
   onClose,
-  handleAddMedicalCondition,
+  handleAddUpdateMedicalCondition,
   editingCondition,
 }: {
   onClose: () => void;
-  handleAddMedicalCondition: (condition: {
+  handleAddUpdateMedicalCondition: (condition: {
     id?: number;
     condition_name: string;
   }) => void;
@@ -327,7 +327,7 @@ function AddMedicalConditionsPage({
             style={{ backgroundColor: palette.primary }}
             onPress={() => {
               if (condition.trim()) {
-                handleAddMedicalCondition({
+                handleAddUpdateMedicalCondition({
                   id: editingCondition?.id,
                   condition_name: condition.trim(),
                 });
