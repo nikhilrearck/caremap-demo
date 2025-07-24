@@ -28,7 +28,7 @@ export default function MedicalConditions() {
   const [userConditions, setUserConditions] = useState<PatientCondition[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCondition, setEditingCondition] = useState<
-    { id: number; name: string } | undefined
+    PatientCondition | undefined
   >(undefined);
   const [loading, setLoading] = useState(false);
 
@@ -61,15 +61,15 @@ export default function MedicalConditions() {
   }, [patient]);
 
   // add/update medicalCondition
-  const handleAddMedicalCondition = async (condition: {
+  const handleAddUpdateMedicalCondition = async (condition: {
     id?: number;
-    name: string;
+    condition_name: string;
   }) => {
     if (!patient?.id) return;
     if (condition.id) {
       //edit
       await updatePatientCondition(
-        { condition_name: condition.name }, // fields to update
+        { condition_name: condition.condition_name }, // fields to update
         { id: condition.id } // where clause
       );
       await fetchConditions(); // Refresh list after editing
@@ -81,7 +81,7 @@ export default function MedicalConditions() {
       // Add new condition
       await createPatientCondition({
         patient_id: patient.id,
-        condition_name: condition.name,
+        condition_name: condition.condition_name,
       });
       await fetchConditions(); // Refresh list after adding
       showToast({
@@ -92,8 +92,8 @@ export default function MedicalConditions() {
   };
 
   // open edit form
-  const handleEdit = (condition: { id: number; name: string }) => {
-    setEditingCondition({ id: condition.id, name: condition.name });
+  const handleEdit = (condition: PatientCondition) => {
+    setEditingCondition(condition);
     setShowAddForm(true);
   };
 
@@ -104,7 +104,7 @@ export default function MedicalConditions() {
           setShowAddForm(false);
           setEditingCondition(undefined);
         }}
-        handleAddMedicalCondition={handleAddMedicalCondition}
+        handleAddUpdateMedicalCondition={handleAddUpdateMedicalCondition}
         editingCondition={editingCondition}
       />
     );
@@ -207,10 +207,7 @@ export default function MedicalConditions() {
                         </Text>
                         <ActionPopover
                           onEdit={() => {
-                            handleEdit({
-                              id: item.id,
-                              name: item.condition_name,
-                            });
+                            handleEdit(item);
                           }}
                           onDelete={() => {
                             setConditionToDelete(item);
@@ -263,9 +260,6 @@ export default function MedicalConditions() {
           setShowAlertDialog(false);
           setConditionToDelete(null);
         }}
-        confirmButtonProps={{
-          style: { backgroundColor: palette.primary, marginLeft: 8 },
-        }}
       >
         {/* children prop */}
         {/* <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
@@ -282,14 +276,19 @@ export default function MedicalConditions() {
 
 function AddMedicalConditionsPage({
   onClose,
-  handleAddMedicalCondition,
+  handleAddUpdateMedicalCondition,
   editingCondition,
 }: {
   onClose: () => void;
-  handleAddMedicalCondition: (condition: { id?: number; name: string }) => void;
-  editingCondition?: { id: number; name: string };
+  handleAddUpdateMedicalCondition: (condition: {
+    id?: number;
+    condition_name: string;
+  }) => void;
+  editingCondition?: { id: number; condition_name: string };
 }) {
-  const [condition, setCondition] = useState(editingCondition?.name || "");
+  const [condition, setCondition] = useState(
+    editingCondition?.condition_name || ""
+  );
   // console.log(condition);
 
   return (
@@ -328,9 +327,9 @@ function AddMedicalConditionsPage({
             style={{ backgroundColor: palette.primary }}
             onPress={() => {
               if (condition.trim()) {
-                handleAddMedicalCondition({
+                handleAddUpdateMedicalCondition({
                   id: editingCondition?.id,
-                  name: condition.trim(),
+                  condition_name: condition.trim(),
                 });
               }
               onClose(); // Go back to list

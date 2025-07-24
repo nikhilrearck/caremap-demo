@@ -8,7 +8,6 @@ import { ROUTES } from "@/utils/route";
 import Header from "@/components/shared/Header";
 
 function medicalOverview() {
-
   const medicalTiles = [
     {
       name: "Snapshot",
@@ -32,9 +31,9 @@ function medicalOverview() {
       name: "High level Goals",
       count: "7",
       icon: require("../../../../assets/images/medications.png"),
-      link: ROUTES.SNAPSHOT,
+      link: ROUTES.HIGH_LEVEL_GOALS,
     },
-   
+
     {
       name: "Hospitalization",
       count: "",
@@ -45,7 +44,7 @@ function medicalOverview() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-       <Header title=" Medical Overview" />
+      <Header title=" Medical Overview" />
 
       <View className="p-4">
         <View className=" rounded-lg">

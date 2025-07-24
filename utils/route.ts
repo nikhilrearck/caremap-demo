@@ -19,6 +19,8 @@ export const ROUTES = {
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalCondition` as const,
   MEDICAL_EQUIPMENTS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalEquipments` as const,
+  HIGH_LEVEL_GOALS:
+    `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/highLevelGoals` as const,
 } as const;
 
 export type AppRoutes = keyof typeof ROUTES;

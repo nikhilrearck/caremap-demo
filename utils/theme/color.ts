@@ -9,6 +9,7 @@ const palette = {
   tabIconActiveColor: "#00FFEA",
   tabIconInactiveColor: "#FFFFFF80",
   heading: "#378793",
+  progressBar: "#08B828",
 };
 
 export default palette;
