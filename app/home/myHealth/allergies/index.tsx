@@ -202,7 +202,7 @@ export default function Allergies() {
                     {item.severity ? (
                       <View className="px-3 mt-1">
                         <Text className="text-base text-gray-700">
-                          {item.severity}
+                          Severity: {item.severity}
                         </Text>
                       </View>
                     ) : null}
