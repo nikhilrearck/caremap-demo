@@ -9,14 +9,14 @@ import {
   createPatientSnapshot,
   updatePatientSnapshot,
   getPatientSnapshot,
-} from "@/services/core/PatientService";
+} from "@/services/core/PatientSnapshotService";
 import { PatientSnapshot } from "@/services/database/migrations/v1/schema_v1";
 
 import { Divider } from "@/components/ui/divider";
 import Header from "@/components/shared/Header";
 export default function Snapshot() {
   const { patient } = useContext(PatientContext);
-  const [summary, setSummary] = useState("");
+  const [patientOverview, setPatientOverview] = useState("");
   const [healthIssues, setHealthIssues] = useState("");
   const [snapshot, setSnapshot] = useState<PatientSnapshot | null>(null);
 
@@ -26,14 +26,14 @@ export default function Snapshot() {
         (existing: PatientSnapshot | null) => {
           if (existing) {
             setSnapshot(existing);
-            setSummary(existing.summary);
-            setHealthIssues(existing.health_issues);
+            setPatientOverview(existing.patient_overview ?? "");
+            setHealthIssues(existing.health_issues ?? "");
           }
         }
       );
     }
   }, [patient]);
-const isDisabled = summary.trim() === "" && healthIssues.trim() === "";
+const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
   const handleSave = async () => {
     if (!patient?.id) {
       Alert.alert("Error", "Patient not found.");
@@ -42,7 +42,7 @@ const isDisabled = summary.trim() === "" && healthIssues.trim() === "";
 
     const data: Partial<PatientSnapshot> = {
       patient_id: patient.id,
-      summary: summary,
+      patient_overview: patientOverview,
       health_issues: healthIssues,
     };
 
@@ -85,8 +85,8 @@ const isDisabled = summary.trim() === "" && healthIssues.trim() === "";
           className="mb-6 border border-gray-300"
         >
           <TextareaInput
-            value={summary}
-            onChangeText={setSummary}
+            value={patientOverview}
+            onChangeText={setPatientOverview}
             placeholder="Type here..."
             multiline
             numberOfLines={5}

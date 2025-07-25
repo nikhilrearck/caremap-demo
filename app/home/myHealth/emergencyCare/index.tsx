@@ -4,81 +4,80 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   Keyboard,
   TouchableWithoutFeedback,
-  FlatList
+  FlatList,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import palette from "@/utils/theme/color";
 import Header from "@/components/shared/Header";
 import { Divider } from "@/components/ui/divider";
-import ActionPopover from "@/components/shared/ActionPopover";
-
-import { PatientContext } from "@/context/PatientContext";
-import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
-import { PatientEquipment } from "@/services/database/migrations/v1/schema_v1";
-import {
-  createPatientEquipment,
-  deletePatientEquipment,
-  getPatientEquipmentsByPatientId,
-  updatePatientEquipment,
-} from "@/services/core/PatientEquipmentService";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { PatientContext } from "@/context/PatientContext";
+import { PatientEmergencyCare } from "@/services/database/migrations/v1/schema_v1";
+import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 
-export default function MedicalEquipmentScreen() {
+import ActionPopover from "@/components/shared/ActionPopover";
+import {
+  createPatientEmergencyCare,
+  deletePatientEmergencyCare,
+  getPatientEmergencyCaresByPatientId,
+  updatePatientEmergencyCare,
+} from "@/services/core/PatientEmergencyCareService";
+
+export default function EmergencyCareScreen() {
   const { patient } = useContext(PatientContext);
+  const [careList, setCareList] = useState<PatientEmergencyCare[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<PatientEquipment | null>(null);
-  const [equipmentList, setEquipmentList] = useState<PatientEquipment[]>([]);
+  const [editingItem, setEditingItem] = useState<PatientEmergencyCare | null>(
+    null
+  );
   const [showDialog, setShowDialog] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<PatientEquipment | null>(
+  const [itemToDelete, setItemToDelete] = useState<PatientEmergencyCare | null>(
     null
   );
   const showToast = useCustomToast();
 
   useEffect(() => {
     if (patient?.id) {
-      getPatientEquipmentsByPatientId(patient.id).then(setEquipmentList);
+      getPatientEmergencyCaresByPatientId(patient.id).then(setCareList);
     }
   }, [patient]);
 
-
   const handleAddOrUpdate = async (data: {
     name: string;
-    equipment_description: string;
+    guidance: string;
   }) => {
     if (!patient?.id) return;
 
     if (editingItem) {
-      const updated = await updatePatientEquipment(
+      const updated = await updatePatientEmergencyCare(
         {
-          equipment_name: data.name,
-          equipment_description: data.equipment_description,
+          topic: data.name,
+          details: data.guidance,
         },
         { id: editingItem.id }
       );
       if (updated) {
-        await refreshEquipmentList();
-
+        await refreshCareList();
         showToast({
-          title: "Equipment Updated",
-          description: `"${data.name}" was successfully updated.`,
+          title: "Updated",
+          description: `\"${data.name}\" was updated successfully.`,
           action: "success",
         });
       }
     } else {
-      const created = await createPatientEquipment({
+      const created = await createPatientEmergencyCare({
         patient_id: patient.id,
-        equipment_name: data.name,
-        equipment_description: data.equipment_description,
+        topic: data.name,
+        details: data.guidance,
       });
       if (created) {
-        await refreshEquipmentList();
-
+        await refreshCareList();
         showToast({
-          title: "Equipment Added",
-          description: `"${data.name}" has been added.`,
+          title: "Added",
+          description: `\"${data.name}\" was added successfully.`,
           action: "success",
         });
       }
@@ -87,15 +86,17 @@ export default function MedicalEquipmentScreen() {
     setShowForm(false);
     setEditingItem(null);
   };
-  const refreshEquipmentList = async () => {
+
+  const refreshCareList = async () => {
     if (patient?.id) {
-      const updatedList = await getPatientEquipmentsByPatientId(patient.id);
-      setEquipmentList(updatedList);
+      const updatedList = await getPatientEmergencyCaresByPatientId(patient.id);
+      setCareList(updatedList);
     }
   };
+
   if (showForm) {
     return (
-      <MedicalEquipmentForm
+      <EmergencyCareForm
         onClose={() => {
           setShowForm(false);
           setEditingItem(null);
@@ -108,27 +109,36 @@ export default function MedicalEquipmentScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Medical Equipments" />
-      {/* <View className="p-4 bg-white flex-1">
+      <Header title="Emergency Care" />
+
+      <View className="p-4 bg-white flex-1">
         <Text
           style={{ color: palette.heading }}
           className="text-lg font-semibold mb-2"
         >
-          Enter any medical devices or equipment that you rely on for daily
-          living
+          Guidance in case of Emergency
         </Text>
-
-        <View className="border-t border-gray-300 mb-4" />
-
-        {equipmentList.map((item) => (
-          <React.Fragment key={item.id}>
+        <Divider className="bg-gray-300" />
+        <Text className="text-gray-700 mt-2 mb-3">
+          List specific guidance for others on what steps to take in response to
+          emergency care situations.
+        </Text>
+        <Text className="text-gray-500  mb-4">
+          e.g. in the event of a severe allergic reaction give one 0.3 mg
+          injection into the muscle of the thigh
+        </Text>
+        <Divider className="bg-gray-300" />
+        <FlatList
+      className="mt-2"
+          data={careList}
+          keyExtractor={(item) => item.id.toString()}
+          showsVerticalScrollIndicator={true}
+          renderItem={({ item }) => (
             <View className="flex-row items-start border border-gray-300 rounded-xl p-4 mb-4">
               <View className="ml-3 flex-1">
-                <Text className="font-semibold text-base">
-                  {item.equipment_name}
-                </Text>
+                <Text className="font-semibold text-base">{item.topic}</Text>
                 <Text className="text-gray-500 text-sm mt-1">
-                  {item.equipment_description}
+                  {item.details}
                 </Text>
               </View>
 
@@ -143,8 +153,13 @@ export default function MedicalEquipmentScreen() {
                 }}
               />
             </View>
-          </React.Fragment>
-        ))}
+          )}
+          ListEmptyComponent={
+            <Text className="text-gray-500 text-center my-4">
+              No emergency care instructions found.
+            </Text>
+          }
+        />
 
         <Divider className="bg-gray-300" />
 
@@ -154,67 +169,10 @@ export default function MedicalEquipmentScreen() {
           onPress={() => setShowForm(true)}
         >
           <Text className="text-white font-bold text-center">
-            Add medical equipment
+            Add current condition
           </Text>
         </TouchableOpacity>
-      </View> */}
-      <View className="p-4 bg-white flex-1">
-  <Text
-    style={{ color: palette.heading }}
-    className="text-lg font-semibold mb-2"
-  >
-    Enter any medical devices or equipment that you rely on for daily living
-  </Text>
-
-  <View className="border-t border-gray-300 mb-4" />
-
-  <FlatList
-    data={equipmentList}
-    keyExtractor={(item) => item.id.toString()}
-    showsVerticalScrollIndicator={true}
-    renderItem={({ item }) => (
-      <View className="flex-row items-start border border-gray-300 rounded-xl p-4 mb-4">
-        <View className="ml-3 flex-1">
-          <Text className="font-semibold text-base">
-            {item.equipment_name}
-          </Text>
-          <Text className="text-gray-500 text-sm mt-1">
-            {item.equipment_description}
-          </Text>
-        </View>
-
-        <ActionPopover
-          onEdit={() => {
-            setEditingItem(item);
-            setShowForm(true);
-          }}
-          onDelete={() => {
-            setItemToDelete(item);
-            setShowDialog(true);
-          }}
-        />
       </View>
-    )}
-    ListEmptyComponent={
-      <Text className="text-gray-500 text-center my-4">
-        No medical equipment found.
-      </Text>
-    }
-  />
-
-  <Divider className="bg-gray-300" />
-
-  <TouchableOpacity
-    style={{ backgroundColor: palette.primary }}
-    className="py-3 rounded-lg mt-2"
-    onPress={() => setShowForm(true)}
-  >
-    <Text className="text-white font-bold text-center">
-      Add medical equipment
-    </Text>
-  </TouchableOpacity>
-</View>
-
 
       <CustomAlertDialog
         isOpen={showDialog}
@@ -222,27 +180,27 @@ export default function MedicalEquipmentScreen() {
           setShowDialog(false);
           setItemToDelete(null);
         }}
-        title="Confirm Deletion"
+        title="Confirm Deletion" 
         description={
           itemToDelete
-            ? `Are you sure you want to delete "${itemToDelete.equipment_name}"?`
+            ? `Are you sure you want to delete \"${itemToDelete.topic}\"?`
             : "Are you sure you want to delete this item?"
         }
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText="Delete" 
+        cancelText="Cancel" 
         confirmButtonProps={{
           style: { backgroundColor: palette.primary, marginLeft: 8 },
         }}
         cancelButtonProps={{ variant: "outline" }}
         onConfirm={async () => {
           if (itemToDelete) {
-            await deletePatientEquipment(itemToDelete.id);
-            setEquipmentList((prev) =>
+            await deletePatientEmergencyCare(itemToDelete.id);
+            setCareList((prev) =>
               prev.filter((eq) => eq.id !== itemToDelete.id)
             );
             showToast({
-              title: "Equipment Deleted",
-              description: `"${itemToDelete.equipment_name}" has been removed.`,
+              title: "Deleted",
+              description: `\"${itemToDelete.topic}\" was removed successfully.`,
               action: "success",
             });
             setItemToDelete(null);
@@ -254,27 +212,25 @@ export default function MedicalEquipmentScreen() {
   );
 }
 
-function MedicalEquipmentForm({
+function EmergencyCareForm({
   onClose,
   onSave,
   editingItem,
 }: {
   onClose: () => void;
-  onSave: (data: { name: string; equipment_description: string }) => void;
-  editingItem?: PatientEquipment | null;
+  onSave: (data: { name: string; guidance: string }) => void;
+  editingItem?: PatientEmergencyCare | null;
 }) {
-  const [name, setName] = useState(editingItem?.equipment_name || "");
-  const [equipment_description, setEquipmentDescription] = useState(
-    editingItem?.equipment_description || ""
-  );
+  const [topic, setName] = useState(editingItem?.topic || "");
+  const [details, setDetails] = useState(editingItem?.details || "");
 
-  const isSaveDisabled = !name.trim() || !equipment_description.trim();
+  const isSaveDisabled = !topic.trim() || !details.trim();
 
   const handleSave = () => {
     if (!isSaveDisabled) {
       onSave({
-        name: name.trim(),
-        equipment_description: equipment_description.trim(),
+        name: topic.trim(),
+        guidance: details.trim(),
       });
     }
   };
@@ -290,7 +246,7 @@ function MedicalEquipmentForm({
             <ChevronLeft color="white" size={24} />
           </TouchableOpacity>
           <Text className="text-xl text-white font-bold ml-4">
-            {editingItem ? "Edit" : "Add"} Equipment
+            {editingItem ? "Edit" : "Add"} Emergency Care
           </Text>
         </View>
 
@@ -299,25 +255,27 @@ function MedicalEquipmentForm({
             className="text-lg font-medium mb-3"
             style={{ color: palette.heading }}
           >
-            {editingItem ? "Edit" : "Add"} Medical Equipment
+            {editingItem ? "Edit" : "Add"} Emergency Care
           </Text>
 
-          <Text className="text-sm mb-1 text-gray-600">Equipment Name</Text>
+          <Text className="text-sm mb-1 text-gray-600">
+            Emergency Care Name
+          </Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
-            placeholder="Enter equipment name"
-            value={name}
+            placeholder="Enter condition name"
+            value={topic}
             onChangeText={setName}
           />
 
           <Text className="text-sm mb-1 text-gray-600">
-            Equipment Description
+            Emergency Care Details
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
-            placeholder="Enter equipment description"
-            value={equipment_description}
-            onChangeText={setEquipmentDescription}
+            placeholder="Enter guidance steps"
+            value={details}
+            onChangeText={setDetails}
             multiline
             numberOfLines={4}
             textAlignVertical="top"

@@ -65,19 +65,19 @@ export default function HealthProfile() {
       name: "Emergency Care",
       image: require("../../../assets/images/emergencyCare.png"),
       badge: 3,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.EMERGENCY_CARE,
     },
     {
       name: "Allergies",
       image: require("../../../assets/images/allergies.png"),
       badge: 2,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.ALLERGIES,
     },
     {
       name: "Medications",
       image: require("../../../assets/images/medications.png"),
       badge: 6,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.MEDICATIONS,
     },
     {
       name: "Medical History",
@@ -86,10 +86,10 @@ export default function HealthProfile() {
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
-      name: "Hospitalization",
+      name: "Notes",
       image: require("../../../assets/images/hospitalization.png"),
       badge: 4,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.NOTES,
     },
     {
       name: "Test 1",

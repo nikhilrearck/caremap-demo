@@ -39,7 +39,7 @@ export default function ActionPopover({
       <PopoverBackdrop />
       <PopoverContent
         className="bg-gray-50 pt-1 pb-0 px-4"
-        style={{ minWidth: 110, minHeight: 90 }}
+        style={{ minWidth: 110, minHeight: 85 }}
       >
         <PopoverArrow className="bg-gray-50" />
         <PopoverBody>
