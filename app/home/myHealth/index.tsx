@@ -65,7 +65,7 @@ export default function HealthProfile() {
       name: "Emergency Care",
       image: require("../../../assets/images/emergencyCare.png"),
       badge: 3,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.EMERGENCY_CARE,
     },
     {
       name: "Allergies",
@@ -77,7 +77,7 @@ export default function HealthProfile() {
       name: "Medications",
       image: require("../../../assets/images/medications.png"),
       badge: 6,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.MEDICATIONS,
     },
     {
       name: "Medical History",
