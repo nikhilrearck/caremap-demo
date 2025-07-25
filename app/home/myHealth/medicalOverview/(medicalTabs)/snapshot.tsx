@@ -26,7 +26,7 @@ export default function Snapshot() {
         (existing: PatientSnapshot | null) => {
           if (existing) {
             setSnapshot(existing);
-            setHealthIssues(existing.patient_overview ?? "");
+            setPatientOverview(existing.patient_overview ?? "");
             setHealthIssues(existing.health_issues ?? "");
           }
         }
