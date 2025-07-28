@@ -48,7 +48,7 @@ export const getSurgeryProcedure = async (id: number): Promise<SurgeryProcedure 
 
 export const getSurgeryProceduresByPatientId = async (patientId: number): Promise<SurgeryProcedure[]> => {
     return useModel(surgeryProcedureModel, async (model) => {
-        const result = await model.getAllByFields({ patient_id: patientId });
+        const result = await model.getByFields({ patient_id: patientId });
         logger.debug("DB Surgery Procedure data by patient ID: ", result);
         return result;
     });
