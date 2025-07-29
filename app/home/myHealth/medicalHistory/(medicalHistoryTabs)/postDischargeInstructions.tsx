@@ -11,103 +11,96 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import palette from "@/utils/theme/color";
 import {
-  createSurgeryProcedure,
-  getSurgeryProceduresByPatientId,
-  updateSurgeryProcedure,
-  deleteSurgeryProcedure,
-} from "@/services/core/SurgeryProcedureService";
+  createDischargeInstruction,
+  getDischargeInstructionsByPatientId,
+  updateDischargeInstruction,
+  deleteDischargeInstruction,
+} from "@/services/core/DischargeInstructionService";
 import { PatientContext } from "@/context/PatientContext";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import Header from "@/components/shared/Header";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
-import { SurgeryProcedure } from "@/services/database/migrations/v1/schema_v1";
+import { DischargeInstruction } from "@/services/database/migrations/v1/schema_v1";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
 import { KeyboardAvoidingView, Platform } from "react-native";
 
-export default function SurgeriesProcedures() {
+export default function PostDischargeInstructions() {
   const { patient } = useContext(PatientContext);
-  const [patientSurgeries, setPatientSurgeries] = useState<SurgeryProcedure[]>(
-    []
-  );
+  const [patientDischargeInstructions, setPatientDischargeInstructions] =
+    useState<DischargeInstruction[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<SurgeryProcedure | undefined>(
-    undefined
-  );
+  const [editingItem, setEditingItem] = useState<
+    DischargeInstruction | undefined
+  >(undefined);
 
   // for Alert while delete
   const [showAlertDialog, setShowAlertDialog] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<SurgeryProcedure | null>(
+  const [itemToDelete, setItemToDelete] = useState<DischargeInstruction | null>(
     null
   );
 
   // Custom toast
   const showToast = useCustomToast();
 
-  async function fetchSurgeryProcedures() {
+  async function fetchDischargeInstructions() {
     if (!patient?.id) {
       console.log("No patient id found");
       return;
     }
     try {
-      const getSurgeryProcedures = await getSurgeryProceduresByPatientId(
-        patient.id
-      );
-      setPatientSurgeries(getSurgeryProcedures);
+      const getDischargeInstructions =
+        await getDischargeInstructionsByPatientId(patient.id);
+
+      setPatientDischargeInstructions(getDischargeInstructions);
     } catch (e) {
       console.log(e);
     }
   }
 
   useEffect(() => {
-    fetchSurgeryProcedures();
+    fetchDischargeInstructions();
   }, [patient]);
 
   // Add/Update
-  const handleAddUpdate = async (surgery: SurgeryProcedure) => {
+  const handleAddUpdate = async (discharge: DischargeInstruction) => {
     if (!patient?.id) return;
-    if (surgery.id) {
+    if (discharge.id) {
       //  edit
-      await updateSurgeryProcedure(
+      await updateDischargeInstruction(
         {
-          procedure_name: surgery.procedure_name,
-          facility: surgery.facility,
-          complications: surgery.complications,
-          surgeon_name: surgery.surgeon_name,
-          procedure_date: surgery.procedure_date,
-          details: surgery.details,
+          summary: discharge.summary,
+          discharge_date: discharge.discharge_date,
+          details: discharge.details,
         },
-        { id: surgery.id }
+        { id: discharge.id }
       );
-      await fetchSurgeryProcedures();
+      await fetchDischargeInstructions();
       showToast({
-        title: "Surgery updated",
-        description: "Surgery updated successfully!",
+        title: "Discharge updated",
+        description: "Discharge instruction updated successfully!",
       });
     } else {
       // Add
-      await createSurgeryProcedure({
+      await createDischargeInstruction({
         patient_id: patient.id,
-        procedure_name: surgery.procedure_name,
-        facility: surgery.facility,
-        complications: surgery.complications,
-        surgeon_name: surgery.surgeon_name,
-        procedure_date: surgery.procedure_date,
-        details: surgery.details,
+        summary: discharge.summary,
+        discharge_date: discharge.discharge_date,
+        details: discharge.details,
       });
-      await fetchSurgeryProcedures();
+      await fetchDischargeInstructions();
       showToast({
-        title: "Surgery added",
-        description: "Surgery added successfully!",
+        title: "Discharge added",
+        description: "Discharge instruction added successfully!",
       });
     }
   };
 
   // open edit form
-  const handleEditForm = (surgery: SurgeryProcedure) => {
-    setEditingItem(surgery);
+  const handleEditForm = (discharge: DischargeInstruction) => {
+    setEditingItem(discharge);
     setShowForm(true);
   };
 
@@ -127,7 +120,7 @@ export default function SurgeriesProcedures() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title="Surgeries/Procedure" />
+      <Header title="Post Discharge Instruction" />
 
       <View className="px-6 pt-8 flex-1">
         <View className="flex-1">
@@ -136,7 +129,7 @@ export default function SurgeriesProcedures() {
             className="text-lg font-semibold"
             style={{ color: palette.heading }}
           >
-            Past surgeries/procedures
+            Discharge Summary
           </Text>
 
           {/* hr */}
@@ -144,13 +137,13 @@ export default function SurgeriesProcedures() {
 
           <View className="flex-1">
             <FlatList
-              data={patientSurgeries}
+              data={patientDischargeInstructions}
               keyExtractor={(item) => item.id.toString()}
               scrollEnabled={true}
               showsVerticalScrollIndicator={true}
               ListEmptyComponent={
                 <Text className="text-gray-500">
-                  No surgery/procedure found.
+                  No discharge instruction found.
                 </Text>
               }
               style={{ minHeight: 50 }}
@@ -184,80 +177,26 @@ export default function SurgeriesProcedures() {
                           className="font-medium text-base"
                           // style={{ flex: 1 }}
                         >
-                          Procedure Name:
+                          Summary:
                         </Text>
                         <Text
                           className="font-normal text-base leading-5 text-gray-600"
                           style={{
                             flexShrink: 1,
                             // flexWrap: "wrap",
-                            textAlign: "right",
+                            textAlign: "left",
                             maxWidth: 180,
                           }}
                           // numberOfLines={2}
                           // ellipsizeMode="tail"
                         >
-                          {item.procedure_name}
+                          {item.summary}
                         </Text>
                       </View>
-                      {/* Facility */}
-                      {item.facility ? (
-                        <View className="flex-row justify-between items-start mb-2">
-                          <Text className="font-medium text-base">
-                            Facility:
-                          </Text>
-                          <Text
-                            className="font-normal text-base leading-5 text-gray-600"
-                            style={{
-                              flexShrink: 1,
-                              textAlign: "right",
-                              maxWidth: 180,
-                            }}
-                          >
-                            {item.facility}
-                          </Text>
-                        </View>
-                      ) : null}
-                      {/* Complications */}
-                      {item.complications ? (
-                        <View className="flex-row justify-between items-start mb-2">
-                          <Text className="font-medium text-base">
-                            Complications:
-                          </Text>
-                          <Text
-                            className="font-normal text-base leading-5 text-gray-600"
-                            style={{
-                              flexShrink: 1,
-                              textAlign: "right",
-                              maxWidth: 180,
-                            }}
-                          >
-                            {item.complications}
-                          </Text>
-                        </View>
-                      ) : null}
-                      {/* Surgeon Name */}
-                      {item.surgeon_name ? (
-                        <View className="flex-row justify-between items-start mb-2">
-                          <Text className="font-medium text-base">
-                            Surgeon’s Name:
-                          </Text>
-                          <Text
-                            className="font-normal text-base leading-5 text-gray-600"
-                            style={{
-                              flexShrink: 1,
-                              textAlign: "right",
-                              maxWidth: 180,
-                            }}
-                          >
-                            {item.surgeon_name}
-                          </Text>
-                        </View>
-                      ) : null}
-                      {/* Date of Surgery */}
+                      {/* Date of discharge */}
                       <View className="flex-row justify-between items-start mb-2">
                         <Text className="font-medium text-base">
-                          Date of surgery:
+                          Date of discharge:
                         </Text>
                         <Text
                           className="font-normal text-base leading-5 text-gray-600"
@@ -267,8 +206,8 @@ export default function SurgeriesProcedures() {
                             maxWidth: 180,
                           }}
                         >
-                          {item.procedure_date
-                            ? new Date(item.procedure_date)
+                          {item.discharge_date
+                            ? new Date(item.discharge_date)
                                 .toLocaleDateString("en-US", {
                                   month: "2-digit",
                                   day: "2-digit",
@@ -302,7 +241,7 @@ export default function SurgeriesProcedures() {
           style={{ backgroundColor: palette.primary }}
         >
           <Text className="text-white font-medium text-lg">
-            Add Surgery Details
+            Add Post Discharge Details
           </Text>
         </TouchableOpacity>
       </View>
@@ -310,14 +249,14 @@ export default function SurgeriesProcedures() {
       <CustomAlertDialog
         isOpen={showAlertDialog}
         onClose={() => setShowAlertDialog(false)}
-        description={itemToDelete?.procedure_name}
+        description={itemToDelete?.summary}
         onConfirm={async () => {
           if (itemToDelete) {
-            await deleteSurgeryProcedure(itemToDelete.id);
-            await fetchSurgeryProcedures();
+            await deleteDischargeInstruction(itemToDelete.id);
+            await fetchDischargeInstructions();
             showToast({
-              title: "Surgery deleted",
-              description: "Surgery deleted successfully!",
+              title: "Discharge deleted",
+              description: "Discharge instruction deleted successfully!",
             });
           }
           setShowAlertDialog(false);
@@ -334,23 +273,17 @@ function AddUpdateFormPage({
   editingItem,
 }: {
   onClose: () => void;
-  handleAddUpdate: (surgery: SurgeryProcedure) => void;
-  editingItem?: SurgeryProcedure;
+  handleAddUpdate: (discharge: DischargeInstruction) => void;
+  editingItem?: DischargeInstruction;
 }) {
-  const [procedureName, setProcedureName] = useState(
-    editingItem?.procedure_name || ""
+  const [dischargeSummary, setDischargeSummary] = useState(
+    editingItem?.summary || ""
   );
-  const [facilityName, setFacilityName] = useState(editingItem?.facility || "");
-  const [complications, setComplications] = useState(
-    editingItem?.complications || ""
+
+  const [dateOfDischarge, setDateOfDischarge] = useState<Date | null>(
+    editingItem?.discharge_date ? new Date(editingItem.discharge_date) : null
   );
-  const [surgeonName, setSurgeonName] = useState(
-    editingItem?.surgeon_name || ""
-  );
-  const [dateOfSurgery, setDateOfSurgery] = useState<Date | null>(
-    editingItem?.procedure_date ? new Date(editingItem.procedure_date) : null
-  );
-  const [procedureDesc, setProcedureDesc] = useState(
+  const [dischargeDesc, setDischargeDesc] = useState(
     editingItem?.details || ""
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -365,21 +298,18 @@ function AddUpdateFormPage({
   };
 
   const handleDateConfirm = (date: Date) => {
-    setDateOfSurgery(date);
+    setDateOfDischarge(date);
     setShowDatePicker(false);
   };
 
   const handleSave = () => {
-    if (procedureName.trim() && dateOfSurgery) {
+    if (dischargeSummary.trim() && dateOfDischarge) {
       handleAddUpdate({
         ...(editingItem?.id ? { id: editingItem.id } : {}),
-        procedure_name: procedureName.trim(),
-        facility: facilityName.trim(),
-        complications: complications.trim(),
-        surgeon_name: surgeonName.trim(),
-        procedure_date: dateOfSurgery,
-        details: procedureDesc.trim(),
-      } as SurgeryProcedure);
+        summary: dischargeSummary.trim(),
+        discharge_date: dateOfDischarge,
+        details: dischargeDesc.trim(),
+      } as DischargeInstruction);
     }
   };
 
@@ -387,7 +317,7 @@ function AddUpdateFormPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Surgeries/Procedure" onBackPress={onClose} />
+        <Header title="Post Discharge Instruction" onBackPress={onClose} />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
@@ -407,74 +337,26 @@ function AddUpdateFormPage({
                 style={{ color: palette.heading }}
               >
                 {editingItem
-                  ? "Update details of recent hospitalizations"
-                  : "Enter details of recent hospitalizations"}
+                  ? "Update discharge summary"
+                  : "Add discharge summary"}
               </Text>
-              {/* Prodedure Name */}
+              {/* Discharge summary */}
               <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
-                  Procedure Name
-                </Text>
+                <Text className="text-gray-600 text-sm mb-1">Summary</Text>
                 <TextInput
-                  value={procedureName}
-                  onChangeText={setProcedureName}
-                  placeholder="Please Enter your topic here"
+                  value={dischargeSummary}
+                  onChangeText={setDischargeSummary}
+                  placeholder="Enter discharge summary"
                   className="border border-gray-300 rounded-md px-3 py-3 text-base"
                   multiline
-                  numberOfLines={2}
+                  numberOfLines={3}
                   textAlignVertical="top"
                 />
               </View>
-
-              {/* Facility Name */}
+              {/* Date of discharge*/}
               <View className="mb-4">
                 <Text className="text-gray-600 text-sm mb-1">
-                  Facility Name, City
-                </Text>
-                <TextInput
-                  value={facilityName}
-                  onChangeText={setFacilityName}
-                  placeholder="Please Enter your topic here"
-                  className="border border-gray-300 rounded-md px-3 py-3 text-base"
-                  multiline
-                  numberOfLines={2}
-                  textAlignVertical="top"
-                />
-              </View>
-              {/* Complications */}
-              <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
-                  Complications
-                </Text>
-                <TextInput
-                  value={complications}
-                  onChangeText={setComplications}
-                  placeholder="Please enter complications here"
-                  className="border border-gray-300 rounded-md px-3 py-3 text-base"
-                  multiline
-                  numberOfLines={2}
-                  textAlignVertical="top"
-                />
-              </View>
-              {/* Surgeon name */}
-              <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
-                  Surgeon's Name
-                </Text>
-                <TextInput
-                  value={surgeonName}
-                  onChangeText={setSurgeonName}
-                  placeholder="Please Enter surgeon's name"
-                  className="border border-gray-300 rounded-md px-3 py-3 text-base"
-                  multiline
-                  numberOfLines={2}
-                  textAlignVertical="top"
-                />
-              </View>
-              {/* Date of Surgery*/}
-              <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
-                  Date of Surgery
+                  Date of discharge
                 </Text>
                 <TouchableOpacity
                   className="border border-gray-300 rounded-md px-3"
@@ -482,7 +364,7 @@ function AddUpdateFormPage({
                 >
                   <View className="flex-row items-center">
                     <TextInput
-                      value={dateOfSurgery ? formatDate(dateOfSurgery) : ""}
+                      value={dateOfDischarge ? formatDate(dateOfDischarge) : ""}
                       placeholder="MM-DD-YY"
                       className="flex-1 text-base"
                       editable={false}
@@ -514,12 +396,14 @@ function AddUpdateFormPage({
                 <TextareaInput
                   placeholder="Enter description"
                   style={{ textAlignVertical: "top", fontSize: 16 }}
-                  value={procedureDesc}
-                  onChangeText={setProcedureDesc}
+                  value={dischargeDesc}
+                  onChangeText={setDischargeDesc}
                 />
               </Textarea>
             </View>
             {/* Save button */}
+          </ScrollView>
+          <View className="px-6 mb-4">
             <TouchableOpacity
               className="py-3 rounded-md mt-3"
               style={{ backgroundColor: palette.primary }}
@@ -532,7 +416,7 @@ function AddUpdateFormPage({
                 {editingItem ? "Update" : "Save"}
               </Text>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </TouchableWithoutFeedback>
