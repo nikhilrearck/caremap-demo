@@ -48,7 +48,7 @@ export const getDischargeInstruction = async (id: number): Promise<DischargeInst
 
 export const getDischargeInstructionsByPatientId = async (patientId: number): Promise<DischargeInstruction[]> => {
     return useModel(dischargeInstructionModel, async (model) => {
-        const result = await model.getAllByFields({ patient_id: patientId });
+        const result = await model.getByFields({ patient_id: patientId });
         logger.debug("DB Discharge Instruction data by patient ID: ", result);
         return result;
     });

@@ -1,12 +1,18 @@
-import { 
-  PatientCondition, 
-  PatientEquipment, 
-  PatientGoal, 
+import {
+  PatientCondition,
+  PatientEquipment,
+  PatientGoal,
   PatientSnapshot,
   PatientEmergencyCare,
   PatientAllergy,
   PatientMedication,
-  tables
+  tables,
+  Hospitalization,
+  SurgeryProcedure,
+  DischargeInstruction,
+  Patient,
+  User,
+  PatientNote
 } from "@/services/database/migrations/v1/schema_v1";
 
 // Sample dates for consistent timestamps
@@ -201,34 +207,98 @@ export const samplePatientMedications: Partial<PatientMedication>[] = [
   }
 ];
 
-export const sample_data = {
-    [tables.PATIENT_NOTE]: [
-        {
-            id: 1,
-            patient_id: 1,
-            topic: "Follow-up Appointment",
-            details: "Schedule follow-up with Dr. Smith for blood pressure check",
-            reminder_date: "2024-03-15 10:00:00",
-            created_date: "2024-02-15 09:30:00",
-            updated_date: "2024-02-15 09:30:00"
-        },
-        {
-            id: 2,
-            patient_id: 1,
-            topic: "Medication Refill",
-            details: "Need to refill blood pressure medication next week",
-            reminder_date: "2024-03-10 14:00:00",
-            created_date: "2024-02-14 15:45:00",
-            updated_date: "2024-02-14 15:45:00"
-        },
-        {
-            id: 3,
-            patient_id: 2,
-            topic: "Lab Results Review",
-            details: "Review latest blood work results with healthcare provider",
-            reminder_date: "2024-03-20 11:30:00",
-            created_date: "2024-02-16 13:20:00",
-            updated_date: "2024-02-16 13:20:00"
-        }
-    ]
-};
+export const samplePatientNotes: Partial<PatientNote>[] = [
+  {
+    patient_id: 1,
+    topic: "Follow-up Appointment",
+    details: "Schedule follow-up with Dr. Smith for blood pressure check",
+    reminder_date: new Date("2024-03-15T10:00:00"),
+    created_date: new Date("2024-02-15T09:30:00"),
+    updated_date: new Date("2024-02-15T09:30:00")
+  },
+  {
+    patient_id: 1,
+    topic: "Medication Refill",
+    details: "Need to refill blood pressure medication next week",
+    reminder_date: new Date("2024-03-10T14:00:00"),
+    created_date: new Date("2024-02-14T15:45:00"),
+    updated_date: new Date("2024-02-14T15:45:00")
+  },
+  {
+    patient_id: 1,
+    topic: "Lab Results Review",
+    details: "Review latest blood work results with healthcare provider",
+    reminder_date: new Date("2024-03-20T11:30:00"),
+    created_date: new Date("2024-02-16T13:20:00"),
+    updated_date: new Date("2024-02-16T13:20:00")
+  }
+];
+
+export const sampleHospitalizations: Partial<Hospitalization>[] = [
+  {
+    patient_id: 1,
+    linked_health_system: true,
+    admission_date: new Date("2023-12-01"),
+    discharge_date: new Date("2023-12-10"),
+    details: "Asthma exacerbation, required nebulizer therapy.",
+    created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  },
+  {
+    patient_id: 1,
+    linked_health_system: false,
+    admission_date: new Date("2022-06-15"),
+    discharge_date: new Date("2022-06-20"),
+    details: "Appendectomy, no complications.",
+    created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  }
+];
+
+export const sampleSurgeryProcedures: Partial<SurgeryProcedure>[] = [
+  {
+    patient_id: 1,
+    linked_health_system: true,
+    procedure_name: "Knee Arthroscopy",
+    facility: "City General Hospital",
+    complications: "None",
+    surgeon_name: "Dr. Alice Brown",
+    procedure_date: new Date("2021-03-10"),
+    details: "Minimally invasive procedure for meniscus repair.",
+    created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  },
+  {
+    patient_id: 1,
+    linked_health_system: false,
+    procedure_name: "Appendectomy",
+    facility: "County Hospital",
+    complications: "Mild infection, resolved with antibiotics.",
+    surgeon_name: "Dr. Bob Green",
+    procedure_date: new Date("2022-06-16"),
+    details: "Laparoscopic appendectomy.",
+    created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  }
+];
+
+export const sampleDischargeInstructions: Partial<DischargeInstruction>[] = [
+  {
+    patient_id: 1,
+    linked_health_system: true,
+    summary: "Asthma management at home",
+    discharge_date: new Date("2023-12-10"),
+    details: "Continue inhaler as prescribed. Follow up in 2 weeks.",
+    created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  },
+  {
+    patient_id: 1,
+    linked_health_system: false,
+    summary: "Post-appendectomy care",
+    discharge_date: new Date("2022-06-20"),
+    details: "Monitor incision site. Return if fever or pain worsens.",
+    created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  }
+];

@@ -4,6 +4,7 @@ export const ROUTE_PREFIX = {
   HOME: "/home",
   MY_HEALTH: "/home/myHealth",
   MEDICAL_OVERVIEW: "/home/myHealth/medicalOverview",
+  MEDICAL_HISTORY: "/home/myHealth/medicalHistory" as const,
 } as const;
 
 export const ROUTES = {
@@ -25,6 +26,13 @@ export const ROUTES = {
   MEDICATIONS: `${ROUTE_PREFIX.MY_HEALTH}/medications` as const,
   NOTES: `${ROUTE_PREFIX.MY_HEALTH}/notes` as const,
   ALLERGIES: `${ROUTE_PREFIX.MY_HEALTH}/allergies` as const,
+  MEDICAL_HISTORY: `${ROUTE_PREFIX.MEDICAL_HISTORY}` as const,
+  HOSPITALIZATION:
+    `${ROUTE_PREFIX.MEDICAL_HISTORY}/(medicalHistoryTabs)/hospitalization` as const,
+  SURGERIES_AND_PROCEDURES:
+    `${ROUTE_PREFIX.MEDICAL_HISTORY}/(medicalHistoryTabs)/surgeriesAndProcedures` as const,
+  POST_DISCHARGE_INSTRUCTIONS:
+    `${ROUTE_PREFIX.MEDICAL_HISTORY}/(medicalHistoryTabs)/postDischargeInstructions` as const,
 } as const;
 
 export type AppRoutes = keyof typeof ROUTES;
