@@ -54,6 +54,7 @@ export const getHospitalizationsByPatientId = async (patientId: number): Promise
     });
 }
 
+
 export const updateHospitalization = async (hospitalizationUpdate: Partial<Hospitalization>, whereMap: Partial<Hospitalization>): Promise<Hospitalization | null> => {
     return useModel(hospitalizationModel, async (model) => {
         const existingHospitalization = await model.getFirstByFields(whereMap);
