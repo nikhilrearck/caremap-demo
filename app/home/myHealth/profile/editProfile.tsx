@@ -26,6 +26,7 @@ import { Camera as CameraIcon, ChevronDownIcon } from "lucide-react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View, Alert } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import { calculateAge, pickImageFromLibrary } from "@/services/core/utils";
 

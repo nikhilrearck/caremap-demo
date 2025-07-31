@@ -48,11 +48,12 @@ export const getHospitalization = async (id: number): Promise<Hospitalization | 
 
 export const getHospitalizationsByPatientId = async (patientId: number): Promise<Hospitalization[]> => {
     return useModel(hospitalizationModel, async (model) => {
-        const result = await model.getAllByFields({ patient_id: patientId });
+        const result = await model.getByFields({ patient_id: patientId });
         logger.debug("DB Hospitalization data by patient ID: ", result);
         return result;
     });
 }
+
 
 export const updateHospitalization = async (hospitalizationUpdate: Partial<Hospitalization>, whereMap: Partial<Hospitalization>): Promise<Hospitalization | null> => {
     return useModel(hospitalizationModel, async (model) => {

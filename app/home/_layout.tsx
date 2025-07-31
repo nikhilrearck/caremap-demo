@@ -14,7 +14,7 @@ export default function TabLayout() {
   const InsightIconInActive =
     require("@/assets/svg/insight-inactive.svg").default;
   const CareTeamIconInActive =
-    require("../../assets/svg/careteam-inactive.svg").default;
+    require("@/assets//svg/careteam-inactive.svg").default;
   return (
     <Tabs
       screenOptions={{
