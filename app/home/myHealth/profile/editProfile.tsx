@@ -22,13 +22,13 @@ import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
 import { format } from "date-fns";
 import { useRouter } from "expo-router";
-import { Camera, ChevronDownIcon } from "lucide-react-native";
+import { Camera as CameraIcon, ChevronDownIcon } from "lucide-react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View, Alert } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import {calculateAge} from "@/services/core/utils";
+import { calculateAge, pickImageFromLibrary } from "@/services/core/utils";
 
 export default function EditProfilePage() {
   const { user } = useContext(UserContext);
@@ -48,6 +48,38 @@ export default function EditProfilePage() {
     setNewPatient(patient);
     setLoading(false);
   }, [patient]);
+
+  const handleImagePress = () => {
+    Alert.alert(
+      'Choose an option',
+      'How would you like to add a photo?',
+      [
+        {
+          text: 'Choose from Library',
+          onPress: handlePickImage,
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  const handlePickImage = async () => {
+    const result = await pickImageFromLibrary();
+    
+    if (result.error) {
+      ShowAlert('e', result.error);
+      return;
+    }
+
+    if (result.base64Image) {
+      setNewPatient(prev => 
+        prev ? { ...prev, profile_picture: result.base64Image } : prev
+      );
+    }
+  };
 
   const getDisplayName = (patient: Patient): string => {
     return `${patient.first_name} ${patient.middle_name ? patient.middle_name + ' ' : ''}${patient.last_name}`;
@@ -81,6 +113,7 @@ export default function EditProfilePage() {
           relationship: newPatient?.relationship,
           gender: newPatient?.gender,
           date_of_birth: newPatient?.date_of_birth,
+          profile_picture: newPatient?.profile_picture,
         },
         { id: patient?.id }
       );
@@ -134,12 +167,14 @@ export default function EditProfilePage() {
         </Text>
 
         <View className="flex-row mb-5 items-center justify-start px-4 ">
-          <Avatar size="xl">
-            <AvatarImage source={{ uri: patient?.profile_picture }} />
-            <View className="absolute bottom-0 right-0 bg-white rounded-full p-1 ">
-              <Icon as={Camera} size="sm" className="text-black" />
-            </View>
-          </Avatar>
+          <TouchableOpacity onPress={handleImagePress}>
+            <Avatar size="xl">
+              <AvatarImage source={{ uri: newPatient?.profile_picture }} />
+              <View className="absolute bottom-0 right-0 bg-white rounded-full p-1 ">
+                <Icon as={CameraIcon} size="sm" className="text-black" />
+              </View>
+            </Avatar>
+          </TouchableOpacity>
           <View className="ml-16">
             <Text className="text-lg text-white font-semibold">
               {getDisplayName(newPatient)}
