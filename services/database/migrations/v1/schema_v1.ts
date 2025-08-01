@@ -139,6 +139,19 @@ export interface DischargeInstruction {
   updated_date: Date;
 }
 
+export interface Contact {
+  id: number;
+  patient_id: number;
+  first_name: string;
+  last_name: string;
+  relationship: string;
+  phone_number: string;
+  description?: string;
+  email?: string;
+  created_date: Date;
+  updated_date: Date;
+}
+
 export const tables = {
   USER: 'USER',
   PATIENT: 'PATIENT',
@@ -152,5 +165,6 @@ export const tables = {
   PATIENT_NOTE: 'PATIENT_NOTE',
   HOSPITALIZATION: 'HOSPITALIZATION',
   SURGERY_PROCEDURE: 'SURGERY_PROCEDURE',
-  DISCHARGE_INSTRUCTION: 'DISCHARGE_INSTRUCTION'
+  DISCHARGE_INSTRUCTION: 'DISCHARGE_INSTRUCTION',
+  CONTACT: 'CONTACT'
 }

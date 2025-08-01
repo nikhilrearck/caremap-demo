@@ -12,7 +12,8 @@ import {
   DischargeInstruction,
   Patient,
   User,
-  PatientNote
+  PatientNote,
+  Contact
 } from "@/services/database/migrations/v1/schema_v1";
 
 // Sample dates for consistent timestamps
@@ -299,6 +300,64 @@ export const sampleDischargeInstructions: Partial<DischargeInstruction>[] = [
     discharge_date: new Date("2022-06-20"),
     details: "Monitor incision site. Return if fever or pain worsens.",
     created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  }
+];
+
+export const sampleContacts: Partial<Contact>[] = [
+  {
+    patient_id: 1,
+    first_name: 'Sal',
+    last_name: 'Petrillo',
+    relationship: 'Behavioral Health Nurse Practitioner',
+    phone_number: '+91 0000000000',
+    description: 'Primary care provider',
+    email: 'sal.petrillo@healthcare.com',
+    created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  },
+  {
+    patient_id: 1,
+    first_name: 'Rue',
+    last_name: 'McClanahan',
+    relationship: 'Grandmother',
+    phone_number: '+91 0000000000',
+    description: 'Family member',
+    email: 'rue.mcclanahan@email.com',
+    created_date: new Date(lastWeek),
+    updated_date: new Date(now)
+  },
+  {
+    patient_id: 1,
+    first_name: 'Rose',
+    last_name: 'Nylund',
+    relationship: 'Urologist',
+    phone_number: '+91 0000000000',
+    description: 'Specialist',
+    email: 'rose.nylund@healthcare.com',
+    created_date: new Date(yesterday),
+    updated_date: new Date(now)
+  },
+  {
+    patient_id: 1,
+    first_name: 'Estelle',
+    last_name: 'Getty',
+    relationship: 'Gastroenterologist',
+    phone_number: '+91 0000000000',
+    description: 'Specialist',
+    email: 'estelle.getty@healthcare.com',
+    created_date: new Date(yesterday),
+    updated_date: new Date(now)
+  },
+  {
+    patient_id: 1,
+    first_name: 'Miles',
+    last_name: 'Webber',
+    relationship: 'Nero Surgen',
+    phone_number: '+91 0000000000',
+    description: 'Surgeon',
+    email: 'miles.webber@healthcare.com',
+    created_date: new Date(now),
     updated_date: new Date(now)
   }
 ];
