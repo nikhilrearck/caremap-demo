@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import palette from "@/utils/theme/color";
@@ -163,13 +170,13 @@ export default function MedicalConditions() {
               }
               showsVerticalScrollIndicator={true}
               scrollEnabled={true}
-              style={{ minHeight: 50, maxHeight: 160 }}
+              style={{ minHeight: 50, maxHeight: 200 }}
             />
           </View>
         </View>
 
         {/* User Entered */}
-        <View>
+        <View className="flex-1">
           <Text
             className="text-lg font-semibold"
             style={{ color: palette.heading }}
@@ -180,7 +187,7 @@ export default function MedicalConditions() {
           {/* hr */}
           <View className="h-px bg-gray-300 my-3" />
 
-          <View>
+          <View className="flex-1">
             {loading ? (
               <View className="justify-center items-center min-h-[120px]">
                 <Spinner size="large" color={palette.primary} />
@@ -223,7 +230,7 @@ export default function MedicalConditions() {
                     No Medical conditions found.
                   </Text>
                 }
-                style={{ minHeight: 50, maxHeight: 250 }}
+                style={{ minHeight: 50 }}
               />
             )}
           </View>
@@ -293,54 +300,63 @@ function AddMedicalConditionsPage({
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView className="flex-1 bg-white">
-        {/* Header */}
-        <Header title="Medical Conditions" onBackPress={onClose} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        className="bg-white"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        // keyboardVerticalOffset={10} // adjust if you have a header
+      >
+        <SafeAreaView className="flex-1 bg-white">
+          {/* Header */}
+          <Header title="Medical Conditions" onBackPress={onClose} />
 
-        <View className="px-6 py-8">
-          <Text
-            className="text-lg font-medium mb-3"
-            style={{ color: palette.heading }}
-          >
-            {editingCondition
-              ? "Update your current medical condition"
-              : "Add your current medical condition"}
-          </Text>
-
-          <Textarea
-            size="md"
-            isReadOnly={false}
-            isInvalid={false}
-            isDisabled={false}
-            className="w-full"
-          >
-            <TextareaInput
-              placeholder="Enter condition"
-              style={{ textAlignVertical: "top", fontSize: 16 }}
-              value={condition}
-              onChangeText={setCondition}
-            />
-          </Textarea>
-
-          <TouchableOpacity
-            className="py-3 rounded-md mt-3"
-            style={{ backgroundColor: palette.primary }}
-            onPress={() => {
-              if (condition.trim()) {
-                handleAddUpdateMedicalCondition({
-                  id: editingCondition?.id,
-                  condition_name: condition.trim(),
-                });
-              }
-              onClose(); // Go back to list
-            }}
-          >
-            <Text className="text-white font-bold text-center">
-              {editingCondition ? "Update" : "Save"}
+          <View className="px-6 py-8 flex-1">
+            <Text
+              className="text-lg font-medium mb-3"
+              style={{ color: palette.heading }}
+            >
+              {editingCondition
+                ? "Update your current medical condition"
+                : "Add your current medical condition"}
             </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+
+            <Textarea
+              size="md"
+              isReadOnly={false}
+              isInvalid={false}
+              isDisabled={false}
+              className="w-full"
+            >
+              <TextareaInput
+                placeholder="Enter condition"
+                style={{ textAlignVertical: "top", fontSize: 16 }}
+                value={condition}
+                onChangeText={setCondition}
+              />
+            </Textarea>
+          </View>
+
+          <View className="px-6">
+            <TouchableOpacity
+              className="py-3 rounded-md"
+              style={{ backgroundColor: palette.primary }}
+              onPress={() => {
+                if (condition.trim()) {
+                  handleAddUpdateMedicalCondition({
+                    id: editingCondition?.id,
+                    condition_name: condition.trim(),
+                  });
+                }
+                onClose(); // Go back to list
+              }}
+            >
+              <Text className="text-white font-bold text-center">
+                {editingCondition ? "Update" : "Save"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }
