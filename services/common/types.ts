@@ -33,8 +33,18 @@ export interface TrackItemWithProgress extends TrackItem {
   started: boolean;
 };
 
+export interface TrackItemSelectable {
+  item: TrackItem;
+  selected: boolean;
+}
+
+export interface TrackCategoryWithSelectableItems {
+  category: TrackCategory;
+  items: TrackItemSelectable[];
+}
+
 export interface QuestionWithOptions {
-  question: Question;              
-  options: ResponseOption[];                
+  question: Question;
+  options: ResponseOption[];
   existingResponse?: TrackResponse;
 }

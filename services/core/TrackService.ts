@@ -7,7 +7,7 @@ import { TrackItemEntryModel } from '@/services/database/models/TrackItemEntryMo
 import { logger } from '@/services/logging/logger';
 import { getCurrentTimestamp } from '@/services/core/utils';
 import { useModel } from '@/services/database/BaseModel';
-import { TrackCategoryWithItems, QuestionWithOptions } from '@/services/common/types';
+import { TrackCategoryWithItems, QuestionWithOptions, TrackCategoryWithSelectableItems } from '@/services/common/types';
 import { tables } from '@/services/database/migrations/v1/schema_v1';
 
 
@@ -69,6 +69,53 @@ export const getTrackCategoriesWithItemsAndProgress = async (
 
     logger.debug('getTrackCategoriesWithItemsAndProgress completed', JSON.stringify(result, null, 2));
     return result;
+};
+
+export const getAllCategoriesWithSelectableItems = async (
+    patientId: number,
+    date: string
+): Promise<TrackCategoryWithSelectableItems[]> => {
+    logger.debug('getAllCategoriesWithSelectableItems called', { patientId, date });
+
+    return useModel(trackCategoryModel, async (categoryModel) => {
+        // Get all categories
+        const categories = await categoryModel.getAll();
+
+        // Get all items with a flag if already linked for this patient/date
+        const items = await useModel(trackItemModel, async (itemModel: any) => {
+            const result = await itemModel.runQuery(`
+                SELECT 
+                    ti.id,
+                    ti.name,
+                    ti.category_id,
+                    CASE WHEN tie.id IS NULL THEN 0 ELSE 1 END AS selected
+                FROM ${tables.TRACK_ITEM} ti
+                LEFT JOIN ${tables.TRACK_ITEM_ENTRY} tie
+                    ON tie.track_item_id = ti.id
+                    AND tie.patient_id = ?
+                    AND tie.date = ?
+            `, [patientId, date]);
+            return result as { id: number; name: string; category_id: number; selected: number }[];
+        });
+
+        // Group items under categories with "selected" mapped to boolean
+        const result: TrackCategoryWithSelectableItems[] = categories.map((cat: any) => ({
+            category: cat,
+            items: items
+                .filter((item) => item.category_id === cat.id)
+                .map((item) => ({
+                    item: {
+                        id: item.id,
+                        category_id: item.category_id,
+                        name: item.name,
+                    },
+                    selected: item.selected === 1
+                }))
+        }));
+
+        logger.debug('getAllCategoriesWithSelectableItems completed', JSON.stringify(result, null, 2));
+        return result;
+    });
 };
 
 export const addTrackItemForDate = async (
@@ -178,4 +225,67 @@ export const addOptionToQuestion = async (
 
     logger.debug('addOptionToQuestion completed', { questionId, label, result });
     return result;
+};
+
+// Link item to patient/date
+export const linkItemToPatientDate = async (
+    itemId: number,
+    patientId: number,
+    date: string
+): Promise<void> => {
+    logger.debug('linkItemToPatientDate called', { itemId, patientId, date });
+
+    await useModel(trackItemEntryModel, async (model) => {
+        const existing = await model.getFirstByFields({ 
+            track_item_id: itemId, 
+            patient_id: patientId, 
+            date 
+        });
+        
+        if (existing) {
+            logger.debug('linkItemToPatientDate: Item already linked', { itemId, patientId, date });
+            return;
+        }
+        
+        await model.insert({
+            user_id: 1, // TODO: Get from context
+            patient_id: patientId,
+            track_item_id: itemId,
+            date,
+            created_date: getCurrentTimestamp(),
+            updated_date: getCurrentTimestamp(),
+        });
+    });
+
+    logger.debug('linkItemToPatientDate completed', { itemId, patientId, date });
+};
+
+// Unlink item from patient/date
+export const unlinkItemFromPatientDate = async (
+    itemId: number,
+    patientId: number,
+    date: string
+): Promise<void> => {
+    logger.debug('unlinkItemFromPatientDate called', { itemId, patientId, date });
+
+    await useModel(trackItemEntryModel, async (model) => {
+        const existing = await model.getFirstByFields({ 
+            track_item_id: itemId, 
+            patient_id: patientId, 
+            date 
+        });
+        
+        if (!existing) {
+            logger.debug('unlinkItemFromPatientDate: Item not linked', { itemId, patientId, date });
+            return;
+        }
+        
+        await model.deleteByFields({
+            track_item_id: itemId,
+            patient_id: patientId,
+            date
+        });
+    });
+
+    logger.debug('unlinkItemFromPatientDate completed', { itemId, patientId, date });
 };
