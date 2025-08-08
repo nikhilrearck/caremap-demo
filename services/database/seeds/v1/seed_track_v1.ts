@@ -62,7 +62,8 @@ export async function seedTrackDatabase(db: SQLiteDatabase) {
                 ) VALUES (
                     ${question.item_id},
                     '${escapeSQL(question.text)}',
-                    '${escapeSQL(question.type)}'
+                    '${escapeSQL(question.type)}',
+                    NULL,
                     ${question.required ? 1 : 0},
                     '${new Date().toISOString()}',
                     '${new Date().toISOString()}'
