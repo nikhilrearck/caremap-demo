@@ -226,7 +226,7 @@ export default function EditProfilePage() {
           >
             <Text className="text-gray-700">
               {newPatient.date_of_birth
-                ? format(newPatient.date_of_birth, "MM-dd-yyyy")
+                ? format(newPatient.date_of_birth, "MM-DD-YYYY")
                 : "Select birthdate"}
             </Text>
             <Icon

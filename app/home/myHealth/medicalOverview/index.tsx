@@ -6,6 +6,7 @@ import { ChevronLeft } from "lucide-react-native";
 import { Route, router } from "expo-router";
 import { ROUTES } from "@/utils/route";
 import Header from "@/components/shared/Header";
+import palette from "@/utils/theme/color";
 
 function medicalOverview() {
   const medicalTiles = [
@@ -60,7 +61,9 @@ function medicalOverview() {
 
                 <View className="flex-row items-center">
                   {tile.count && (
-                    <Badge className="bg-[#49AFBE] rounded-full mr-2">
+                    <Badge
+                   style={{ backgroundColor: palette.primary }}
+                     className="rounded-full mr-2">
                       <BadgeText className="text-white">{tile.count}</BadgeText>
                     </Badge>
                   )}
