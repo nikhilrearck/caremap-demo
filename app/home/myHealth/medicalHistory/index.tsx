@@ -12,7 +12,7 @@ function medicalHistory() {
     {
       name: "Hospitalization",
       count: "3",
-      icon: require("@/assets/images/medicalOverview.png"),
+      icon: require("@/assets/images/hospitalization.png"),
       link: ROUTES.HOSPITALIZATION,
     },
     {

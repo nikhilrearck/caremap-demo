@@ -14,12 +14,13 @@ import { PatientSnapshot } from "@/services/database/migrations/v1/schema_v1";
 
 import { Divider } from "@/components/ui/divider";
 import Header from "@/components/shared/Header";
+import { useCustomToast } from "@/components/shared/useCustomToast";
 export default function Snapshot() {
   const { patient } = useContext(PatientContext);
   const [patientOverview, setPatientOverview] = useState("");
   const [healthIssues, setHealthIssues] = useState("");
   const [snapshot, setSnapshot] = useState<PatientSnapshot | null>(null);
-
+ const showToast = useCustomToast();
   useEffect(() => {
     if (patient?.id) {
       getPatientSnapshot(patient.id).then(
@@ -37,6 +38,7 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
   const handleSave = async () => {
     if (!patient?.id) {
       Alert.alert("Error", "Patient not found.");
+      
       return;
     }
 
@@ -49,16 +51,31 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
     try {
       if (snapshot?.id) {
         await updatePatientSnapshot(data, { id: snapshot.id });
-        Alert.alert("Success", "Snapshot updated successfully.");
+        // Alert.alert("Success", "Snapshot updated successfully.");
+         showToast({
+          title: "Success",
+          description: "Snapshot updated successfully.",
+          action: "success",
+        });
       } else {
         await createPatientSnapshot(data);
-        Alert.alert("Success", "Snapshot created successfully.");
+        // Alert.alert("Success", "Snapshot created successfully.");
+         showToast({
+          title: "Success",
+          description:"Snapshot created successfully." ,
+          action: "success",
+        });
       }
 
       router.back();
     } catch (err) {
-      console.error("Failed to save snapshot:", err);
-      Alert.alert("Error", "Failed to save snapshot.");
+      // console.error("Failed to save snapshot:", err);
+      // Alert.alert("Error", "Failed to save snapshot.");
+       showToast({
+          title: "Error",
+          description: "Failed to save snapshot.",
+          action: "error",
+        });
     }
   };
 
