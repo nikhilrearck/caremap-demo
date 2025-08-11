@@ -33,6 +33,8 @@ export const ROUTES = {
     `${ROUTE_PREFIX.MEDICAL_HISTORY}/(medicalHistoryTabs)/surgeriesAndProcedures` as const,
   POST_DISCHARGE_INSTRUCTIONS:
     `${ROUTE_PREFIX.MEDICAL_HISTORY}/(medicalHistoryTabs)/postDischargeInstructions` as const,
+    COMING_SOON: `${ROUTE_PREFIX.MY_HEALTH}/comingSoon/page` as const,
 } as const;
+
 
 export type AppRoutes = keyof typeof ROUTES;

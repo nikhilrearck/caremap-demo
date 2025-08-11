@@ -150,7 +150,7 @@ export default function HighLevelGoals() {
         {/* Linked Health System */}
         <View className="mb-6 mt-4">
           <Text className="text-lg font-semibold text-cyan-700">
-            High level goals (linked Health System)
+            High level goals (Linked Health System)
           </Text>
 
           {/* hr */}

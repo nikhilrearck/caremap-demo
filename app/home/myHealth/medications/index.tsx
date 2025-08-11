@@ -93,7 +93,7 @@ export default function MedicationsScreen() {
 
   if (showForm) {
     return (
-      <EmergencyCareForm
+      <MedicationForm
         onClose={() => {
           setShowForm(false);
           setEditingItem(null);
@@ -106,14 +106,14 @@ export default function MedicationsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Emergency Care" />
+      <Header title="Medications" />
 
       <View className="p-4 bg-white flex-1">
           <Text
           style={{ color: palette.heading }}
           className="text-lg font-semibold mb-2"
         >
-          Medications (linked Health System)
+          Medications (Linked Health System)
         </Text>
         <Text className="text-gray-500 mb-3">
           Select ones to review with your care team{" "}
@@ -170,7 +170,7 @@ export default function MedicationsScreen() {
         >
           <Text className="text-white font-bold text-center">
             
-             Add current medical condition
+             Add New Medication
           </Text>
         </TouchableOpacity>
       </View>
@@ -213,7 +213,7 @@ export default function MedicationsScreen() {
   );
 }
 
-function EmergencyCareForm({
+function MedicationForm({
   onClose,
   onSave,
   editingItem,
@@ -262,7 +262,7 @@ function EmergencyCareForm({
           <Text className="text-sm mb-1 text-gray-600">Medications Name</Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
-            placeholder="Enter condition name"
+            placeholder="Enter medication name"
             value={name}
             onChangeText={setName}
           />

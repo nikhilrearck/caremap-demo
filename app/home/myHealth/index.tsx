@@ -87,7 +87,7 @@ export default function HealthProfile() {
     },
     {
       name: "Notes",
-      image: require("@/assets/images/hospitalization.png"),
+      image: require("@/assets/images/notes.png"),
       badge: 4,
       link: ROUTES.NOTES,
     },
@@ -95,13 +95,13 @@ export default function HealthProfile() {
       name: "Test 1",
       image: require("@/assets/images/medicalOverview.png"),
       badge: 6,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.COMING_SOON,
     },
     {
       name: "Test 2",
-      image: require("@/assets/images/emergencyCare.png"),
+      image: require("@/assets/images/snapshot.png"),
       badge: 9,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.COMING_SOON,
     },
   ];
 
@@ -130,10 +130,18 @@ export default function HealthProfile() {
 
         <View className="flex-row items-center justify-between">
           <Avatar size="xl">
-            <AvatarImage source={{ uri: patient?.profile_picture }} />
-            <View className="absolute bottom-0 right-0 bg-white rounded-full p-1">
+
+            {patient?.profile_picture ? (
+                          <AvatarImage source={{ uri: patient?.profile_picture }} />
+                        ) : (
+                          <View className="w-full h-full items-center justify-center bg-gray-200 rounded-full">
+                            <Icon as={User} size="xl" className="text-gray-500" />
+                          </View>
+                        )}
+            {/* <AvatarImage source={{ uri: patient?.profile_picture }} /> */}
+            {/* <View className="absolute bottom-0 right-0 bg-white rounded-full p-1">
               <Icon as={Camera} size="sm" className="text-black" />
-            </View>
+            </View> */}
           </Avatar>
 
           <View className="mr-4">
@@ -147,7 +155,7 @@ export default function HealthProfile() {
                 : "Not set"}
             </Text>
             <Text className="text-white">
-              Weight: {patient?.weight ? `${patient.weight} kg` : "Not set"}
+              Weight: {patient?.weight ? `${patient.weight} lb` : "Not set"}
             </Text>
           </View>
 

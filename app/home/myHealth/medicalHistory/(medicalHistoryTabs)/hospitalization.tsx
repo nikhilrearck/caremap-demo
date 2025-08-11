@@ -4,12 +4,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   Keyboard,
   TouchableWithoutFeedback,
   FlatList,
 } from "react-native";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ChevronLeft } from "lucide-react-native";
 import palette from "@/utils/theme/color";

@@ -1,6 +1,7 @@
+
 const palette = {
   primary: "#49AFBE",
-  secondary: "#6B7280", //not using
+  secondary: "#2A6673", 
   gradientStart: "#F1FDFF",
   gradientEnd: "#DCFBFF",
   background: "#FFFFFF", // not using
@@ -10,6 +11,7 @@ const palette = {
   tabIconInactiveColor: "#FFFFFF80",
   heading: "#378793",
   progressBar: "#08B828",
+  trackCardBackground: "#E6F5FC",
 };
 
 export default palette;
