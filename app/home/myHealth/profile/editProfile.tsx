@@ -18,7 +18,11 @@ import {
 import { PatientContext } from "@/context/PatientContext";
 import { UserContext } from "@/context/UserContext";
 import { updatePatient } from "@/services/core/PatientService";
-import { calculateAge, getDisplayName,pickImageFromLibrary } from "@/services/core/utils";
+import {
+  calculateAge,
+  getDisplayName,
+  pickImageFromLibrary,
+} from "@/services/core/utils";
 import { Patient } from "@/services/database/migrations/v1/schema_v1";
 import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
@@ -49,7 +53,7 @@ export default function EditProfilePage() {
     }
     setNewPatient({
       ...patient,
-      weight_unit: patient.weight_unit ?? "lbs",
+      weight_unit: patient.weight_unit ?? "lb",
     });
     setLoading(false);
   }, [patient]);
@@ -66,24 +70,23 @@ export default function EditProfilePage() {
     setDatePickerVisibility(false);
   };
 
-
-const handleImagePress = () => {
-  setShowImageDialog(true);
-};
+  const handleImagePress = () => {
+    setShowImageDialog(true);
+  };
   const handlePickImage = async () => {
     const result = await pickImageFromLibrary();
-    
+
     if (result.error) {
       showToast({
-  title: "Error",
-  description: `Failed to pick image. ${result.error}`,
-  action: "error", 
-});
+        title: "Error",
+        description: `Failed to pick image. ${result.error}`,
+        action: "error",
+      });
       return;
     }
 
     if (result.base64Image) {
-      setNewPatient(prev => 
+      setNewPatient((prev) =>
         prev ? { ...prev, profile_picture: result.base64Image } : prev
       );
     }
@@ -101,12 +104,11 @@ const handleImagePress = () => {
       updatedPatient = await updatePatient(
         {
           weight: newPatient?.weight,
-           weight_unit: newPatient?.weight_unit ?? "lbs",
+          weight_unit: newPatient?.weight_unit ?? "lb",
           relationship: newPatient?.relationship,
           gender: newPatient?.gender,
           date_of_birth: newPatient?.date_of_birth,
-           profile_picture: newPatient?.profile_picture,
-
+          profile_picture: newPatient?.profile_picture,
         },
         { id: patient?.id }
       );
@@ -149,22 +151,20 @@ const handleImagePress = () => {
         </Text>
 
         <View className="flex-row mb-5 items-center justify-start px-4 ">
-          
           <TouchableOpacity onPress={handleImagePress}>
             <Avatar size="xl">
-              {/* {patient?.profile_picture ? (
+              {patient?.profile_picture ? (
               <AvatarImage source={{ uri: newPatient?.profile_picture }} />
             ) : (
               <View className="w-full h-full items-center justify-center bg-gray-200 rounded-full">
                 <Icon as={User} size="xl" className="text-gray-500" />
               </View>
-            )} */}
-              <AvatarImage source={{ uri: newPatient?.profile_picture }} />
+            )}
+              {/* <AvatarImage source={{ uri: newPatient?.profile_picture }} /> */}
               <View className="absolute bottom-0 right-0 bg-white rounded-full p-1 ">
                 <Icon as={Camera} size="sm" className="text-black" />
               </View>
             </Avatar>
-            
           </TouchableOpacity>
           <View className="ml-16">
             <Text className="text-lg text-white font-semibold">
@@ -227,7 +227,6 @@ const handleImagePress = () => {
             <Text className="text-gray-700">
               {newPatient.date_of_birth
                 ? format(newPatient.date_of_birth, "MM-dd-yyyy")
-
                 : "Select birthdate"}
             </Text>
             <Icon
@@ -243,8 +242,6 @@ const handleImagePress = () => {
             maximumDate={new Date()}
           />
         </View>
-
-        
 
         <LabeledTextInput
           label={`Weight in(${newPatient?.weight_unit})`}
@@ -352,21 +349,20 @@ const handleImagePress = () => {
         </TouchableOpacity>
       </View>
       <CustomAlertDialog
-  isOpen={showImageDialog}
-  onClose={() => setShowImageDialog(false)}
-  title="Choose an option"
-  description="How would you like to add a photo?"
-  confirmText="Choose from Library"
-  cancelText="Cancel"
-  onConfirm={() => {
-    setShowImageDialog(false);
-    handlePickImage();
-  }}
-  confirmButtonProps={{
-    style: { backgroundColor: palette.primary, marginLeft: 8 },
-  }}
-/>
-
+        isOpen={showImageDialog}
+        onClose={() => setShowImageDialog(false)}
+        title="Choose an option"
+        description="How would you like to add a photo?"
+        confirmText="Choose from Library"
+        cancelText="Cancel"
+        onConfirm={() => {
+          setShowImageDialog(false);
+          handlePickImage();
+        }}
+        confirmButtonProps={{
+          style: { backgroundColor: palette.primary, marginLeft: 8 },
+        }}
+      />
     </SafeAreaView>
   );
 }

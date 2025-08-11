@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   Keyboard,
   TouchableWithoutFeedback,
   FlatList
@@ -14,6 +13,7 @@ import palette from "@/utils/theme/color";
 import Header from "@/components/shared/Header";
 import { Divider } from "@/components/ui/divider";
 import ActionPopover from "@/components/shared/ActionPopover";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { PatientContext } from "@/context/PatientContext";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";

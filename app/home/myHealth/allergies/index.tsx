@@ -141,7 +141,7 @@ export default function Allergies() {
             className="text-lg font-semibold"
             style={{ color: palette.heading }}
           >
-            Allergies (linked Health System)
+            Allergies (Linked Health System)
           </Text>
           <Text className="text-gray-500">
             Select ones to review with your care team
