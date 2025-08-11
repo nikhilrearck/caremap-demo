@@ -1,12 +1,15 @@
 import { tables } from "@/services/database/migrations/v1/schema_v1";
-import {
+import trackData from "@/services/database/seeds/v1/track_sample_data.json";
+import { logger } from "@/services/logging/logger";
+import { SQLiteDatabase } from "expo-sqlite";
+
+// Destructure arrays from JSON
+const {
     sampleTrackCategories,
     sampleTrackItems,
     sampleQuestions,
-    sampleResponseOptions
-} from "@/services/database/seeds/v1/track_sample_data";
-import { logger } from "@/services/logging/logger";
-import { SQLiteDatabase } from "expo-sqlite";
+    sampleResponseOptions,
+} = trackData as any;
 
 // To escape single quotes in SQL strings to prevent SQL injection
 const escapeSQL = (str: string | undefined) => (str || '').replace(/'/g, "''");
