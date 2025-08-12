@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
-import { Text, View, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import { Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import QuestionRenderer from "@/components/shared/track-shared-components/QuestionRenderer";
@@ -222,7 +223,7 @@ export default function QuestionFlowScreen() {
     title={itemName}
     right={
       <TouchableOpacity onPress={() => router.back()}>
-        <Text style={{ color: palette.primary, fontWeight: "500" }}>
+        <Text style={{ color: 'white', fontWeight: "500" }}>
           Cancel
         </Text>
       </TouchableOpacity>

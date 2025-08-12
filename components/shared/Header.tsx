@@ -8,7 +8,7 @@ interface HeaderProps {
   title: string | number;
   showBackButton?: boolean;
   onBackPress?: () => void;
-  right?: React.ReactNode; 
+  right?: React.ReactNode;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -44,9 +44,7 @@ const Header: React.FC<HeaderProps> = ({
       </Text>
 
       {/* Right section */}
-      <View style={{ width: 60, alignItems: "flex-end" }}>
-        {right}
-      </View>
+      <View style={{ maxWidth: 80, alignItems: "flex-end" }}>{right}</View>
     </View>
   );
 };

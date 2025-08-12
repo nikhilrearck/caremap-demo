@@ -68,47 +68,51 @@ export default function AddItem() {
   const { date } = useLocalSearchParams<{ date: string }>();
 
   const { selectedByDate, addItemForDate } = useSelectedItems();
-  const [categories, setCategories] = useState<
+  const [selectableCategories, setSelectableCategories] = useState<
     TrackCategoryWithSelectableItems[]
   >([]);
 
   useEffect(() => {
-    const existingCats = selectedByDate[date] || [];
-    const merged = sampleData.map((cat) => {
-      const existingCat = existingCats.find(
-        (c) => c.category.id === cat.category.id
+    const existingCategoryGroups = selectedByDate[date] || [];
+    const mergedCategories = sampleData.map((categoryGroup) => {
+      const existingCategoryGroup = existingCategoryGroups.find(
+        (c) => c.category.id === categoryGroup.category.id
       );
       return {
-        ...cat,
-        items: cat.items.map((itm) => ({
-          ...itm,
-          selected: !!existingCat?.items.some((i) => i.item.id === itm.item.id),
+        ...categoryGroup,
+        items: categoryGroup.items.map((itemObj) => ({
+          ...itemObj,
+          selected: !!existingCategoryGroup?.items.some(
+            (i) => i.item.id === itemObj.item.id
+          ),
         })),
       };
     });
-    setCategories(merged);
+    setSelectableCategories(mergedCategories);
   }, [date, selectedByDate]);
 
-  const toggleSelect = (categoryIndex: number, itemIdx: number) => {
-    setCategories((prev) =>
-      prev.map((cat, cIdx) =>
-        cIdx === categoryIndex
+  const toggleSelect = (categoryIndex: number, itemIndex: number) => {
+    setSelectableCategories((prev) =>
+      prev.map((categoryGroup, catIndex) =>
+        catIndex === categoryIndex
           ? {
-              ...cat,
-              items: cat.items.map((itm, iIdx) =>
-                iIdx === itemIdx ? { ...itm, selected: !itm.selected } : itm
+              ...categoryGroup,
+              items: categoryGroup.items.map((itemObj, iIndex) =>
+                iIndex === itemIndex
+                  ? { ...itemObj, selected: !itemObj.selected }
+                  : itemObj
               ),
             }
-          : cat
+          : categoryGroup
       )
     );
   };
 
   const handleSave = () => {
-    categories.forEach((cat) => {
-      cat.items.forEach((itm) => {
-        if (itm.selected) {
-          addItemForDate(date, cat.category, itm.item);
+    selectableCategories.forEach((categoryGroup) => {
+      categoryGroup.items.forEach((itemObj) => {
+        if (itemObj.selected) {
+          addItemForDate(date, categoryGroup.category, itemObj.item);
         }
       });
     });
@@ -126,26 +130,27 @@ export default function AddItem() {
         }
       />
       <ScrollView contentContainerClassName="px-4 pb-12 pt-5">
-        {categories.map((category, catIdx) => (
-          <View key={category.category.id} className="mb-6">
-            <Text 
-            style={{ color: palette.heading }}
-            className="font-bold text-xl mb-3">
-              {category.category.name}
+        {selectableCategories.map((categoryGroup, categoryIndex) => (
+          <View key={categoryGroup.category.id} className="mb-6">
+            <Text
+              style={{ color: palette.heading }}
+              className="font-bold text-xl mb-3"
+            >
+              {categoryGroup.category.name}
             </Text>
-            {category.items.map((itm, itemIdx) => (
+            {categoryGroup.items.map((itemObj, itemIndex) => (
               <TouchableOpacity
-                key={itm.item.id}
-                onPress={() => toggleSelect(catIdx, itemIdx)}
+                key={itemObj.item.id}
+                onPress={() => toggleSelect(categoryIndex, itemIndex)}
                 className={`flex-row items-center justify-between border rounded-xl py-3 px-4 mb-2 
                   ${
-                    itm.selected
+                    itemObj.selected
                       ? "bg-cyan-100 border-cyan-400"
                       : "bg-gray-100 border-gray-300"
                   }`}
               >
-                <Text className="text-[15px]">{itm.item.name}</Text>
-                {itm.selected && (
+                <Text className="text-[15px]">{itemObj.item.name}</Text>
+                {itemObj.selected && (
                   <Icon
                     as={CheckIcon}
                     size="xl"

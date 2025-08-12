@@ -8,16 +8,19 @@ interface CalendarProps {
   onDateSelected: (date: moment.Moment) => void;
 }
 
-const TrackCalendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelected }) => {
+const TrackCalendar: React.FC<CalendarProps> = ({
+  selectedDate,
+  onDateSelected,
+}) => {
   return (
     <CalendarStrip
       scrollable
       style={{ height: 100, paddingTop: 10, paddingBottom: 10 }}
       calendarColor={palette.primary}
       startingDate={moment().subtract(3, "days")}
-      calendarHeaderStyle={{ color: "white" }}
-      dateNumberStyle={{ color: "white" }}
-      dateNameStyle={{ color: "white" }}
+      calendarHeaderStyle={{ color: "white", fontSize: 16 }}
+      dateNumberStyle={{ color: "white", fontSize: 16 }}
+      dateNameStyle={{ color: "white", fontSize: 12 }}
       highlightDateContainerStyle={{
         backgroundColor: "rgba(255, 255, 255, 0.3)",
         borderRadius: 999,
@@ -27,7 +30,7 @@ const TrackCalendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelected }
         color: "white",
         fontWeight: "bold",
       }}
-      highlightDateNameStyle={{ color: "white" }}
+      highlightDateNameStyle={{ color: "white", fontSize: 12 }}
       selectedDate={selectedDate}
       onDateSelected={onDateSelected}
     />
