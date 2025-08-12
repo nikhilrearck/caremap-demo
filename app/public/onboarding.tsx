@@ -44,7 +44,9 @@ export default function Onboarding() {
           resizeMode="contain"
         />
 
-        <Text className="text-[28px] font-semibold text-center mb-[80px] text-[#058295]">
+        <Text
+        style={{color: palette.heading}}
+         className="text-[28px] font-semibold text-center mb-[80px] ">
           {slides[currentSlide].title}
         </Text>
 

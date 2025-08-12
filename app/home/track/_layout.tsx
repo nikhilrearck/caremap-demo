@@ -1,10 +1,17 @@
-import { Stack } from "expo-router"
+// import { TrackContextProvider } from "@/context/TrackContext";
+import { TrackContextProvider } from "@/context/TrackContext";
+import { Stack } from "expo-router";
 
 const StackLayout = () => {
-    return(
-        <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-        </Stack>
-    );
+  return (
+    <TrackContextProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="questions/[itemId]" />
+        <Stack.Screen name="addItem" />
+      </Stack>
+     </TrackContextProvider>
+  );
 };
+
 export default StackLayout;
