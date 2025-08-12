@@ -17,7 +17,7 @@ import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
 import { Route, router } from "expo-router";
-import { Camera } from "lucide-react-native";
+import { Camera, User } from "lucide-react-native";
 import { useContext, useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
