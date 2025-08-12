@@ -175,7 +175,7 @@ export interface ResponseOption {
 
 export interface TrackResponse {
   id: number;
-  user_id: number;
+  user_id: string;
   patient_id: number;
   item_id: number;
   question_id: number;
@@ -187,7 +187,7 @@ export interface TrackResponse {
 
 export interface TrackItemEntry {
   id: number;
-  user_id: number;
+  user_id: string;
   patient_id: number;
   track_item_id: number;
   date: Date;

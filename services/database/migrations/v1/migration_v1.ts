@@ -196,7 +196,7 @@ export const up = async (db: SQLiteDatabase) => {
 
     CREATE TABLE IF NOT EXISTS ${tables.TRACK_ITEM_ENTRY} (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
+      user_id TEXT NOT NULL,
       patient_id INTEGER NOT NULL,
       track_item_id INTEGER NOT NULL,
       date TEXT NOT NULL,
@@ -209,7 +209,7 @@ export const up = async (db: SQLiteDatabase) => {
 
     CREATE TABLE IF NOT EXISTS ${tables.TRACK_RESPONSE} (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
+      user_id TEXT NOT NULL,
       patient_id INTEGER NOT NULL,
       item_id INTEGER NOT NULL,
       question_id INTEGER NOT NULL,

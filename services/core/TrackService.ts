@@ -1,14 +1,14 @@
-import { TrackCategoryModel } from '@/services/database/models/TrackCategoryModel';
-import { TrackItemModel } from '@/services/database/models/TrackItemModel';
-import { QuestionModel } from '@/services/database/models/QuestionModel';
-import { ResponseOptionModel } from '@/services/database/models/ResponseOptionModel';
-import { TrackResponseModel } from '@/services/database/models/TrackResponseModel';
-import { TrackItemEntryModel } from '@/services/database/models/TrackItemEntryModel';
-import { logger } from '@/services/logging/logger';
+import { QuestionWithOptions, TrackCategoryWithItems, TrackCategoryWithSelectableItems } from '@/services/common/types';
 import { getCurrentTimestamp } from '@/services/core/utils';
 import { useModel } from '@/services/database/BaseModel';
-import { TrackCategoryWithItems, QuestionWithOptions, TrackCategoryWithSelectableItems } from '@/services/common/types';
 import { tables } from '@/services/database/migrations/v1/schema_v1';
+import { QuestionModel } from '@/services/database/models/QuestionModel';
+import { ResponseOptionModel } from '@/services/database/models/ResponseOptionModel';
+import { TrackCategoryModel } from '@/services/database/models/TrackCategoryModel';
+import { TrackItemEntryModel } from '@/services/database/models/TrackItemEntryModel';
+import { TrackItemModel } from '@/services/database/models/TrackItemModel';
+import { TrackResponseModel } from '@/services/database/models/TrackResponseModel';
+import { logger } from '@/services/logging/logger';
 
 
 // Single shared instance of models
@@ -38,7 +38,7 @@ export const getTrackCategoriesWithItemsAndProgress = async (
                     COUNT(DISTINCT q.id) AS total,
                     CASE WHEN tie.id IS NULL THEN 0 ELSE 1 END AS started
                     FROM ${tables.TRACK_ITEM} ti
-                    LEFT JOIN ${tables.TRACK_ITEM_ENTRY} tie 
+                    INNER JOIN ${tables.TRACK_ITEM_ENTRY} tie 
                     ON tie.track_item_id = ti.id AND tie.patient_id = ? AND tie.date = ?
                     LEFT JOIN ${tables.TRACK_RESPONSE} r 
                     ON r.track_item_entry_id = tie.id
@@ -118,28 +118,29 @@ export const getAllCategoriesWithSelectableItems = async (
     });
 };
 
-export const addTrackItemForDate = async (
-    patientId: number,
-    itemId: number,
-    date: string
-): Promise<number> => {
-    logger.debug('addTrackItemForDate called', { patientId, itemId, date });
+// export const addTrackItemForDate = async (
+//     userId:number,
+//     patientId: number,
+//     itemId: number,
+//     date: string
+// ): Promise<number> => {
+//     logger.debug('addTrackItemForDate called', { patientId, itemId, date });
 
-    const result = await useModel(trackItemEntryModel, async (model) => {
-        const existing = await model.getFirstByFields({ patient_id: patientId, track_item_id: itemId, date });
-        if (existing) return existing.id;
-        const insertResult = await model.insert({
-            user_id: 1, // TODO: Get from context
-            patient_id: patientId,
-            track_item_id: itemId,
-            date,
-        });
-        return insertResult.lastInsertRowId;
-    });
+//     const result = await useModel(trackItemEntryModel, async (model) => {
+//         const existing = await model.getFirstByFields({ patient_id: patientId, track_item_id: itemId, date });
+//         if (existing) return existing.id;
+//         const insertResult = await model.insert({
+//             user_id: userId,
+//             patient_id: patientId,
+//             track_item_id: itemId,
+//             date,
+//         });
+//         return insertResult.lastInsertRowId;
+//     });
 
-    logger.debug('addTrackItemForDate completed', { patientId, itemId, date, result });
-    return result;
-};
+//     logger.debug('addTrackItemForDate completed', { patientId, itemId, date, result });
+//     return result;
+// };
 
 export const getQuestionsWithOptions = async (
     itemId: number
@@ -228,27 +229,28 @@ export const addOptionToQuestion = async (
 };
 
 // Link item to patient/date
-export const linkItemToPatientDate = async (
+export const addTrackItemOnDate = async (
     itemId: number,
+    userId: string,
     patientId: number,
     date: string
 ): Promise<void> => {
     logger.debug('linkItemToPatientDate called', { itemId, patientId, date });
 
     await useModel(trackItemEntryModel, async (model) => {
-        const existing = await model.getFirstByFields({ 
-            track_item_id: itemId, 
-            patient_id: patientId, 
-            date 
+        const existing = await model.getFirstByFields({
+            track_item_id: itemId,
+            patient_id: patientId,
+            date
         });
-        
+
         if (existing) {
             logger.debug('linkItemToPatientDate: Item already linked', { itemId, patientId, date });
             return;
         }
-        
+
         await model.insert({
-            user_id: 1, // TODO: Get from context
+            user_id: userId,
             patient_id: patientId,
             track_item_id: itemId,
             date,
@@ -261,27 +263,29 @@ export const linkItemToPatientDate = async (
 };
 
 // Unlink item from patient/date
-export const unlinkItemFromPatientDate = async (
+export const removeTrackItemFromDate = async (
     itemId: number,
+    userId: string,
     patientId: number,
     date: string
 ): Promise<void> => {
     logger.debug('unlinkItemFromPatientDate called', { itemId, patientId, date });
 
     await useModel(trackItemEntryModel, async (model) => {
-        const existing = await model.getFirstByFields({ 
-            track_item_id: itemId, 
-            patient_id: patientId, 
-            date 
+        const existing = await model.getFirstByFields({
+            track_item_id: itemId,
+            patient_id: patientId,
+            date
         });
-        
+
         if (!existing) {
             logger.debug('unlinkItemFromPatientDate: Item not linked', { itemId, patientId, date });
             return;
         }
-        
+
         await model.deleteByFields({
             track_item_id: itemId,
+            user_id: userId,
             patient_id: patientId,
             date
         });
