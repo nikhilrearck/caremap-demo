@@ -163,6 +163,10 @@ export abstract class BaseModel<T> {
         await this.run(sql, values);
     }
 
+    async runQuery<T = any>(sql: string, params: any[] = []): Promise<T[]> {
+        const result = await this.db.getAllAsync<T>(sql, params);
+        return result;
+    }
 }
 
 // Helper function to lazily initialize a model with the DB instance.

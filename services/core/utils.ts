@@ -1,7 +1,7 @@
 import { differenceInYears } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
-import { logger } from '../logging/logger';
-import { Patient } from '../database/migrations/v1/schema_v1';
+import { logger } from '@/services/logging/logger';
+import { Patient } from '@/services/database/migrations/v1/schema_v1';
 
 export type ImagePickerResult = {
     base64Image: string | undefined;

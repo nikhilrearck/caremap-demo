@@ -156,6 +156,74 @@ export const up = async (db: SQLiteDatabase) => {
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
     );
+
+     CREATE TABLE IF NOT EXISTS ${tables.TRACK_CATEGORY} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS ${tables.TRACK_ITEM} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      category_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY(category_id) REFERENCES ${tables.TRACK_CATEGORY}(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS ${tables.QUESTION} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      item_id INTEGER NOT NULL,
+      text TEXT NOT NULL,
+      type TEXT CHECK(type IN ('boolean', 'mcq', 'msq', 'numeric', 'text')) NOT NULL,
+      instructions TEXT DEFAULT NULL,
+      required INTEGER NOT NULL DEFAULT 0,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY(item_id) REFERENCES ${tables.TRACK_ITEM}(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS ${tables.RESPONSE_OPTION} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question_id INTEGER NOT NULL,
+      text TEXT NOT NULL,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY(question_id) REFERENCES ${tables.QUESTION}(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS ${tables.TRACK_ITEM_ENTRY} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      patient_id INTEGER NOT NULL,
+      track_item_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY(user_id) REFERENCES ${tables.USER}(id) ON DELETE CASCADE,
+      FOREIGN KEY(patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE,
+      FOREIGN KEY(track_item_id) REFERENCES ${tables.TRACK_ITEM}(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS ${tables.TRACK_RESPONSE} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      patient_id INTEGER NOT NULL,
+      item_id INTEGER NOT NULL,
+      question_id INTEGER NOT NULL,
+      track_item_entry_id INTEGER NOT NULL,
+      answer TEXT NOT NULL, -- JSON string of option/s selected
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY(user_id) REFERENCES ${tables.USER}(id) ON DELETE CASCADE,
+      FOREIGN KEY(patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE,
+      FOREIGN KEY(item_id) REFERENCES ${tables.TRACK_ITEM}(id) ON DELETE CASCADE,
+      FOREIGN KEY(question_id) REFERENCES ${tables.QUESTION}(id) ON DELETE CASCADE,
+      FOREIGN KEY(track_item_entry_id) REFERENCES ${tables.TRACK_ITEM_ENTRY}(id) ON DELETE CASCADE
+    );
+
   `);
 
   logger.debug(`Tables created for V1.`);
