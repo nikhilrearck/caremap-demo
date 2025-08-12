@@ -1,10 +1,5 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import moment from "moment";
@@ -39,7 +34,7 @@ export default function TrackScreen() {
           <TouchableOpacity onPress={handleAddItem}>
             <View className="bg-white px-3 py-1.5 rounded-lg">
               <Text className="font-bold" style={{ color: palette.primary }}>
-                Add
+                Add Item
               </Text>
             </View>
           </TouchableOpacity>
@@ -49,7 +44,7 @@ export default function TrackScreen() {
       <View className="px-2">
         <Divider className="bg-gray-300" />
       </View>
-{/* calendar */}
+      {/* calendar */}
       <TrackCalendar
         selectedDate={selectedDate}
         onDateSelected={setSelectedDate}
