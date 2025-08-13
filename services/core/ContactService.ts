@@ -8,34 +8,12 @@ import { getPatientByUserId } from './PatientService';
 // Single shared instance of model
 const contactModel = new ContactModel();
 
-// Initialize contact table if it doesn't exist
-export const initializeContactTable = async (): Promise<void> => {
-    return useModel(contactModel, async (model) => {
-        try {
-            // Try to create the table - this will fail silently if it already exists
-            await model.run(`
-                CREATE TABLE IF NOT EXISTS CONTACT (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    patient_id INTEGER NOT NULL,
-                    first_name TEXT NOT NULL,
-                    last_name TEXT NOT NULL,
-                    relationship TEXT NOT NULL,
-                    phone_number TEXT NOT NULL,
-                    description TEXT,
-                    email TEXT,
-                    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (patient_id) REFERENCES PATIENT(id) ON DELETE CASCADE
-                )
-            `);
-            logger.debug("Contact table initialized successfully");
-        } catch (error) {
-            logger.debug("Contact table initialization error:", error);
-        }
-    });
-};
+export const isExistingContact = async (id: number): Promise<boolean> => {
+    const existingContact = await getContact(id);
+    return !!existingContact;
+}
 
-export const createContact = async (contact: Omit<Contact, 'id' | 'patient_id' | 'created_date' | 'updated_date'>, userId: string): Promise<Contact | null> => {
+export const createContact = async (contact: Partial<Contact>, userId: string): Promise<Contact | null> => {
     return useModel(contactModel, async (model) => {
         try {
             // Get the current patient for this user
@@ -61,11 +39,6 @@ export const createContact = async (contact: Omit<Contact, 'id' | 'patient_id' |
             const created = await model.insert(newContact);
             logger.debug("Contact created: ", created);
             
-            // If we got a raw SQLite result instead of a contact object, fetch the contact
-            if (created && !created.id && created.lastInsertRowId) {
-                return getContactById(created.lastInsertRowId);
-            }
-            
             return created;
         } catch (error) {
             logger.debug("Error creating contact, table may not exist:", error);
@@ -84,6 +57,14 @@ export const getContact = async (id: number): Promise<Contact | null> => {
 
 export const getContactById = async (id: number): Promise<Contact | null> => {
     return getContact(id);
+}
+
+export const getContactsByPatientId = async (patientId: number): Promise<Contact[]> => {
+    return useModel(contactModel, async (model) => {
+        const results = await model.getByFields({ patient_id: patientId });
+        logger.debug("DB Contacts for patient: ", results);
+        return results;
+    });
 }
 
 export const updateContact = async (contactUpdate: Partial<Contact>, whereMap: Partial<Contact>): Promise<Contact | null> => {
@@ -106,8 +87,7 @@ export const updateContact = async (contactUpdate: Partial<Contact>, whereMap: P
 
 export const deleteContact = async (id: number): Promise<boolean> => {
     return useModel(contactModel, async (model) => {
-        const existingContact = await getContact(id);
-        if (!existingContact) {
+        if (!(await isExistingContact(id))) {
             logger.debug("Contact not found for deletion: ", id);
             return false;
         }
@@ -129,8 +109,7 @@ export const getAllContacts = async (userId: string): Promise<Contact[]> => {
 
             return await model.getByFields({ patient_id: patient.id });
         } catch (error) {
-            // If table doesn't exist, return empty array (fallback to sample data in UI)
-            logger.debug("Error fetching contacts, table may not exist:", error);
+            logger.debug("Error fetching contacts", error);
             return [];
         }
     });
