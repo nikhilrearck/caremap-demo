@@ -81,8 +81,15 @@ function CareTeam() {
           loadContacts();
         }
       }
-    } catch (error) {
-      Alert.alert("Error", "Failed to save contact");
+    } catch (error: any) {
+      // Handle unique constraint errors
+      if (error.message === "Phone number already exists") {
+        Alert.alert("Error", "This phone number is already registered with another contact");
+      } else if (error.message === "Email already exists") {
+        Alert.alert("Error", "This email address is already registered with another contact");
+      } else {
+        Alert.alert("Error", "Failed to save contact");
+      }
     } finally {
       setLoading(false);
     }

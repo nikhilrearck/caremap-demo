@@ -163,9 +163,9 @@ export const up = async (db: SQLiteDatabase) => {
       first_name TEXT NOT NULL,
       last_name TEXT NOT NULL,
       relationship TEXT NOT NULL,
-      phone_number TEXT NOT NULL,
+      phone_number TEXT NOT NULL UNIQUE,
       description TEXT DEFAULT NULL,
-      email TEXT DEFAULT NULL,
+      email TEXT DEFAULT NULL UNIQUE,
       created_date TEXT NOT NULL DEFAULT (datetime('now')),
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE

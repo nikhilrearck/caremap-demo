@@ -13,6 +13,28 @@ export const isExistingContact = async (id: number): Promise<boolean> => {
     return !!existingContact;
 }
 
+export const isPhoneNumberExists = async (phoneNumber: string, excludeId?: number): Promise<boolean> => {
+    return useModel(contactModel, async (model) => {
+        const whereClause: any = { phone_number: phoneNumber };
+        if (excludeId) {
+            whereClause.id = { $ne: excludeId };
+        }
+        const existingContact = await model.getFirstByFields(whereClause);
+        return !!existingContact;
+    });
+}
+
+export const isEmailExists = async (email: string, excludeId?: number): Promise<boolean> => {
+    return useModel(contactModel, async (model) => {
+        const whereClause: any = { email: email };
+        if (excludeId) {
+            whereClause.id = { $ne: excludeId };
+        }
+        const existingContact = await model.getFirstByFields(whereClause);
+        return !!existingContact;
+    });
+}
+
 export const createContact = async (contact: Partial<Contact>, userId: string): Promise<Contact | null> => {
     return useModel(contactModel, async (model) => {
         try {
@@ -28,6 +50,18 @@ export const createContact = async (contact: Partial<Contact>, userId: string): 
                 return null;
             }
 
+            // Check for duplicate phone number
+            if (await isPhoneNumberExists(contact.phone_number)) {
+                logger.debug("Cannot create contact: Phone number already exists");
+                throw new Error("Phone number already exists");
+            }
+
+            // Check for duplicate email if provided
+            if (contact.email && await isEmailExists(contact.email)) {
+                logger.debug("Cannot create contact: Email already exists");
+                throw new Error("Email already exists");
+            }
+
             const now = getCurrentTimestamp();
             const newContact = {
                 ...contact,
@@ -41,7 +75,7 @@ export const createContact = async (contact: Partial<Contact>, userId: string): 
             
             return created;
         } catch (error) {
-            logger.debug("Error creating contact, table may not exist:", error);
+            logger.debug("Error creating contact:", error);
             return null;
         }
     });
@@ -73,6 +107,22 @@ export const updateContact = async (contactUpdate: Partial<Contact>, whereMap: P
         if (!existingContact) {
             logger.debug("Contact not found for update: ", whereMap);
             return null;
+        }
+
+        // Check for duplicate phone number if being updated
+        if (contactUpdate.phone_number && contactUpdate.phone_number !== existingContact.phone_number) {
+            if (await isPhoneNumberExists(contactUpdate.phone_number, existingContact.id)) {
+                logger.debug("Cannot update contact: Phone number already exists");
+                throw new Error("Phone number already exists");
+            }
+        }
+
+        // Check for duplicate email if being updated
+        if (contactUpdate.email && contactUpdate.email !== existingContact.email) {
+            if (await isEmailExists(contactUpdate.email, existingContact.id)) {
+                logger.debug("Cannot update contact: Email already exists");
+                throw new Error("Email already exists");
+            }
         }
 
         const updateData = {
