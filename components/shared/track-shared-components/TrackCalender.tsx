@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CalendarStrip from "react-native-calendar-strip";
 import moment from "moment";
 import palette from "@/utils/theme/color";
@@ -12,6 +12,7 @@ const TrackCalendar: React.FC<CalendarProps> = ({
   selectedDate,
   onDateSelected,
 }) => {
+
   return (
     <CalendarStrip
       scrollable

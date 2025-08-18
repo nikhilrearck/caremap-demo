@@ -19,36 +19,37 @@ import {
 } from "react-native";
 
 export default function TrackScreen() {
-  const { patient } = useContext(PatientContext);
-  const { categories, setCategories } = useContext(TrackContext);
-  const [selectedDate, setSelectedDate] = useState(moment());
-  const [formattedDate, setFormattedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
   const router = useRouter();
+
+  const { patient } = useContext(PatientContext);
+  const { categories, setCategories, refreshData, setRefreshData } =
+    useContext(TrackContext);
+
+  const [currentSelectedDate, setCurrentSelectedDate] = useState(moment());
 
   useEffect(() => {
     if (!patient) {
       router.replace(ROUTES.MY_HEALTH);
       return;
     }
+
+    setRefreshData(false);
+
     const loadTrackItemsForSelectedDate = async () => {
-      const newFormattedDate = selectedDate.format("MM-DD-YYYY");
-      setFormattedDate(newFormattedDate);
       const res = await getTrackCategoriesWithItemsAndProgress(
         patient.id,
-        newFormattedDate
+        currentSelectedDate.format("MM-DD-YYYY")
       );
       setCategories(res);
     };
 
     loadTrackItemsForSelectedDate();
-  }, [selectedDate]);
+  }, [patient, currentSelectedDate, refreshData]);
 
   const handleAddItem = () => {
     router.push({
       pathname: "/home/track/addItem",
-      params: { date: formattedDate },
+      params: { date: currentSelectedDate.format("MM-DD-YYYY") },
     });
   };
 
@@ -73,8 +74,8 @@ export default function TrackScreen() {
       </View>
       {/* calendar */}
       <TrackCalendar
-        selectedDate={selectedDate}
-        onDateSelected={setSelectedDate}
+        selectedDate={currentSelectedDate}
+        onDateSelected={setCurrentSelectedDate}
       />
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -99,7 +100,7 @@ export default function TrackScreen() {
                     item={itm.item}
                     completed={itm.completed}
                     total={itm.total}
-                    date={formattedDate}
+                    date={currentSelectedDate.format("MM-DD-YYYY")}
                   />
                 ))}
               </View>

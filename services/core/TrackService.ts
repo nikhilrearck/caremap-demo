@@ -162,14 +162,14 @@ export const getQuestionsWithOptions = async (
         }));
     });
 
-    logger.debug('getQuestionsWithOptions completed', { itemId });
+    logger.debug('getQuestionsWithOptions completed', { itemId } , `${JSON.stringify(result)}`);
     return result;
 };
 
 export const saveResponse = async (
     entryId: number,
     questionId: number,
-    answer: unknown
+    answer: string
 ): Promise<void> => {
     logger.debug('saveResponse called', { entryId, questionId, answer });
 

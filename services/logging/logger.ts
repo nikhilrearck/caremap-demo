@@ -6,7 +6,7 @@ interface Logger {
 }
 
 // Helper function to truncate long strings in objects
-const truncateStrings = (obj: any, maxLength = 50): any => {
+const truncateStrings = (obj: any, maxLength = 1000): any => {
   if (obj == null) {
     return obj;
   } 

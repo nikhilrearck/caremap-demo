@@ -26,7 +26,7 @@ export interface TrackCategoryWithItems extends TrackCategory {
   items: TrackItemWithProgress[];
 };
 
-export interface TrackItemWithProgress extends TrackItem {
+export interface TrackItemWithProgress{
   item: TrackItem;
   completed: number;
   total: number;
