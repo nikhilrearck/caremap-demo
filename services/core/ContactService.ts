@@ -3,7 +3,7 @@ import { ContactModel } from '@/services/database/models/ContactModel';
 import { logger } from '@/services/logging/logger';
 import { getCurrentTimestamp } from '@/services/core/utils';
 import { useModel } from '@/services/database/BaseModel';
-import { getPatientByUserId } from './PatientService';
+import { getPatientByUserId } from '@/services/core/PatientService';
 
 // Single shared instance of model
 const contactModel = new ContactModel();
