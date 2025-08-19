@@ -3,6 +3,7 @@ import { CheckIcon, Icon } from "@/components/ui/icon";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
 import { UserContext } from "@/context/UserContext";
+import { TrackCategoryWithSelectableItems } from "@/services/common/types";
 import {
   addTrackItemOnDate,
   getAllCategoriesWithSelectableItems,
@@ -11,7 +12,7 @@ import {
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
 import { useRouter } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -20,8 +21,12 @@ export default function AddItem() {
 
   const { user } = useContext(UserContext);
   const { patient } = useContext(PatientContext);
-  const { selectedDate, selectableItems, setSelectableItems, setRefreshData } =
-    useContext(TrackContext);
+  const { selectedDate, setRefreshData } = useContext(TrackContext);
+  const [selectableCategories, setSelectableCategories] = useState<
+    TrackCategoryWithSelectableItems[]
+  >([]);
+  const selectableCategoriesRef = useRef<TrackCategoryWithSelectableItems[]>([]);
+  const initialCategoriesRef = useRef<TrackCategoryWithSelectableItems[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,55 +46,71 @@ export default function AddItem() {
         selectedDate
       );
 
-      setSelectableItems(res);
+      selectableCategoriesRef.current = res;
+      initialCategoriesRef.current = res;
+      setSelectableCategories(res);
     };
     loadSelectableItems();
   }, [patient, selectedDate]);
 
   const toggleSelect = (categoryIndex: number, itemIndex: number) => {
-    const updated = selectableItems.map((group, i) => {
-      if (i !== categoryIndex) return group;
-
-      const items = group.items.map((item, j) =>
-        j === itemIndex ? { ...item, selected: !item.selected } : item
+    setSelectableCategories((prev) => {
+      const categoryGroup = prev[categoryIndex];
+      const items = categoryGroup.items.map((item, i) =>
+        i === itemIndex ? { ...item, selected: !item.selected } : item
       );
 
-      return { ...group, items };
+      const updatedGroup = { ...categoryGroup, items };
+      const next = prev.map((group, i) =>
+        i === categoryIndex ? updatedGroup : group
+      );
+      selectableCategoriesRef.current = next;
+      return next;
     });
-
-    updated.forEach(cat=>cat.items.forEach(itm => console.log(itm.item.name,itm.selected)))
-    setSelectableItems(updated);
   };
 
   const handleSave = async () => {
+    if (isLoading) return;
     if (!user?.id) throw new Error("Authentication ERROR");
     if (!patient?.id) throw new Error("Authentication ERROR");
 
     setIsLoading(true);
 
     try {
-      const selected: Promise<any>[] = [];
-      for (const categoryGroup of selectableItems) {
-        for (const itemObj of categoryGroup.items) {
-          const actionPromise = itemObj.selected
-            ? addTrackItemOnDate(
-                itemObj.item.id,
-                user.id,
-                patient.id,
-                selectedDate
-              )
-            : removeTrackItemFromDate(
-                itemObj.item.id,
-                user.id,
-                patient.id,
-                selectedDate
-              );
+      const current = selectableCategoriesRef.current;
+      const initial = initialCategoriesRef.current;
 
-          selected.push(actionPromise);
+      for (let c = 0; c < current.length; c++) {
+        const currentGroup = current[c];
+        const initialGroup = initial[c];
+        for (let i = 0; i < currentGroup.items.length; i++) {
+          const currentItem = currentGroup.items[i];
+          const initialItem = initialGroup?.items?.[i];
+          const hasChanged = initialItem
+            ? currentItem.selected !== initialItem.selected
+            : currentItem.selected;
+
+          if (!hasChanged) continue;
+
+          if (currentItem.selected) {
+            await addTrackItemOnDate(
+              currentItem.item.id,
+              user.id,
+              patient.id,
+              selectedDate
+            );
+          } else {
+            await removeTrackItemFromDate(
+              currentItem.item.id,
+              user.id,
+              patient.id,
+              selectedDate
+            );
+          }
         }
       }
 
-      await Promise.all(selected);
+      initialCategoriesRef.current = selectableCategoriesRef.current;
 
       setRefreshData(true);
       router.back();
@@ -109,7 +130,7 @@ export default function AddItem() {
         }
       />
       <ScrollView contentContainerClassName="px-4 pb-12 pt-5">
-        {selectableItems.map((categoryGroup, categoryIndex) => (
+        {selectableCategories.map((categoryGroup, categoryIndex) => (
           <View key={categoryGroup.category.id} className="mb-6">
             <Text
               style={{ color: palette.heading }}
@@ -153,3 +174,4 @@ export default function AddItem() {
     </SafeAreaView>
   );
 }
+
