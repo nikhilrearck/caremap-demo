@@ -3,7 +3,6 @@ import { CheckIcon, Icon } from "@/components/ui/icon";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
 import { UserContext } from "@/context/UserContext";
-import { TrackCategoryWithSelectableItems } from "@/services/common/types";
 import {
   addTrackItemOnDate,
   getAllCategoriesWithSelectableItems,
@@ -21,10 +20,8 @@ export default function AddItem() {
 
   const { user } = useContext(UserContext);
   const { patient } = useContext(PatientContext);
-  const { selectedDate, setRefreshData } = useContext(TrackContext);
-  const [selectableCategories, setSelectableCategories] = useState<
-    TrackCategoryWithSelectableItems[]
-  >([]);
+  const { selectedDate, selectableItems, setSelectableItems, setRefreshData } =
+    useContext(TrackContext);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,24 +41,24 @@ export default function AddItem() {
         selectedDate
       );
 
-      setSelectableCategories(res);
+      setSelectableItems(res);
     };
     loadSelectableItems();
   }, [patient, selectedDate]);
 
   const toggleSelect = (categoryIndex: number, itemIndex: number) => {
-    setSelectableCategories((prev) => {
-      const categoryGroup = prev[categoryIndex];
-      const items = categoryGroup.items.map((item, i) =>
-        i === itemIndex ? { ...item, selected: !item.selected } : item
+    const updated = selectableItems.map((group, i) => {
+      if (i !== categoryIndex) return group;
+
+      const items = group.items.map((item, j) =>
+        j === itemIndex ? { ...item, selected: !item.selected } : item
       );
 
-      const updatedGroup = { ...categoryGroup, items };
-
-      return prev.map((group, i) =>
-        i === categoryIndex ? updatedGroup : group
-      );
+      return { ...group, items };
     });
+
+    updated.forEach(cat=>cat.items.forEach(itm => console.log(itm.item.name,itm.selected)))
+    setSelectableItems(updated);
   };
 
   const handleSave = async () => {
@@ -71,8 +68,8 @@ export default function AddItem() {
     setIsLoading(true);
 
     try {
-      const selected = [];
-      for (const categoryGroup of selectableCategories) {
+      const selected: Promise<any>[] = [];
+      for (const categoryGroup of selectableItems) {
         for (const itemObj of categoryGroup.items) {
           const actionPromise = itemObj.selected
             ? addTrackItemOnDate(
@@ -112,7 +109,7 @@ export default function AddItem() {
         }
       />
       <ScrollView contentContainerClassName="px-4 pb-12 pt-5">
-        {selectableCategories.map((categoryGroup, categoryIndex) => (
+        {selectableItems.map((categoryGroup, categoryIndex) => (
           <View key={categoryGroup.category.id} className="mb-6">
             <Text
               style={{ color: palette.heading }}

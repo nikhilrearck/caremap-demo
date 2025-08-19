@@ -63,7 +63,7 @@ export default function TrackScreen() {
   const handleAddItem = () => {
     router.push({
       pathname: "/home/track/addItem",
-      params: { date: currentSelectedDate.format("MM-DD-YYYY") },
+      // params: { date: currentSelectedDate.format("MM-DD-YYYY") },
     });
   };
 
