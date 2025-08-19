@@ -22,10 +22,23 @@ export default function TrackScreen() {
   const router = useRouter();
 
   const { patient } = useContext(PatientContext);
-  const { categories, setCategories, refreshData, setRefreshData } =
-    useContext(TrackContext);
+  const {
+    categories,
+    setCategories,
+    refreshData,
+    setRefreshData,
+    selectedDate,
+    setSelectedDate,
+  } = useContext(TrackContext);
 
   const [currentSelectedDate, setCurrentSelectedDate] = useState(moment());
+
+  useEffect(() => {
+    const formatted = currentSelectedDate.format("MM-DD-YYYY");
+    if (selectedDate !== formatted) {
+      setSelectedDate(formatted);
+    }
+  }, [currentSelectedDate, selectedDate]);
 
   useEffect(() => {
     if (!patient) {
@@ -33,7 +46,7 @@ export default function TrackScreen() {
       return;
     }
 
-    setRefreshData(false);
+    refreshData ?? setRefreshData(false);
 
     const loadTrackItemsForSelectedDate = async () => {
       const res = await getTrackCategoriesWithItemsAndProgress(
@@ -41,6 +54,7 @@ export default function TrackScreen() {
         currentSelectedDate.format("MM-DD-YYYY")
       );
       setCategories(res);
+      // setSelectedDate(currentSelectedDate.format("MM-DD-YYYY"));
     };
 
     loadTrackItemsForSelectedDate();

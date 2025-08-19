@@ -1,5 +1,5 @@
 import { tables } from "@/services/database/migrations/v1/schema_v1";
-import trackData from "@/services/database/seeds/v1/track_sample_data.json";
+import trackData from "@/services/database/seeds/v1/track_seed.json";
 import { logger } from "@/services/logging/logger";
 import { SQLiteDatabase } from "expo-sqlite";
 

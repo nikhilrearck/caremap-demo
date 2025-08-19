@@ -25,7 +25,7 @@ export abstract class BaseModel<T> {
     // toDatabase: false -> convert ISO string to Date (while retrieving from the database)
     private convertDates(data: any, toDatabase: boolean): any {
         if (!data) return data;
-        
+
         if (data instanceof Date) {
             return toDatabase ? data.toISOString() : data;
         }

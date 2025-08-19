@@ -19,6 +19,8 @@ const responseOptionModel = new ResponseOptionModel();
 const trackResponseModel = new TrackResponseModel();
 const trackItemEntryModel = new TrackItemEntryModel();
 
+const now = getCurrentTimestamp();
+
 export const getTrackCategoriesWithItemsAndProgress = async (
     patientId: number,
     date: string
@@ -118,29 +120,6 @@ export const getAllCategoriesWithSelectableItems = async (
     });
 };
 
-// export const addTrackItemForDate = async (
-//     userId:number,
-//     patientId: number,
-//     itemId: number,
-//     date: string
-// ): Promise<number> => {
-//     logger.debug('addTrackItemForDate called', { patientId, itemId, date });
-
-//     const result = await useModel(trackItemEntryModel, async (model) => {
-//         const existing = await model.getFirstByFields({ patient_id: patientId, track_item_id: itemId, date });
-//         if (existing) return existing.id;
-//         const insertResult = await model.insert({
-//             user_id: userId,
-//             patient_id: patientId,
-//             track_item_id: itemId,
-//             date,
-//         });
-//         return insertResult.lastInsertRowId;
-//     });
-
-//     logger.debug('addTrackItemForDate completed', { patientId, itemId, date, result });
-//     return result;
-// };
 
 export const getQuestionsWithOptions = async (
     itemId: number
@@ -162,7 +141,7 @@ export const getQuestionsWithOptions = async (
         }));
     });
 
-    logger.debug('getQuestionsWithOptions completed', { itemId } , `${JSON.stringify(result)}`);
+    logger.debug('getQuestionsWithOptions completed', { itemId }, `${JSON.stringify(result)}`);
     return result;
 };
 
@@ -254,8 +233,8 @@ export const addTrackItemOnDate = async (
             patient_id: patientId,
             track_item_id: itemId,
             date,
-            created_date: getCurrentTimestamp(),
-            updated_date: getCurrentTimestamp(),
+            created_date: now,
+            updated_date: now,
         });
     });
 

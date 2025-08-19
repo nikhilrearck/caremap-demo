@@ -29,7 +29,7 @@ export default function QuestionFlowScreen() {
   // sampleQuestions
   const [questions, setQuestions] = useState<Question[]>([]);
 
-  // // sampleResponse
+  // sampleResponse
   const [responseOptions, setResponseOptions] = useState<ResponseOption[]>([]);
 
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);

@@ -1,122 +1,104 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import React, { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
 import Header from "@/components/shared/Header";
 import { CheckIcon, Icon } from "@/components/ui/icon";
-import palette from "@/utils/theme/color";
+import { PatientContext } from "@/context/PatientContext";
+import { TrackContext } from "@/context/TrackContext";
+import { UserContext } from "@/context/UserContext";
+import { TrackCategoryWithSelectableItems } from "@/services/common/types";
 import {
-  TrackCategoryWithSelectableItems,
-  useSelectedItems,
-} from "@/context/TrackContext";
-
-const sampleData: TrackCategoryWithSelectableItems[] = [
-  {
-    category: { id: 1, name: "Meds and Treatment" },
-    items: [
-      {
-        item: { id: 101, category_id: 1, name: "Emergency Medication" },
-        selected: false,
-      },
-      {
-        item: { id: 102, category_id: 1, name: "Home Spirometry use" },
-        selected: false,
-      },
-      {
-        item: { id: 103, category_id: 1, name: "Airway clearance treatment" },
-        selected: false,
-      },
-      {
-        item: {
-          id: 104,
-          category_id: 1,
-          name: "Transplant medication adherence",
-        },
-        selected: false,
-      },
-      {
-        item: { id: 105, category_id: 1, name: "Medication Tracking" },
-        selected: false,
-      },
-    ],
-  },
-  {
-    category: { id: 2, name: "Major Events" },
-    items: [
-      {
-        item: { id: 201, category_id: 2, name: "Sick Visits" },
-        selected: false,
-      },
-      { item: { id: 202, category_id: 2, name: "Falls" }, selected: false },
-      {
-        item: { id: 203, category_id: 2, name: "Work/School absences" },
-        selected: false,
-      },
-    ],
-  },
-  {
-    category: { id: 3, name: "Physical Symptoms" },
-    items: [
-      { item: { id: 301, category_id: 3, name: "Pain" }, selected: false },
-      { item: { id: 302, category_id: 3, name: "Cough" }, selected: false },
-    ],
-  },
-];
+  addTrackItemOnDate,
+  getAllCategoriesWithSelectableItems,
+  removeTrackItemFromDate,
+} from "@/services/core/TrackService";
+import { ROUTES } from "@/utils/route";
+import palette from "@/utils/theme/color";
+import { useRouter } from "expo-router";
+import React, { useContext, useEffect, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AddItem() {
   const router = useRouter();
-  const { date } = useLocalSearchParams<{ date: string }>();
 
-  const { selectedByDate, addItemForDate } = useSelectedItems();
+  const { user } = useContext(UserContext);
+  const { patient } = useContext(PatientContext);
+  const { selectedDate, setRefreshData } = useContext(TrackContext);
   const [selectableCategories, setSelectableCategories] = useState<
     TrackCategoryWithSelectableItems[]
   >([]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    const existingCategoryGroups = selectedByDate[date] || [];
-    const mergedCategories = sampleData.map((categoryGroup) => {
-      const existingCategoryGroup = existingCategoryGroups.find(
-        (c) => c.category.id === categoryGroup.category.id
+    if (!user) {
+      router.replace(ROUTES.LOGIN);
+      return;
+    }
+    if (!patient) {
+      router.replace(ROUTES.MY_HEALTH);
+      return;
+    }
+
+    const loadSelectableItems = async () => {
+      const res = await getAllCategoriesWithSelectableItems(
+        patient.id,
+        selectedDate
       );
-      return {
-        ...categoryGroup,
-        items: categoryGroup.items.map((itemObj) => ({
-          ...itemObj,
-          selected: !!existingCategoryGroup?.items.some(
-            (i) => i.item.id === itemObj.item.id
-          ),
-        })),
-      };
-    });
-    setSelectableCategories(mergedCategories);
-  }, [date, selectedByDate]);
+
+      setSelectableCategories(res);
+    };
+    loadSelectableItems();
+  }, [patient, selectedDate]);
 
   const toggleSelect = (categoryIndex: number, itemIndex: number) => {
-    setSelectableCategories((prev) =>
-      prev.map((categoryGroup, catIndex) =>
-        catIndex === categoryIndex
-          ? {
-              ...categoryGroup,
-              items: categoryGroup.items.map((itemObj, iIndex) =>
-                iIndex === itemIndex
-                  ? { ...itemObj, selected: !itemObj.selected }
-                  : itemObj
-              ),
-            }
-          : categoryGroup
-      )
-    );
+    setSelectableCategories((prev) => {
+      const categoryGroup = prev[categoryIndex];
+      const items = categoryGroup.items.map((item, i) =>
+        i === itemIndex ? { ...item, selected: !item.selected } : item
+      );
+
+      const updatedGroup = { ...categoryGroup, items };
+
+      return prev.map((group, i) =>
+        i === categoryIndex ? updatedGroup : group
+      );
+    });
   };
 
-  const handleSave = () => {
-    selectableCategories.forEach((categoryGroup) => {
-      categoryGroup.items.forEach((itemObj) => {
-        if (itemObj.selected) {
-          addItemForDate(date, categoryGroup.category, itemObj.item);
+  const handleSave = async () => {
+    if (!user?.id) throw new Error("Authentication ERROR");
+    if (!patient?.id) throw new Error("Authentication ERROR");
+
+    setIsLoading(true);
+
+    try {
+      const selected = [];
+      for (const categoryGroup of selectableCategories) {
+        for (const itemObj of categoryGroup.items) {
+          const actionPromise = itemObj.selected
+            ? addTrackItemOnDate(
+                itemObj.item.id,
+                user.id,
+                patient.id,
+                selectedDate
+              )
+            : removeTrackItemFromDate(
+                itemObj.item.id,
+                user.id,
+                patient.id,
+                selectedDate
+              );
+
+          selected.push(actionPromise);
         }
-      });
-    });
-    router.back();
+      }
+
+      await Promise.all(selected);
+
+      setRefreshData(true);
+      router.back();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -164,6 +146,7 @@ export default function AddItem() {
 
         <TouchableOpacity
           onPress={handleSave}
+          disabled={isLoading}
           style={{ backgroundColor: palette.primary }}
           className="rounded-lg py-3 items-center"
         >
