@@ -3,164 +3,142 @@ import { ContactModel } from '@/services/database/models/ContactModel';
 import { logger } from '@/services/logging/logger';
 import { getCurrentTimestamp } from '@/services/core/utils';
 import { useModel } from '@/services/database/BaseModel';
-import { getPatientByUserId } from '@/services/core/PatientService';
+import { isExistingPatientById } from '@/services/core/PatientService';
 
 // Single shared instance of model
 const contactModel = new ContactModel();
 
-export const isExistingContact = async (id: number): Promise<boolean> => {
-    const existingContact = await getContact(id);
-    return !!existingContact;
-}
 
-export const isPhoneNumberExists = async (phoneNumber: string, excludeId?: number): Promise<boolean> => {
-    return useModel(contactModel, async (model) => {
-        const whereClause: any = { phone_number: phoneNumber };
-        if (excludeId) {
-            whereClause.id = { $ne: excludeId };
+const checkUniqueFields = async (
+    model: ContactModel,
+    contactData: Partial<Contact>,
+    excludeId?: number
+): Promise<void> => {
+    if (contactData.phone_number) {
+        const phoneHolder = await model.getFirstByFields({ phone_number: contactData.phone_number });
+        if (phoneHolder && (phoneHolder as any).id !== excludeId) {
+            throw new Error("Phone number already exists");
         }
-        const existingContact = await model.getFirstByFields(whereClause);
-        return !!existingContact;
-    });
-}
+    }
 
-export const isEmailExists = async (email: string, excludeId?: number): Promise<boolean> => {
-    return useModel(contactModel, async (model) => {
-        const whereClause: any = { email: email };
-        if (excludeId) {
-            whereClause.id = { $ne: excludeId };
+    if (contactData.email) {
+        const emailHolder = await model.getFirstByFields({ email: contactData.email });
+        if (emailHolder && (emailHolder as any).id !== excludeId) {
+            throw new Error("Email already exists");
         }
-        const existingContact = await model.getFirstByFields(whereClause);
-        return !!existingContact;
-    });
-}
+    }
+};
 
-export const createContact = async (contact: Partial<Contact>, userId: string): Promise<Contact | null> => {
+
+export const createContact = async (contact: Partial<Contact>, patientId: number): Promise<Contact | null> => {
     return useModel(contactModel, async (model) => {
         try {
-            // Get the current patient for this user
-            const patient = await getPatientByUserId(userId);
-            if (!patient) {
-                logger.debug("Cannot create contact: Patient not found for user");
+            if (!await isExistingPatientById(patientId)) {
+                logger.debug("Patient not found for contact creation:", patientId);
                 return null;
             }
 
-            if (!contact.first_name || !contact.last_name || !contact.relationship || !contact.phone_number) {
-                logger.debug("Cannot create contact: Required fields missing");
-                return null;
+            if (!contact.first_name || !contact.last_name || !contact.relationship || !contact.phone_number || !contact.email) {
+                throw new Error("Missing required fields");
             }
 
-            // Check for duplicate phone number
-            if (await isPhoneNumberExists(contact.phone_number)) {
-                logger.debug("Cannot create contact: Phone number already exists");
-                throw new Error("Phone number already exists");
-            }
-
-            // Check for duplicate email if provided
-            if (contact.email && await isEmailExists(contact.email)) {
-                logger.debug("Cannot create contact: Email already exists");
-                throw new Error("Email already exists");
-            }
+            await checkUniqueFields(model, contact);
 
             const now = getCurrentTimestamp();
             const newContact = {
                 ...contact,
-                patient_id: patient.id,
+                patient_id: patientId,
                 created_date: now,
                 updated_date: now
             };
 
             const created = await model.insert(newContact);
-            logger.debug("Contact created: ", created);
-            
+            logger.debug("Contact created:", created);
             return created;
         } catch (error) {
             logger.debug("Error creating contact:", error);
-            return null;
+            throw error;
         }
     });
-}
+};
 
-export const getContact = async (id: number): Promise<Contact | null> => {
-    return useModel(contactModel, async (model) => {
-        const result = await model.getFirstByFields({ id });
-        logger.debug("DB Contact data: ", result);
-        return result;
-    });
-}
-
-export const getContactById = async (id: number): Promise<Contact | null> => {
-    return getContact(id);
-}
-
-export const getContactsByPatientId = async (patientId: number): Promise<Contact[]> => {
-    return useModel(contactModel, async (model) => {
-        const results = await model.getByFields({ patient_id: patientId });
-        logger.debug("DB Contacts for patient: ", results);
-        return results;
-    });
-}
 
 export const updateContact = async (contactUpdate: Partial<Contact>, whereMap: Partial<Contact>): Promise<Contact | null> => {
     return useModel(contactModel, async (model) => {
-        const existingContact = await model.getFirstByFields(whereMap);
-        if (!existingContact) {
-            logger.debug("Contact not found for update: ", whereMap);
-            return null;
-        }
-
-        // Check for duplicate phone number if being updated
-        if (contactUpdate.phone_number && contactUpdate.phone_number !== existingContact.phone_number) {
-            if (await isPhoneNumberExists(contactUpdate.phone_number, existingContact.id)) {
-                logger.debug("Cannot update contact: Phone number already exists");
-                throw new Error("Phone number already exists");
+        try {
+            const existingContact = await model.getFirstByFields(whereMap);
+            if (!existingContact) {
+                logger.debug("Contact not found for update:", whereMap);
+                return null;
             }
-        }
 
-        // Check for duplicate email if being updated
-        if (contactUpdate.email && contactUpdate.email !== existingContact.email) {
-            if (await isEmailExists(contactUpdate.email, existingContact.id)) {
-                logger.debug("Cannot update contact: Email already exists");
-                throw new Error("Email already exists");
-            }
-        }
+            await checkUniqueFields(model, contactUpdate, (existingContact as any).id);
 
-        const updateData = {
-            ...contactUpdate,
-            updated_date: getCurrentTimestamp()
-        };
-        const updatedContact = await model.updateByFields(updateData, whereMap);
-        logger.debug("Updated Contact: ", updatedContact);
-        return updatedContact;
+            const updateData = {
+                ...existingContact,
+                ...contactUpdate,
+                updated_date: getCurrentTimestamp()
+            };
+
+            const updatedContact = await model.updateByFields(updateData, whereMap);
+            logger.debug("Updated Contact:", updatedContact);
+            return updatedContact;
+        } catch (error) {
+            logger.debug("Error updating contact:", error);
+            throw error;
+        }
     });
-}
+};
+
 
 export const deleteContact = async (id: number): Promise<boolean> => {
     return useModel(contactModel, async (model) => {
-        if (!(await isExistingContact(id))) {
-            logger.debug("Contact not found for deletion: ", id);
-            return false;
+        try {
+            const existing = await model.getFirstByFields({ id });
+            if (!existing) {
+                logger.debug("Contact not found for deletion:", id);
+                return false;
+            }
+
+            await model.deleteByFields({ id });
+            logger.debug("Deleted Contact:", id);
+            return true;
+        } catch (error) {
+            logger.debug("Error deleting contact:", error);
+            throw error;
         }
-
-        await model.deleteByFields({ id });
-        logger.debug("Deleted Contact: ", id);
-        return true;
     });
-}
+};
 
-export const getAllContacts = async (userId: string): Promise<Contact[]> => {
+
+export const getContact = async (id: number): Promise<Contact | null> => {
     return useModel(contactModel, async (model) => {
         try {
-            // Get the current patient for this user
-            const patient = await getPatientByUserId(userId);
-            if (!patient) {
+            const result = await model.getFirstByFields({ id });
+            logger.debug("DB Contact data:", result);
+            return result;
+        } catch (error) {
+            logger.debug("Error fetching contact:", error);
+            return null;
+        }
+    });
+};
+
+
+export const getAllContacts = async (patientId: number): Promise<Contact[]> => {
+    return useModel(contactModel, async (model) => {
+        try {
+            if (!await isExistingPatientById(patientId)) {
+                logger.debug("Patient not found for contacts retrieval:", patientId);
                 return [];
             }
 
-            return await model.getByFields({ patient_id: patient.id });
+            const results = await model.getByFields({ patient_id: patientId });
+            logger.debug("DB Contacts for patient:", results);
+            return results;
         } catch (error) {
-            logger.debug("Error fetching contacts", error);
+            logger.debug("Error fetching contacts by patient ID:", error);
             return [];
         }
     });
-} 
+};

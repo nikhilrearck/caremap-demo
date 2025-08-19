@@ -5,7 +5,6 @@ import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import { Box } from "@/components/ui/box";
 import { Heading } from "@/components/ui/heading";
 import { Text as UIText } from "@/components/ui/text";
-import { Divider } from "@/components/ui/divider";
 import { UserContext } from "@/context/UserContext";
 import { 
   createContact, 
@@ -15,11 +14,13 @@ import {
 } from "@/services/core/ContactService";
 import { Contact } from "@/services/database/migrations/v1/schema_v1";
 import palette from "@/utils/theme/color";
+import { getPatientByUserId } from "@/services/core/PatientService";
 
 function CareTeam() {
   const { user } = useContext(UserContext);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(false);
+  const [patientId, setPatientId] = useState<number | null>(null);
   
   // Form state for creating/editing contacts
   const [formData, setFormData] = useState({
@@ -34,17 +35,24 @@ function CareTeam() {
 
   // Load contacts on component mount
   useEffect(() => {
-    if (user?.id) {
-      loadContacts();
-    }
+    const init = async () => {
+      if (!user?.id) return;
+      const patient = await getPatientByUserId(user.id);
+      setPatientId(patient?.id ?? null);
+      if (patient?.id) {
+        await loadContacts(patient.id);
+      }
+    };
+    init();
   }, [user]);
 
-  const loadContacts = async () => {
-    if (!user?.id) return;
+  const loadContacts = async (pid?: number) => {
+    const idToUse = pid ?? patientId;
+    if (!idToUse) return;
     
     setLoading(true);
     try {
-      const result = await getAllContacts(user.id);
+      const result = await getAllContacts(idToUse);
       setContacts(result);
     } catch (error) {
       Alert.alert("Error", "Failed to load contacts");
@@ -74,7 +82,8 @@ function CareTeam() {
         }
       } else {
         // Create new contact
-        const result = await createContact(formData, user.id);
+        if (!patientId) throw new Error("Missing patientId");
+        const result = await createContact(formData, patientId);
         if (result) {
           Alert.alert("Success", "Contact created successfully");
           resetForm();
@@ -242,7 +251,7 @@ function CareTeam() {
       <Button
         style={{ backgroundColor: palette.primary }}
             className="px-4"
-            onPress={loadContacts}
+            onPress={() => loadContacts()}
             disabled={loading}
           >
             <ButtonText className="text-white">Refresh</ButtonText>
