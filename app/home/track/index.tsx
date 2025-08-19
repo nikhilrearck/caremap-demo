@@ -10,6 +10,7 @@ import palette from "@/utils/theme/color";
 import { useFocusEffect, useRouter } from "expo-router";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   ScrollView,
   Text,
@@ -40,47 +41,25 @@ export default function TrackScreen() {
     }
   }, [currentSelectedDate, selectedDate]);
 
-  // useEffect(() => {
-  //   if (!patient) {
-  //     router.replace(ROUTES.MY_HEALTH);
-  //     return;
-  //   }
-
-  //   refreshData ?? setRefreshData(false);
-
-  //   const loadTrackItemsForSelectedDate = async () => {
-  //     const res = await getTrackCategoriesWithItemsAndProgress(
-  //       patient.id,
-  //       currentSelectedDate.format("MM-DD-YYYY")
-  //     );
-  //     setCategories(res);
-  //     // setSelectedDate(currentSelectedDate.format("MM-DD-YYYY"));
-  //   };
-
-  //   loadTrackItemsForSelectedDate();
-  // }, [patient, currentSelectedDate, refreshData]);
-
   useFocusEffect(
     useCallback(() => {
-    if (!patient) {
-      router.replace(ROUTES.MY_HEALTH);
-      return;
-    }
+      if (!patient) {
+        router.replace(ROUTES.MY_HEALTH);
+        return;
+      }
 
-    refreshData ?? setRefreshData(false);
+      const loadTrackItemsForSelectedDate = async () => {
+        const res = await getTrackCategoriesWithItemsAndProgress(
+          patient.id,
+          currentSelectedDate.format("MM-DD-YYYY")
+        );
+        setCategories(res);
+        setRefreshData(false);
+      };
 
-    const loadTrackItemsForSelectedDate = async () => {
-      const res = await getTrackCategoriesWithItemsAndProgress(
-        patient.id,
-        currentSelectedDate.format("MM-DD-YYYY")
-      );
-      setCategories(res);
-      // setSelectedDate(currentSelectedDate.format("MM-DD-YYYY"));
-    };
-
-    loadTrackItemsForSelectedDate();
-  }, [patient, currentSelectedDate, refreshData])
-);
+      loadTrackItemsForSelectedDate();
+    }, [patient, currentSelectedDate, refreshData])
+  );
 
   const handleAddItem = () => {
     router.push({

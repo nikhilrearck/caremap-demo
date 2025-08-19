@@ -80,34 +80,31 @@ export default function AddItem() {
       const current = selectableCategoriesRef.current;
       const initial = initialCategoriesRef.current;
 
-      for (let c = 0; c < current.length; c++) {
-        const currentGroup = current[c];
-        const initialGroup = initial[c];
-        for (let i = 0; i < currentGroup.items.length; i++) {
-          const currentItem = currentGroup.items[i];
-          const initialItem = initialGroup?.items?.[i];
-          const hasChanged = initialItem
-            ? currentItem.selected !== initialItem.selected
-            : currentItem.selected;
+      const initialMap: Record<number, boolean> = {};
+      for (const group of initial) {
+        for (const it of group.items) {
+          initialMap[it.item.id] = !!it.selected;
+        }
+      }
 
-          if (!hasChanged) continue;
-
-          if (currentItem.selected) {
-            await addTrackItemOnDate(
-              currentItem.item.id,
-              user.id,
-              patient.id,
-              selectedDate
-            );
-          } else {
-            await removeTrackItemFromDate(
-              currentItem.item.id,
-              user.id,
-              patient.id,
-              selectedDate
-            );
+      const toAdd: number[] = [];
+      const toRemove: number[] = [];
+      for (const group of current) {
+        for (const it of group.items) {
+          const wasSelected = initialMap[it.item.id] ?? false;
+          const isSelected = !!it.selected;
+          if (isSelected !== wasSelected) {
+            if (isSelected) toAdd.push(it.item.id);
+            else toRemove.push(it.item.id);
           }
         }
+      }
+
+      for (const itemId of toAdd) {
+        await addTrackItemOnDate(itemId, user.id, patient.id, selectedDate);
+      }
+      for (const itemId of toRemove) {
+        await removeTrackItemFromDate(itemId, user.id, patient.id, selectedDate);
       }
 
       initialCategoriesRef.current = selectableCategoriesRef.current;
