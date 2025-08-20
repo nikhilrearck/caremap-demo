@@ -10,13 +10,7 @@ import palette from "@/utils/theme/color";
 import { useFocusEffect, useRouter } from "expo-router";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
-import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TrackScreen() {
@@ -64,7 +58,6 @@ export default function TrackScreen() {
   const handleAddItem = () => {
     router.push({
       pathname: "/home/track/addItem",
-      // params: { date: currentSelectedDate.format("MM-DD-YYYY") },
     });
   };
 

@@ -1,7 +1,9 @@
 import Header from "@/components/shared/Header";
 import QuestionRenderer from "@/components/shared/track-shared-components/QuestionRenderer";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
+import { UserContext } from "@/context/UserContext";
 import {
   getQuestionsWithOptions,
   saveResponse,
@@ -10,6 +12,7 @@ import {
   Question,
   ResponseOption,
 } from "@/services/database/migrations/v1/schema_v1";
+import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
@@ -24,6 +27,8 @@ export default function QuestionFlowScreen() {
 
   const router = useRouter();
   const showToast = useCustomToast();
+  const { user } = useContext(UserContext);
+  const { patient } = useContext(PatientContext);
   const { setRefreshData } = useContext(TrackContext);
 
   // sampleQuestions
@@ -43,6 +48,15 @@ export default function QuestionFlowScreen() {
   const isLast = currentIndex === questions.length - 1;
 
   useEffect(() => {
+    if (!user) {
+      router.replace(ROUTES.LOGIN);
+      return;
+    }
+    if (!patient) {
+      router.replace(ROUTES.MY_HEALTH);
+      return;
+    }
+
     const loadQuestionsWithOptions = async () => {
       if (!itemIdNum) return;
       const questionWithOptions = await getQuestionsWithOptions(itemIdNum);
@@ -71,21 +85,6 @@ export default function QuestionFlowScreen() {
     }
   }, [questions, responseOptions, currentIndex, itemIdNum]);
 
-  const submitAnswers = (responseObj: Record<number, any>) => {
-    Object.entries(responseObj).forEach(([questionId, answerObj]) => {
-      console.log(
-        `Question id: ${questionId} , answerObj: ${JSON.stringify(answerObj)}`
-      );
-      saveResponse(
-        itemIdNum,
-        Number(questionId),
-        JSON.stringify(answerObj)
-      ).then(() => {
-        console.log("Answer saved successfully.");
-      });
-    });
-  };
-
   // Answer setter (used by QuestionRenderer)
   const handleSetAnswer = (val: any) => {
     if (!currentQuestion || !currentQuestion.id) return;
@@ -100,6 +99,44 @@ export default function QuestionFlowScreen() {
         (answersObj[q.id] !== undefined && answersObj[q.id] !== null ? 1 : 0),
       0
     );
+
+  // const submitAnswers = (responseObj: Record<number, any>) => {
+  //   Object.entries(responseObj).forEach(([questionId, answerObj]) => {
+  //     console.log(
+  //       `Question id: ${questionId} , answerObj: ${JSON.stringify(answerObj)}`
+  //     );
+  //     saveResponse(
+  //       itemIdNum,
+  //       Number(questionId),
+  //       JSON.stringify(answerObj)
+  //     ).then(() => {
+  //       console.log("Answer saved successfully.");
+  //     });
+  //   });
+  // };
+
+  const submitAnswers = async (responseObj: Record<number, any>) => {
+    if (!user?.id) throw new Error("Authentication ERROR");
+    if (!patient?.id) throw new Error("Authentication ERROR");
+
+    try {
+      for (const [questionId, answerObj] of Object.entries(responseObj)) {
+        console.log("Answer Obj : ", answerObj);
+        await saveResponse(
+          itemIdNum,
+          Number(questionId),
+          answerObj,
+          user.id,
+          patient.id
+        );
+        console.log(`Answer saved for question ${questionId}`);
+      }
+
+      console.log("All answers saved successfully.");
+    } catch (error) {
+      console.error("Error saving answers:", error);
+    }
+  };
 
   const handleNext = () => {
     // check required
@@ -122,14 +159,14 @@ export default function QuestionFlowScreen() {
     if (isLast) {
       // mark fully completed (ensure completed === total)
       submitAnswers(answers);
-      setRefreshData(true);
+      // setRefreshData(true);
       router.back();
+      setRefreshData(true);
     } else {
       setCurrentIndex((p) => p + 1);
     }
   };
 
-  
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}

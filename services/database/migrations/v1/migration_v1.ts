@@ -1,6 +1,6 @@
+import { tables } from "@/services/database/migrations/v1/schema_v1";
 import { logger } from "@/services/logging/logger";
 import { SQLiteDatabase } from "expo-sqlite";
-import { tables } from "@/services/database/migrations/v1/schema_v1";
 
 export const up = async (db: SQLiteDatabase) => {
   await db.execAsync(`
@@ -211,7 +211,6 @@ export const up = async (db: SQLiteDatabase) => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id TEXT NOT NULL,
       patient_id INTEGER NOT NULL,
-      item_id INTEGER NOT NULL,
       question_id INTEGER NOT NULL,
       track_item_entry_id INTEGER NOT NULL,
       answer TEXT NOT NULL, -- JSON string of option/s selected
@@ -219,7 +218,6 @@ export const up = async (db: SQLiteDatabase) => {
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY(user_id) REFERENCES ${tables.USER}(id) ON DELETE CASCADE,
       FOREIGN KEY(patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE,
-      FOREIGN KEY(item_id) REFERENCES ${tables.TRACK_ITEM}(id) ON DELETE CASCADE,
       FOREIGN KEY(question_id) REFERENCES ${tables.QUESTION}(id) ON DELETE CASCADE,
       FOREIGN KEY(track_item_entry_id) REFERENCES ${tables.TRACK_ITEM_ENTRY}(id) ON DELETE CASCADE
     );

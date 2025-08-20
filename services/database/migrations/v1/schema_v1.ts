@@ -177,7 +177,6 @@ export interface TrackResponse {
   id: number;
   user_id: string;
   patient_id: number;
-  item_id: number;
   question_id: number;
   track_item_entry_id: number;
   answer: string;

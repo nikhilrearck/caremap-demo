@@ -62,8 +62,8 @@ export const getTrackCategoriesWithItemsAndProgress = async (
                     created_date: item.created_date,
                     updated_date: item.updated_date
                 },
-                completed: item.completed, // TODO: Calculate based on responses
-                total: item.total, // TODO: Calculate based on questions
+                completed: item.completed,
+                total: item.total,
                 started: item.started === 1,
             }))
         }));
@@ -148,7 +148,9 @@ export const getQuestionsWithOptions = async (
 export const saveResponse = async (
     entryId: number,
     questionId: number,
-    answer: string
+    answer: string,
+    userId: string,
+    patientId: number
 ): Promise<void> => {
     logger.debug('saveResponse called', { entryId, questionId, answer });
 
@@ -167,13 +169,14 @@ export const saveResponse = async (
                 {
                     track_item_entry_id: entryId,
                     question_id: questionId,
+                    user_id: userId,
+                    patient_id: patientId
                 }
             );
         } else {
             await model.insert({
-                user_id: 1, // TODO: Get from context
-                patient_id: 1, // TODO: Get from context
-                item_id: 1, // TODO: Get from context
+                user_id: userId,
+                patient_id: patientId,
                 question_id: questionId,
                 track_item_entry_id: entryId,
                 answer: JSON.stringify(answer),
