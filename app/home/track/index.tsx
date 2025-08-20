@@ -105,7 +105,9 @@ export default function TrackScreen() {
                 {cat.items.map((itm) => (
                   <TrackCard
                     key={itm.item.id}
-                    item={itm.item}
+                    item_id={itm.item.id}
+                    entry_id={itm.entry_id}
+                    item_name={itm.item.name}
                     completed={itm.completed}
                     total={itm.total}
                     date={currentSelectedDate.format("MM-DD-YYYY")}

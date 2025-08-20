@@ -32,46 +32,55 @@ export const getTrackCategoriesWithItemsAndProgress = async (
 
         const items = await useModel(trackItemModel, async (itemModel: any) => {
             const result = await itemModel.runQuery(`
-                 SELECT 
-                    ti.id,
-                    ti.name,
-                    ti.category_id,
-                    COUNT(DISTINCT r.question_id) AS completed,
-                    COUNT(DISTINCT q.id) AS total,
-                    CASE WHEN tie.id IS NULL THEN 0 ELSE 1 END AS started
-                    FROM ${tables.TRACK_ITEM} ti
-                    INNER JOIN ${tables.TRACK_ITEM_ENTRY} tie 
-                    ON tie.track_item_id = ti.id AND tie.patient_id = ? AND tie.date = ?
-                    LEFT JOIN ${tables.TRACK_RESPONSE} r 
-                    ON r.track_item_entry_id = tie.id
-                    LEFT JOIN ${tables.QUESTION} q
-                    ON q.item_id = ti.id
-                    GROUP BY ti.id
-            `, [patientId, date]);
+        SELECT
+          ti.id                     AS item_id,     -- ✅ keep track item id
+          tie.id                    AS entry_id,    -- ✅ also return entry id
+          ti.name,
+          ti.category_id,
+          ti.created_date,
+          ti.updated_date,
+          COUNT(DISTINCT r.question_id) AS completed,
+          COUNT(DISTINCT q.id)          AS total,
+          CASE WHEN tie.id IS NULL THEN 0 ELSE 1 END AS started
+        FROM ${tables.TRACK_ITEM} ti
+        INNER JOIN ${tables.TRACK_ITEM_ENTRY} tie
+          ON tie.track_item_id = ti.id
+         AND tie.patient_id = ?
+         AND tie.date = ?
+        LEFT JOIN ${tables.QUESTION} q
+          ON q.item_id = ti.id                 -- questions for this item
+        LEFT JOIN ${tables.TRACK_RESPONSE} r
+          ON r.track_item_entry_id = tie.id    -- responses for this entry
+        GROUP BY tie.id, ti.id, ti.name, ti.category_id, ti.created_date, ti.updated_date
+      `, [patientId, date]);
             return result as any[];
         });
 
-        // Group items under categories and transform to match new interface
+        // Group items under categories and transform to match your interface
         return categories.map((cat: any) => ({
             ...cat,
-            items: items.filter((item: any) => item.category_id === cat.id).map((item: any) => ({
-                item: {
-                    id: item.id,
-                    category_id: item.category_id,
-                    name: item.name,
-                    created_date: item.created_date,
-                    updated_date: item.updated_date
-                },
-                completed: item.completed,
-                total: item.total,
-                started: item.started === 1,
-            }))
+            items: items
+                .filter((row: any) => row.category_id === cat.id)
+                .map((row: any) => ({
+                    item: {
+                        id: row.item_id,                 // ✅ still TRACK_ITEM.id (so questions load)
+                        category_id: row.category_id,
+                        name: row.name,
+                        created_date: row.created_date,
+                        updated_date: row.updated_date
+                    },
+                    entry_id: row.entry_id,          // ✅ NEW: carry TRACK_ITEM_ENTRY.id for saving responses
+                    completed: row.completed,
+                    total: row.total,
+                    started: row.started === 1,
+                }))
         }));
     });
 
     logger.debug('getTrackCategoriesWithItemsAndProgress completed', JSON.stringify(result, null, 2));
     return result;
 };
+
 
 export const getAllCategoriesWithSelectableItems = async (
     patientId: number,
@@ -158,6 +167,8 @@ export const saveResponse = async (
         const existing = await model.getFirstByFields({
             track_item_entry_id: entryId,
             question_id: questionId,
+            user_id:userId,
+            patient_id:patientId
         });
 
         if (existing) {

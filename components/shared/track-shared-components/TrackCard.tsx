@@ -1,22 +1,26 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import React, { useEffect } from "react";
-import palette from "@/utils/theme/color";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
+import palette from "@/utils/theme/color";
 import { useRouter } from "expo-router";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
-interface TrackItem {
-  id: number;
-  name: string;
-}
+// interface TrackItem {
+//   id: number;
+//   name: string;
+// }
 
 interface TrackCardProps {
-  item: TrackItem;
+  item_id:number;
+  entry_id:number;
+  item_name:string;
   completed: number;
   total: number;
   date: string; // formatted date string
 }
 export default function TrackCard({
-  item,
+  item_id,
+  entry_id,
+  item_name,
   completed,
   total
 }: TrackCardProps) {
@@ -30,7 +34,7 @@ export default function TrackCard({
     >
       <View className="flex-row justify-between mb-3">
         <Text style={{ fontSize: 16, color: palette.secondary }}>
-          {item.name}
+          {item_name}
         </Text>
         <Text style={{ fontSize: 14, color: palette.secondary }}>Daily</Text>
       </View>
@@ -52,8 +56,9 @@ export default function TrackCard({
             router.push({
               pathname: "/home/track/questions/[itemId]",
               params: {
-                itemId: item.id.toString(),
-                itemName: item.name,
+                itemId: item_id.toString(),
+                itemName: item_name,
+                entryId: entry_id.toString(),
               },
             })
           }

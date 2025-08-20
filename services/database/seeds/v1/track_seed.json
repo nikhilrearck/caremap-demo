@@ -13,8 +13,8 @@
   "sampleQuestions": [
     { "id": 1, "item_id": 1, "text": "How many times did you need to take a rescue/as-needed medication in the past week?", "type": "numeric", "required": true },
     { "id": 2, "item_id": 1, "text": "What is the name of the rescue/as-needed medication you took?", "type": "mcq", "required": true },
-    { "id": 3, "item_id": 3, "text": "Did you exercise today?", "type": "boolean", "required": true },
-    { "id": 4, "item_id": 3, "text": "What type of exercises did you do?", "type": "msq", "required": false },
+    { "id": 3, "item_id": 3, "text": "Did you exercise today?", "type": "boolean", "required": false },
+    { "id": 4, "item_id": 3, "text": "What type of exercises did you do?", "type": "msq", "required": true },
     { "id": 5, "item_id": 4, "text": "How would you rate your meals today?", "type": "mcq", "required": true },
     { "id": 6, "item_id": 4, "text": "Any food sensitivities or issues?", "type": "boolean", "required": false }
   ],

@@ -28,6 +28,7 @@ export interface TrackCategoryWithItems extends TrackCategory {
 
 export interface TrackItemWithProgress{
   item: TrackItem;
+  entry_id:number;
   completed: number;
   total: number;
   started: boolean;

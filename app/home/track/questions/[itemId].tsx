@@ -20,9 +20,10 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function QuestionFlowScreen() {
-  const { itemId, itemName } = useLocalSearchParams<{
+  const { itemId, itemName, entryId } = useLocalSearchParams<{
     itemId: string;
     itemName: string;
+    entryId: string;
   }>();
 
   const router = useRouter();
@@ -41,6 +42,7 @@ export default function QuestionFlowScreen() {
   const [currentOptions, setCurrentOptions] = useState<ResponseOption[]>([]);
 
   const itemIdNum = Number(itemId);
+  const entryIdNum = Number(entryId);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
@@ -92,28 +94,13 @@ export default function QuestionFlowScreen() {
   };
 
   // helper to compute how many questions have been answered for this item
-  const countAnswered = (answersObj: Record<number, any>) =>
-    questions.reduce(
-      (acc, q) =>
-        acc +
-        (answersObj[q.id] !== undefined && answersObj[q.id] !== null ? 1 : 0),
-      0
-    );
-
-  // const submitAnswers = (responseObj: Record<number, any>) => {
-  //   Object.entries(responseObj).forEach(([questionId, answerObj]) => {
-  //     console.log(
-  //       `Question id: ${questionId} , answerObj: ${JSON.stringify(answerObj)}`
-  //     );
-  //     saveResponse(
-  //       itemIdNum,
-  //       Number(questionId),
-  //       JSON.stringify(answerObj)
-  //     ).then(() => {
-  //       console.log("Answer saved successfully.");
-  //     });
-  //   });
-  // };
+  // const countAnswered = (answersObj: Record<number, any>) =>
+  //   questions.reduce(
+  //     (acc, q) =>
+  //       acc +
+  //       (answersObj[q.id] !== undefined && answersObj[q.id] !== null ? 1 : 0),
+  //     0
+  //   );
 
   const submitAnswers = async (responseObj: Record<number, any>) => {
     if (!user?.id) throw new Error("Authentication ERROR");
@@ -122,8 +109,12 @@ export default function QuestionFlowScreen() {
     try {
       for (const [questionId, answerObj] of Object.entries(responseObj)) {
         console.log("Answer Obj : ", answerObj);
+        if (answerObj === null || answerObj === undefined) {
+          // Skip saving if answer not provided
+          continue;
+        }
         await saveResponse(
-          itemIdNum,
+          entryIdNum,
           Number(questionId),
           answerObj,
           user.id,
@@ -138,7 +129,7 @@ export default function QuestionFlowScreen() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     // check required
     if (
       currentQuestion &&
@@ -153,12 +144,12 @@ export default function QuestionFlowScreen() {
       return;
     }
 
-    // compute answered count BEFORE navigating
-    const answeredNow = countAnswered(answers);
+    // // compute answered count BEFORE navigating
+    // const answeredNow = countAnswered(answers);
 
     if (isLast) {
       // mark fully completed (ensure completed === total)
-      submitAnswers(answers);
+      await submitAnswers(answers);
       // setRefreshData(true);
       router.back();
       setRefreshData(true);
@@ -217,10 +208,10 @@ export default function QuestionFlowScreen() {
                     ...prev,
                     [currentQuestion.id]: null,
                   }));
-                  const answeredNow = countAnswered({
-                    ...answers,
-                    [currentQuestion.id]: null,
-                  });
+                  // const answeredNow = countAnswered({
+                  //   ...answers,
+                  //   [currentQuestion.id]: null,
+                  // });
                   setCurrentIndex((p) => p + 1);
                 }}
               >
