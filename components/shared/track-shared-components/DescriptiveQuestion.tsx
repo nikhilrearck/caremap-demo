@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TextInput } from "react-native";
 
 import palette from "@/utils/theme/color";
-import { Question, Response } from "@/context/TrackContext";
+import { Question, ResponseOption as _ResponseOption } from "@/services/database/migrations/v1/schema_v1";
 
 export default function DescriptiveQuestion({
   question,
@@ -13,7 +13,7 @@ export default function DescriptiveQuestion({
   question: Question;
   value: string;
   onChange: (val: string) => void;
-  responses: Response[];
+  responses: _ResponseOption[];
 }) {
   return (
     <View className="mb-4">

@@ -3,7 +3,6 @@ import { PatientModel } from '@/services/database/models/PatientModel';
 import { logger } from '@/services/logging/logger';
 import { getCurrentTimestamp } from '@/services/core/utils';
 import { useModel } from '@/services/database/BaseModel';
-import { isExistingUser } from '@/services/core/UserService';
 
 // Single shared instance of model
 const patientModel = new PatientModel();

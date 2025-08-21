@@ -25,7 +25,7 @@ export abstract class BaseModel<T> {
     // toDatabase: false -> convert ISO string to Date (while retrieving from the database)
     private convertDates(data: any, toDatabase: boolean): any {
         if (!data) return data;
-        
+
         if (data instanceof Date) {
             return toDatabase ? data.toISOString() : data;
         }
@@ -163,6 +163,10 @@ export abstract class BaseModel<T> {
         await this.run(sql, values);
     }
 
+    async runQuery<T = any>(sql: string, params: any[] = []): Promise<T[]> {
+        const result = await this.db.getAllAsync<T>(sql, params);
+        return result;
+    }
 }
 
 // Helper function to lazily initialize a model with the DB instance.

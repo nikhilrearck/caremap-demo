@@ -1,26 +1,29 @@
+import {
+  Question,
+  ResponseOption as _ResponseOption,
+} from "@/services/database/migrations/v1/schema_v1";
 import React from "react";
-
-
 import BooleanQuestion from "./BooleanQuestion";
+import DescriptiveQuestion from "./DescriptiveQuestion";
 import MCQQuestion from "./MultipleChoice";
 import MSQQuestion from "./MultipleSelect";
 import NumericQuestion from "./NumericQuestion";
-import DescriptiveQuestion from "./DescriptiveQuestion";
-import { Question, Response } from "@/context/TrackContext";
 
 export default function QuestionRenderer({
   question,
   responses,
   answer,
   setAnswer,
+  setCustomOption,
 }: {
   question: Question;
-  responses: Response[]; // Filtered responses for this question
+  responses: _ResponseOption[]; // Filtered responses for this question
   answer: any;
   setAnswer: (val: any) => void;
+  setCustomOption: (ques_id: number, val: string) => void;
 }) {
   switch (question.type) {
-    case "single-choice":
+    case "mcq":
       return (
         <MCQQuestion
           question={question}
@@ -29,13 +32,14 @@ export default function QuestionRenderer({
           onChange={setAnswer}
         />
       );
-    case "multi-choice":
+    case "msq":
       return (
         <MSQQuestion
           question={question}
           responses={responses}
           value={answer}
           onChange={setAnswer}
+          handleAddOption={setCustomOption}
         />
       );
     case "boolean":
@@ -47,7 +51,7 @@ export default function QuestionRenderer({
           onChange={setAnswer}
         />
       );
-    case "counter":
+    case "numeric":
       return (
         <NumericQuestion
           question={question}

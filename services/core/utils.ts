@@ -1,7 +1,7 @@
 import { differenceInYears } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
-import { logger } from '../logging/logger';
-import { Patient } from '../database/migrations/v1/schema_v1';
+import { logger } from '@/services/logging/logger';
+import { Patient } from '@/services/database/migrations/v1/schema_v1';
 
 export type ImagePickerResult = {
     base64Image: string | undefined;
@@ -70,8 +70,20 @@ export const calculateAge = (date: Date | undefined | null): number | null => {
 };
 
 // Function to get display name from patient object in the format "First Middle Last"
- export const getDisplayName = (patient: Patient): string => {
-    return `${patient.first_name} ${
-      patient.middle_name ? patient.middle_name + " " : ""
-    }${patient.last_name}`;
-  };
+export const getDisplayName = (patient: Patient): string => {
+    return `${patient.first_name} ${patient.middle_name ? patient.middle_name + " " : ""
+        }${patient.last_name}`;
+};
+
+// Helper function to convert a String to a Number
+export function toNumber(str: string): number | null {
+    const trimmed = str.trim();
+    if (trimmed === "") return null;
+
+    // Reject if it contains non-numeric characters (excluding . or -)
+    const validNumber = /^-?\d+(\.\d+)?$/.test(trimmed);
+    if (!validNumber) return null;
+
+    const num = Number(trimmed);
+    return isNaN(num) ? null : num;
+}

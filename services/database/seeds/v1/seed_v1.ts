@@ -274,4 +274,4 @@ export async function seedDatabase(db: SQLiteDatabase) {
     } catch (error) {
         logger.debug('Error seeding data:', error);
     }
-}; 
+};

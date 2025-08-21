@@ -2,9 +2,8 @@ import React from "react";
 import { View, Text } from "react-native";
 import ResponseOption from "./ResponseOption";
 
-import { Question, Response } from "@/context/TrackContext";
-
 import palette from "@/utils/theme/color";
+import { Question, ResponseOption as _ResponseOption } from "@/services/database/migrations/v1/schema_v1";
 
 export default function MCQQuestion({
   question,
@@ -15,7 +14,7 @@ export default function MCQQuestion({
   question: Question;
   value: string;
   onChange: (val: string) => void;
-  responses: Response[];
+  responses: _ResponseOption[];
 }) {
   return (
     <View className="mb-4">
