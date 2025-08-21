@@ -1,4 +1,4 @@
-import { Question, ResponseOption, TrackCategory, TrackItem, TrackResponse } from "../database/migrations/v1/schema_v1";
+import { Question, ResponseOption, TrackCategory, TrackItem, TrackResponse } from "@/services/database/migrations/v1/schema_v1";
 
 export type AuthTokens = {
   access_token?: string;
