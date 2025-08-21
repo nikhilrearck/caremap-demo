@@ -21,6 +21,7 @@ const trackItemEntryModel = new TrackItemEntryModel();
 
 const now = getCurrentTimestamp();
 
+// To be altered to send summarized response object
 export const getTrackCategoriesWithItemsAndProgress = async (
     patientId: number,
     date: string
@@ -167,8 +168,8 @@ export const saveResponse = async (
         const existing = await model.getFirstByFields({
             track_item_entry_id: entryId,
             question_id: questionId,
-            user_id:userId,
-            patient_id:patientId
+            user_id: userId,
+            patient_id: patientId
         });
 
         if (existing) {

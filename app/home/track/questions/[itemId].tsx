@@ -5,6 +5,7 @@ import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
 import { UserContext } from "@/context/UserContext";
 import {
+  addOptionToQuestion,
   getQuestionsWithOptions,
   saveResponse,
 } from "@/services/core/TrackService";
@@ -46,6 +47,9 @@ export default function QuestionFlowScreen() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
+  const [customOptions, setCustomOptions] = useState<Record<number, string>>(
+    {}
+  );
 
   const isLast = currentIndex === questions.length - 1;
 
@@ -93,6 +97,11 @@ export default function QuestionFlowScreen() {
     setAnswers((prev) => ({ ...prev, [currentQuestion?.id]: val }));
   };
 
+  // Custom option adder (used by QuestionRenderer for MSQ question type)
+  const handleAddOption = (question_id: number, newOption: string) => {
+    setCustomOptions((prev) => ({ ...prev, [question_id]: newOption }));
+  };
+
   // helper to compute how many questions have been answered for this item
   // const countAnswered = (answersObj: Record<number, any>) =>
   //   questions.reduce(
@@ -107,15 +116,31 @@ export default function QuestionFlowScreen() {
     if (!patient?.id) throw new Error("Authentication ERROR");
 
     try {
-      for (const [questionId, answerObj] of Object.entries(responseObj)) {
-        console.log("Answer Obj : ", answerObj);
+      for (const [questionIdStr, answerObj] of Object.entries(responseObj)) {
+        const questionId = Number(questionIdStr);
+
         if (answerObj === null || answerObj === undefined) {
-          // Skip saving if answer not provided
+          // Skip saving if no answer
           continue;
         }
+
+        // Handle custom options before saving response
+        for (const [customQuesIdStr, customVal] of Object.entries(
+          customOptions
+        )) {
+          const customQuesId = Number(customQuesIdStr);
+
+          if (JSON.stringify(answerObj).includes(customVal)) {
+            console.log(
+              `Adding new option '${customVal}' for question id: ${customQuesId}`
+            );
+            await addOptionToQuestion(customQuesId, customVal);
+          }
+        }
+
         await saveResponse(
           entryIdNum,
-          Number(questionId),
+          questionId,
           answerObj,
           user.id,
           patient.id
@@ -194,6 +219,8 @@ export default function QuestionFlowScreen() {
               answer={answers[currentQuestion.id]}
               setAnswer={handleSetAnswer}
               responses={currentOptions}
+              // To add custom options for MSQ type questions
+              setCustomOption={handleAddOption}
             />
           </ScrollView>
 

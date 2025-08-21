@@ -1,23 +1,26 @@
+import {
+  Question,
+  ResponseOption as _ResponseOption,
+} from "@/services/database/migrations/v1/schema_v1";
 import React from "react";
-
-
 import BooleanQuestion from "./BooleanQuestion";
+import DescriptiveQuestion from "./DescriptiveQuestion";
 import MCQQuestion from "./MultipleChoice";
 import MSQQuestion from "./MultipleSelect";
 import NumericQuestion from "./NumericQuestion";
-import DescriptiveQuestion from "./DescriptiveQuestion";
-import { Question, ResponseOption as _ResponseOption } from "@/services/database/migrations/v1/schema_v1";
 
 export default function QuestionRenderer({
   question,
   responses,
   answer,
   setAnswer,
+  setCustomOption,
 }: {
   question: Question;
   responses: _ResponseOption[]; // Filtered responses for this question
   answer: any;
   setAnswer: (val: any) => void;
+  setCustomOption: (ques_id: number, val: string) => void;
 }) {
   switch (question.type) {
     case "mcq":
@@ -36,6 +39,7 @@ export default function QuestionRenderer({
           responses={responses}
           value={answer}
           onChange={setAnswer}
+          handleAddOption={setCustomOption}
         />
       );
     case "boolean":
