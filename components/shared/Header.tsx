@@ -44,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({
       </Text>
 
       {/* Right section */}
-      <View style={{ maxWidth: 80, alignItems: "flex-end" }}>{right}</View>
+      <View style={{ maxWidth: 90, alignItems: "flex-end" }}>{right}</View>
     </View>
   );
 };

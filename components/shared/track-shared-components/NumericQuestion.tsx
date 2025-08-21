@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { Question, Response } from "@/context/TrackContext";
+import { Question, ResponseOption as _ResponseOption } from "@/services/database/migrations/v1/schema_v1";
 
 export default function NumericQuestion({
   question,
@@ -11,7 +11,7 @@ export default function NumericQuestion({
   question: Question;
   value: number;
   onChange: (val: number) => void;
-  responses: Response[];
+  responses: _ResponseOption[];
 }) {
   return (
     <View className="mb-4">

@@ -1,200 +1,167 @@
-
-import React, { useState } from "react";
-import { Text, View, TouchableOpacity, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
-
-import QuestionRenderer from "@/components/shared/track-shared-components/QuestionRenderer";
 import Header from "@/components/shared/Header";
-import palette from "@/utils/theme/color";
+import QuestionRenderer from "@/components/shared/track-shared-components/QuestionRenderer";
 import { useCustomToast } from "@/components/shared/useCustomToast";
-import { useSelectedItems } from "@/context/TrackContext";
-import moment from "moment";
-import { Question, Response } from "@/context/TrackContext";
+import { PatientContext } from "@/context/PatientContext";
+import { TrackContext } from "@/context/TrackContext";
+import { UserContext } from "@/context/UserContext";
+import {
+  addOptionToQuestion,
+  getQuestionsWithOptions,
+  saveResponse,
+} from "@/services/core/TrackService";
+import {
+  Question,
+  ResponseOption,
+} from "@/services/database/migrations/v1/schema_v1";
+import { ROUTES } from "@/utils/route";
+import palette from "@/utils/theme/color";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useContext, useEffect, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-
-
-
-const sampleQuestions: Question[] = [
-  {
-    id: 1,
-    items_id: 101,
-    type: "multi-choice",
-    text: "What medications did you take?",
-    instructions: "Select all that apply",
-    required: true,
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 2,
-    items_id: 101,
-    type: "counter",
-    text: "How many times did you take medication last week?",
-    instructions: "Tap + or - to adjust the count",
-    required: false,
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 3,
-    items_id: 101,
-    type: "boolean",
-    text: "Did you visit the doctor this month?",
-    instructions: "Choose Yes or No",
-    required: true,
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-
-  {
-    id: 4,
-    items_id: 103,
-    type: "text",
-    text: "Describe any symptoms or reactions you had.",
-    instructions: "Type your answer in detail",
-    required: false,
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 5,
-    items_id: 103,
-    type: "single-choice",
-    text: "Select your mood today",
-    instructions: "Select one option",
-    required: true,
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-];
-
-const sampleResponses: Response[] = [
-  {
-    id: 1,
-    question_id: 1,
-    text: "Breathing treatments/inhalers",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 2,
-    question_id: 1,
-    text: "Seizure medication",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 3,
-    question_id: 1,
-    text: "Prescription pain medication",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 4,
-    question_id: 1,
-    text: "Prescription anxiety medication",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 5,
-    question_id: 1,
-    text: "Other",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 6,
-    question_id: 3,
-    text: "Yes",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 7,
-    question_id: 3,
-    text: "No",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 8,
-    question_id: 5,
-    text: "Happy",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 9,
-    question_id: 5,
-    text: "Sad",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 10,
-    question_id: 5,
-    text: "Anxious",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 11,
-    question_id: 5,
-    text: "Angry",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-  {
-    id: 12,
-    question_id: 5,
-    text: "Neutral",
-    created_Date: new Date(),
-    updated_Date: new Date(),
-  },
-];
 export default function QuestionFlowScreen() {
-  const { itemId, itemName, date: routeDate } = useLocalSearchParams<{
+  const { itemId, itemName, entryId } = useLocalSearchParams<{
     itemId: string;
     itemName: string;
-    date?: string;
+    entryId: string;
   }>();
 
   const router = useRouter();
   const showToast = useCustomToast();
-  const { updateItemProgress } = useSelectedItems();
+  const { user } = useContext(UserContext);
+  const { patient } = useContext(PatientContext);
+  const { setRefreshData } = useContext(TrackContext);
 
-  const effectiveDate = routeDate || moment().format("MM-DD-YYYY");
+  // sampleQuestions
+  const [questions, setQuestions] = useState<Question[]>([]);
+
+  // sampleResponse
+  const [responseOptions, setResponseOptions] = useState<ResponseOption[]>([]);
+
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [currentOptions, setCurrentOptions] = useState<ResponseOption[]>([]);
+
   const itemIdNum = Number(itemId);
-
-  // questions for the opened item
-  const itemQuestions = sampleQuestions.filter((q) => q.items_id === itemIdNum);
-  const totalQuestions = itemQuestions.length;
+  const entryIdNum = Number(entryId);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
-
-  const currentQuestion = itemQuestions[currentIndex];
-  const isLast = currentIndex === itemQuestions.length - 1;
-
-  const questionResponses = sampleResponses.filter(
-    (r) => r.question_id === currentQuestion?.id
+  const [customOptions, setCustomOptions] = useState<Record<number, string>>(
+    {}
   );
+
+  const isLast = currentIndex === questions.length - 1;
+
+  useEffect(() => {
+    if (!user) {
+      router.replace(ROUTES.LOGIN);
+      return;
+    }
+    if (!patient) {
+      router.replace(ROUTES.MY_HEALTH);
+      return;
+    }
+
+    const loadQuestionsWithOptions = async () => {
+      if (!itemIdNum) return;
+      const questionWithOptions = await getQuestionsWithOptions(itemIdNum);
+
+      const questionsArray = questionWithOptions.map((qwo) => qwo.question);
+      const responseOptionsArray = questionWithOptions.flatMap(
+        (qwo) => qwo.options
+      );
+
+      setQuestions(questionsArray);
+      setResponseOptions(responseOptionsArray);
+    };
+    loadQuestionsWithOptions();
+  }, [itemIdNum]);
+
+  useEffect(() => {
+    if (questions.length > 0) {
+      const itemQuestions = questions.filter((q) => q.item_id === itemIdNum);
+      const currentQ = itemQuestions[currentIndex] || null;
+      const optionsForCurrent = responseOptions.filter(
+        (r) => r.question_id === currentQ?.id
+      );
+
+      setCurrentQuestion(currentQ);
+      setCurrentOptions(optionsForCurrent);
+    }
+  }, [questions, responseOptions, currentIndex, itemIdNum]);
 
   // Answer setter (used by QuestionRenderer)
   const handleSetAnswer = (val: any) => {
-    setAnswers((prev) => ({ ...prev, [currentQuestion.id]: val }));
+    if (!currentQuestion || !currentQuestion.id) return;
+    setAnswers((prev) => ({ ...prev, [currentQuestion?.id]: val }));
+  };
+
+  // Custom option adder (used by QuestionRenderer for MSQ question type)
+  const handleAddOption = (question_id: number, newOption: string) => {
+    setCustomOptions((prev) => ({ ...prev, [question_id]: newOption }));
   };
 
   // helper to compute how many questions have been answered for this item
-  const countAnswered = (answersObj: Record<number, any>) =>
-    itemQuestions.reduce((acc, q) => acc + (answersObj[q.id] !== undefined && answersObj[q.id] !== null ? 1 : 0), 0);
+  // const countAnswered = (answersObj: Record<number, any>) =>
+  //   questions.reduce(
+  //     (acc, q) =>
+  //       acc +
+  //       (answersObj[q.id] !== undefined && answersObj[q.id] !== null ? 1 : 0),
+  //     0
+  //   );
 
-  const handleNext = () => {
+  const submitAnswers = async (responseObj: Record<number, any>) => {
+    if (!user?.id) throw new Error("Authentication ERROR");
+    if (!patient?.id) throw new Error("Authentication ERROR");
+
+    try {
+      for (const [questionIdStr, answerObj] of Object.entries(responseObj)) {
+        const questionId = Number(questionIdStr);
+
+        if (answerObj === null || answerObj === undefined) {
+          // Skip saving if no answer
+          continue;
+        }
+
+        // Handle custom options before saving response
+        for (const [customQuesIdStr, customVal] of Object.entries(
+          customOptions
+        )) {
+          const customQuesId = Number(customQuesIdStr);
+
+          if (JSON.stringify(answerObj).includes(customVal)) {
+            console.log(
+              `Adding new option '${customVal}' for question id: ${customQuesId}`
+            );
+            await addOptionToQuestion(customQuesId, customVal);
+          }
+        }
+
+        await saveResponse(
+          entryIdNum,
+          questionId,
+          answerObj,
+          user.id,
+          patient.id
+        );
+        console.log(`Answer saved for question ${questionId}`);
+      }
+
+      console.log("All answers saved successfully.");
+    } catch (error) {
+      console.error("Error saving answers:", error);
+    }
+  };
+
+  const handleNext = async () => {
     // check required
-    if (currentQuestion && currentQuestion.required && (answers[currentQuestion.id] === undefined || answers[currentQuestion.id] === null)) {
+    if (
+      currentQuestion &&
+      currentQuestion.required &&
+      (answers[currentQuestion.id] === undefined ||
+        answers[currentQuestion.id] === null)
+    ) {
       showToast({
         title: "Answer required",
         description: "Please answer the question before proceeding.",
@@ -202,108 +169,98 @@ export default function QuestionFlowScreen() {
       return;
     }
 
-    // compute answered count BEFORE navigating
-    const answeredNow = countAnswered(answers);
-    // update progress in context (so TrackScreen can read it)
-    updateItemProgress(effectiveDate, itemIdNum, answeredNow, totalQuestions);
+    // // compute answered count BEFORE navigating
+    // const answeredNow = countAnswered(answers);
 
     if (isLast) {
       // mark fully completed (ensure completed === total)
-      updateItemProgress(effectiveDate, itemIdNum, totalQuestions, totalQuestions);
+      await submitAnswers(answers);
+      // setRefreshData(true);
       router.back();
+      setRefreshData(true);
     } else {
       setCurrentIndex((p) => p + 1);
     }
   };
-   return (
-  
-  <SafeAreaView className="flex-1 bg-white">
-  {/* Header */}
-  <Header
-    title={itemName}
-    right={
-      <TouchableOpacity onPress={() => router.back()}>
-        <Text style={{ color: 'white', fontWeight: "500" }}>
-          Cancel
-        </Text>
-      </TouchableOpacity>
-    }
-  />
 
-  {/* Content */}
-  {!currentQuestion ? (
-    <View className="flex-1 justify-center items-center px-4">
-      <Text className="text-gray-500 text-center">
-        No questions found for this item.
-      </Text>
-    </View>
-  ) : (
-    <>
-      {/* Scrollable area */}
-      <ScrollView
-        contentContainerStyle={{ padding: 20, paddingBottom: 100 }} // extra bottom padding so content doesn't hide under buttons
-      >
-        {currentQuestion.instructions && (
-          <Text className="text-sm text-gray-600 mb-2">
-            {currentQuestion.instructions}
-          </Text>
-        )}
-
-        <QuestionRenderer
-          question={currentQuestion}
-          answer={answers[currentQuestion.id]}
-          setAnswer={handleSetAnswer}
-          responses={questionResponses}
-        />
-      </ScrollView>
-
-      {/* Fixed bottom buttons */}
-      <View className="flex-row p-4 border-t border-gray-200 bg-white">
-        {/* Skip */}
-        {!currentQuestion.required && (
-          <TouchableOpacity
-            className="flex-1 py-3 rounded-lg border border-gray-300 mr-2"
-            onPress={() => {
-              setAnswers((prev) => ({
-                ...prev,
-                [currentQuestion.id]: null,
-              }));
-              const answeredNow = countAnswered({
-                ...answers,
-                [currentQuestion.id]: null,
-              });
-              updateItemProgress(
-                effectiveDate,
-                itemIdNum,
-                answeredNow,
-                totalQuestions
-              );
-              setCurrentIndex((p) => p + 1);
-            }}
-          >
-            <Text className="text-center text-gray-500 font-medium">
-              Skip
-            </Text>
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      {/* Header */}
+      <Header
+        title={itemName}
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text style={{ color: "white", fontWeight: "500" }}>Cancel</Text>
           </TouchableOpacity>
-        )}
+        }
+      />
 
-        {/* Next/Submit */}
-        <TouchableOpacity
-          style={{ backgroundColor: palette.primary }}
-          className="flex-1 py-3 rounded-lg"
-          onPress={handleNext}
-        >
-          <Text className="text-white font-bold text-center">
-            {isLast ? "Submit" : "Next"}
+      {/* Content */}
+      {!currentQuestion ? (
+        <View className="flex-1 justify-center items-center px-4">
+          <Text className="text-gray-500 text-center">
+            No questions found for this item.
           </Text>
-        </TouchableOpacity>
-      </View>
-    </>
-  )}
-</SafeAreaView>
+        </View>
+      ) : (
+        <>
+          {/* Scrollable area */}
+          <ScrollView
+            contentContainerStyle={{ padding: 20, paddingBottom: 100 }} // extra bottom padding so content doesn't hide under buttons
+          >
+            {currentQuestion.instructions && (
+              <Text className="text-sm text-gray-600 mb-2">
+                {currentQuestion.instructions}
+              </Text>
+            )}
 
-);
+            <QuestionRenderer
+              question={currentQuestion}
+              answer={answers[currentQuestion.id]}
+              setAnswer={handleSetAnswer}
+              responses={currentOptions}
+              // To add custom options for MSQ type questions
+              setCustomOption={handleAddOption}
+            />
+          </ScrollView>
 
+          {/* Fixed bottom buttons */}
+          <View className="flex-row p-4 border-t border-gray-200 bg-white">
+            {/* Skip */}
+            {!currentQuestion.required && (
+              <TouchableOpacity
+                className="flex-1 py-3 rounded-lg border border-gray-300 mr-2"
+                onPress={() => {
+                  setAnswers((prev) => ({
+                    ...prev,
+                    [currentQuestion.id]: null,
+                  }));
+                  // const answeredNow = countAnswered({
+                  //   ...answers,
+                  //   [currentQuestion.id]: null,
+                  // });
+                  setCurrentIndex((p) => p + 1);
+                }}
+              >
+                <Text className="text-center text-gray-500 font-medium">
+                  Skip
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Next/Submit */}
+            <TouchableOpacity
+              style={{ backgroundColor: palette.primary }}
+              className="flex-1 py-3 rounded-lg"
+              onPress={handleNext}
+            >
+              <Text className="text-white font-bold text-center">
+                {isLast ? "Submit" : "Next"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
+    </SafeAreaView>
+  );
 }
-
-
