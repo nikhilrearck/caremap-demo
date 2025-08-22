@@ -156,6 +156,20 @@ export const up = async (db: SQLiteDatabase) => {
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS ${tables.CONTACT} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id INTEGER NOT NULL,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      relationship TEXT NOT NULL,
+      phone_number TEXT NOT NULL UNIQUE,
+      description TEXT DEFAULT NULL,
+      email TEXT DEFAULT NULL UNIQUE,
+      created_date TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (patient_id) REFERENCES ${tables.PATIENT}(id) ON DELETE CASCADE
+    );
   `);
 
   logger.debug(`Tables created for V1.`);

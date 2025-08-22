@@ -22,64 +22,82 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { ChevronDownIcon } from "lucide-react-native";
-import { careTeamContacts, CareContact } from "./index";
+// import { careTeamContacts, CareContact } from "./index";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LabeledTextInput } from "@/components/shared/labeledTextInput";
 import palette from "@/utils/theme/color";
+import { useContext } from "react";
+import { PatientContext } from "@/context/PatientContext";
+import {
+  createContact,
+  updateContact,
+  getContact,
+} from "@/services/core/ContactService";
+import { Contact } from "@/services/database/migrations/v1/schema_v1";
+import { useCustomToast } from "@/components/shared/useCustomToast";
 
 type Params = {
   mode?: string;
-  contactId?: string;
+  contactId?: number;
 };
 
 export default function CareTeamForm() {
+  const { patient } = useContext(PatientContext);
   const params = useLocalSearchParams() as Params;
-  console.log(params);
+  // const params = useLocalSearchParams();
+  // console.log(params);
   const router = useRouter();
   const mode = (params.mode as string) ?? "add"; // "add" | "view" | "edit"
   const contactId = params.contactId;
+  // console.log(typeof contactId);
+  // Custom toast
+  const showToast = useCustomToast();
 
-  const existingContact = contactId
-    ? careTeamContacts.find((c) => c.id === contactId)
-    : undefined;
+  const isViewMode = mode === "view";
+  const isEditMode = mode === "edit";
+  const isAddMode = mode === "add";
 
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+  // const existingContact = contactId
+  //   ? careTeamContacts.find((c) => c.id === contactId)
+  //   : undefined;
+  // Fetch contact from backend if editing or viewing
+  // const [loading, setLoading] = useState(false);
+
+  const [form, setForm] = useState<Partial<Contact>>({
+    first_name: "",
+    last_name: "",
     relationship: "",
-    phone: "",
+    phone_number: "",
     description: "",
     email: "",
   });
 
   useEffect(() => {
-    if (existingContact) {
-      setForm({
-        firstName: existingContact.firstName,
-        lastName: existingContact.lastName,
-        relationship: existingContact.relationship,
-        phone: existingContact.phone ?? "",
-        description: existingContact.description ?? "",
-        email: existingContact.email ?? "",
+    if ((isEditMode || isViewMode) && contactId) {
+      getContact(Number(contactId)).then((contact) => {
+        if (contact) {
+          setForm({
+            first_name: contact.first_name,
+            last_name: contact.last_name,
+            relationship: contact.relationship,
+            phone_number: contact.phone_number,
+            description: contact.description,
+            email: contact.email,
+          });
+        }
       });
-    } else {
-      // If add mode, clear
-      if (mode === "add") {
-        setForm({
-          firstName: "",
-          lastName: "",
-          relationship: "",
-          phone: "",
-          description: "",
-          email: "",
-        });
-      }
+    } else if (isAddMode) {
+      setForm({
+        first_name: "",
+        last_name: "",
+        relationship: "",
+        phone_number: "",
+        description: "",
+        email: "",
+      });
     }
-  }, [existingContact, mode]);
-
-  const isViewMode = mode === "view";
-  const isEditMode = mode === "edit";
-  const isAddMode = mode === "add";
+  }, [contactId, mode]);
 
   const relationshipOptions = [
     "Physician",
@@ -101,24 +119,47 @@ export default function CareTeamForm() {
     "Other",
   ];
 
-  const handleSave = () => {
-    // TODO: call backend API to create/update contact
-    if (isAddMode) {
-      const newContact: CareContact = {
-        id: Date.now().toString(),
-        firstName: form.firstName,
-        lastName: form.lastName,
-        relationship: form.relationship,
-        phone: form.phone,
-        description: form.description,
-        email: form.email,
-      };
-      console.log("Create contact:", newContact);
-    } else {
-      console.log("Update contact:", { id: contactId, ...form });
+  const handleSave = async () => {
+    if (!patient?.id) return;
+    try {
+      if (isAddMode) {
+        await createContact(
+          {
+            first_name: form.first_name ?? "",
+            last_name: form.last_name ?? "",
+            relationship: form.relationship ?? "",
+            phone_number: form.phone_number ?? "",
+            description: form.description,
+            email: form.email,
+          },
+          patient.id
+        );
+        showToast({
+          title: "Contact added",
+          description: "Contact added successfully!",
+        });
+      } else if (isEditMode && contactId) {
+        await updateContact(
+          {
+            first_name: form.first_name ?? "",
+            last_name: form.last_name ?? "",
+            relationship: form.relationship ?? "",
+            phone_number: form.phone_number ?? "",
+            description: form.description,
+            email: form.email,
+          },
+          { id: Number(contactId) }
+        );
+        showToast({
+          title: "Contact updated",
+          description: "Contact updated successfully!",
+        });
+      }
+      // router.back();
+      router.replace("/home/careTeam");
+    } catch (e) {
+      console.log(e);
     }
-    // router.back();
-    router.replace("/home/careTeam");
   };
 
   return (
@@ -150,9 +191,9 @@ export default function CareTeamForm() {
         /> */}
         <LabeledTextInput
           label="First Name"
-          value={form.firstName}
+          value={form.first_name ?? ""}
           editable={!isViewMode}
-          onChangeText={(t) => setForm((p) => ({ ...p, firstName: t }))}
+          onChangeText={(t) => setForm((p) => ({ ...p, first_name: t }))}
         />
 
         {/* Last Name */}
@@ -166,9 +207,9 @@ export default function CareTeamForm() {
         /> */}
         <LabeledTextInput
           label="Last Name"
-          value={form.lastName}
+          value={form.last_name ?? ""}
           editable={!isViewMode}
-          onChangeText={(t) => setForm((p) => ({ ...p, lastName: t }))}
+          onChangeText={(t) => setForm((p) => ({ ...p, last_name: t }))}
         />
 
         {/* Relationship (GlueStack Select) */}
@@ -188,9 +229,9 @@ export default function CareTeamForm() {
             >
               {/* <SelectInput placeholder="Select relationship" /> */}
               <Text
-                className={
+                className={`text-base ${
                   form.relationship ? "text-gray-900" : "text-gray-400"
-                }
+                }`}
               >
                 {form.relationship || "Select relationship"}
               </Text>
@@ -224,9 +265,9 @@ export default function CareTeamForm() {
         /> */}
         <LabeledTextInput
           label="Phone Number"
-          value={form.phone}
+          value={form.phone_number ?? ""}
           editable={!isViewMode}
-          onChangeText={(t) => setForm((p) => ({ ...p, phone: t }))}
+          onChangeText={(t) => setForm((p) => ({ ...p, phone_number: t }))}
         />
 
         {/* Description */}
@@ -242,7 +283,7 @@ export default function CareTeamForm() {
         /> */}
         <LabeledTextInput
           label="Description"
-          value={form.description}
+          value={form.description ?? ""}
           editable={!isViewMode}
           onChangeText={(t) => setForm((p) => ({ ...p, description: t }))}
         />
@@ -260,7 +301,7 @@ export default function CareTeamForm() {
         /> */}
         <LabeledTextInput
           label="Email"
-          value={form.email}
+          value={form.email ?? ""}
           editable={!isViewMode}
           onChangeText={(t) => setForm((p) => ({ ...p, email: t }))}
         />
@@ -269,7 +310,7 @@ export default function CareTeamForm() {
         {isViewMode ? (
           <View className="space-y-3">
             {/* Close Button */}
-            {/* <TouchableOpacity
+            <TouchableOpacity
               style={{ backgroundColor: palette.primary }}
               className="p-3 rounded-lg"
               onPress={() => router.back()}
@@ -277,10 +318,10 @@ export default function CareTeamForm() {
               <Text className="text-white text-center font-semibold">
                 Close
               </Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
 
             {/* Edit Button */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{ backgroundColor: palette.primary }}
               className="p-3 rounded-lg"
               onPress={() =>
@@ -291,7 +332,7 @@ export default function CareTeamForm() {
               }
             >
               <Text className="text-white text-center font-semibold">Edit</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         ) : (
           /* Save Button */

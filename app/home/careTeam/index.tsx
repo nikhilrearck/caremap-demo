@@ -1,132 +1,147 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import Header from "@/components/shared/Header";
 import palette from "@/utils/theme/color";
+import { Contact } from "@/services/database/migrations/v1/schema_v1";
+import { getAllContacts, deleteContact } from "@/services/core/ContactService";
+import { PatientContext } from "@/context/PatientContext";
 
-export type CareContact = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  relationship: string;
-  phone?: string;
-  description?: string;
-  email?: string;
-};
+// export type CareContact = {
+//   id: string;
+//   firstName: string;
+//   lastName: string;
+//   relationship: string;
+//   phone?: string;
+//   description?: string;
+//   email?: string;
+// };
 
 // Data (matches the screenshot — includes repeats like your mock)
-export let careTeamContacts: CareContact[] = [
-  {
-    id: "1",
-    firstName: "Sal",
-    lastName: "Petrillo",
-    relationship: "Behavioral Health Nurse Practitioner",
-    phone: "+1 234 567 8900",
-    email: "sal.petrillo@example.com",
-    description: "demo demo demo",
-  },
-  {
-    id: "2",
-    firstName: "Rue",
-    lastName: "McClanahan",
-    relationship: "Nurse",
-    phone: "+91 98765 43210",
-    email: "rue.mc@example.com",
-  },
-  {
-    id: "3",
-    firstName: "Rose",
-    lastName: "Nylund",
-    relationship: "Urologist",
-    phone: "",
-    email: "",
-  },
-  {
-    id: "4",
-    firstName: "Estelle",
-    lastName: "Getty",
-    relationship: "Gastroenterologist",
-    phone: "",
-    email: "",
-  },
-  {
-    id: "5",
-    firstName: "Miles",
-    lastName: "Webber",
-    relationship: "School Psychologist",
-    phone: "",
-    email: "",
-  },
-  // duplicates for long list (to resemble the screenshot)
-  {
-    id: "6",
-    firstName: "Estelle",
-    lastName: "Getty",
-    relationship: "Music Therapist",
-  },
-  {
-    id: "7",
-    firstName: "Miles",
-    lastName: "Webber",
-    relationship: "School Nurse",
-  },
-  {
-    id: "8",
-    firstName: "Estelle",
-    lastName: "Getty",
-    relationship: "Gastroenterologist",
-  },
-  {
-    id: "9",
-    firstName: "Miles",
-    lastName: "Webber",
-    relationship: "Mother",
-  },
-  {
-    id: "10",
-    firstName: "Estelle",
-    lastName: "Getty",
-    relationship: "Father",
-  },
-  {
-    id: "11",
-    firstName: "Estelle",
-    lastName: "Getty",
-    relationship: "Father",
-  },
-  {
-    id: "12",
-    firstName: "Estelle",
-    lastName: "Getty",
-    relationship: "Father",
-  },
-  // {
-  //   id: "13",
-  //   firstName: "Estelle",
-  //   lastName: "Getty",
-  //   relationship: "Father",
-  // },
-  // {
-  //   id: "14",
-  //   firstName: "Estelle",
-  //   lastName: "Getty",
-  //   relationship: "Father",
-  // },
-];
+// export let careTeamContacts: CareContact[] = [
+//   {
+//     id: "1",
+//     firstName: "Sal",
+//     lastName: "Petrillo",
+//     relationship: "Behavioral Health Nurse Practitioner",
+//     phone: "+1 234 567 8900",
+//     email: "sal.petrillo@example.com",
+//     description: "demo demo demo",
+//   },
+//   {
+//     id: "2",
+//     firstName: "Rue",
+//     lastName: "McClanahan",
+//     relationship: "Nurse",
+//     phone: "+91 98765 43210",
+//     email: "rue.mc@example.com",
+//   },
+//   {
+//     id: "3",
+//     firstName: "Rose",
+//     lastName: "Nylund",
+//     relationship: "Urologist",
+//     phone: "",
+//     email: "",
+//   },
+//   {
+//     id: "4",
+//     firstName: "Estelle",
+//     lastName: "Getty",
+//     relationship: "Gastroenterologist",
+//     phone: "",
+//     email: "",
+//   },
+//   {
+//     id: "5",
+//     firstName: "Miles",
+//     lastName: "Webber",
+//     relationship: "School Psychologist",
+//     phone: "",
+//     email: "",
+//   },
+//   // duplicates for long list (to resemble the screenshot)
+//   {
+//     id: "6",
+//     firstName: "Estelle",
+//     lastName: "Getty",
+//     relationship: "Music Therapist",
+//   },
+//   {
+//     id: "7",
+//     firstName: "Miles",
+//     lastName: "Webber",
+//     relationship: "School Nurse",
+//   },
+//   {
+//     id: "8",
+//     firstName: "Estelle",
+//     lastName: "Getty",
+//     relationship: "Gastroenterologist",
+//   },
+//   {
+//     id: "9",
+//     firstName: "Miles",
+//     lastName: "Webber",
+//     relationship: "Mother",
+//   },
+//   {
+//     id: "10",
+//     firstName: "Estelle",
+//     lastName: "Getty",
+//     relationship: "Father",
+//   },
+//   {
+//     id: "11",
+//     firstName: "Estelle",
+//     lastName: "Getty",
+//     relationship: "Father",
+//   },
+//   {
+//     id: "12",
+//     firstName: "Estelle",
+//     lastName: "Getty",
+//     relationship: "Father",
+//   },
+// ];
 
 export default function CareTeamListScreen() {
   const router = useRouter();
+  const { patient } = useContext(PatientContext);
+  const [contacts, setContacts] = useState<Contact[]>([]);
 
-  const renderItem = ({ item }: { item: CareContact }) => (
+  const fetchContacts = async () => {
+    if (!patient?.id) {
+      console.log("No patient id found");
+      return;
+    }
+    try {
+      const backendContacts = await getAllContacts(patient.id);
+      setContacts(backendContacts);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteContact(id);
+    fetchContacts();
+  };
+
+  useEffect(() => {
+    fetchContacts();
+    // Optionally, add patient.id as dependency
+  }, [patient]);
+
+  const renderItem = ({ item }: { item: Contact }) => (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
       <View className="flex-row items-center">
         {/* checkbox mimic */}
         <View>
           <Text className="text-base font-semibold">
-            {item.firstName} {item.lastName}
+            {item.first_name} {item.last_name}
           </Text>
           <Text className="text-sm text-gray-500">{item.relationship}</Text>
         </View>
@@ -147,7 +162,8 @@ export default function CareTeamListScreen() {
             params: { mode: "edit", contactId: item.id },
           })
         }
-        onDelete={() => console.log("Delete functionality not implemented yet")}
+        // onDelete={() => console.log("Delete functionality not implemented yet")}
+        onDelete={() => handleDelete(item.id)}
       />
     </View>
   );
@@ -189,9 +205,9 @@ export default function CareTeamListScreen() {
         </View>
 
         <FlatList
-          data={careTeamContacts}
+          data={contacts}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
         />
       </View>
     </SafeAreaView>

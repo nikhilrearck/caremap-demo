@@ -43,7 +43,7 @@ export default function ActionPopover({
   };
 
   const handleDelete = () => {
-    setIsOpen(false);
+    // setIsOpen(false);
     onDelete();
     // setTimeout(onDelete, 50);
   };
