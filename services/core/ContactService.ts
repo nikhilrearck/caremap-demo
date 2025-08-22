@@ -111,7 +111,7 @@ export const deleteContact = async (id: number): Promise<boolean> => {
 };
 
 
-export const getContact = async (id: number): Promise<Contact | null> => {
+export const getContactById = async (id: number): Promise<Contact | null> => {
     return useModel(contactModel, async (model) => {
         try {
             const result = await model.getFirstByFields({ id });
@@ -125,7 +125,7 @@ export const getContact = async (id: number): Promise<Contact | null> => {
 };
 
 
-export const getAllContacts = async (patientId: number): Promise<Contact[]> => {
+export const getAllContactsByPatientId = async (patientId: number): Promise<Contact[]> => {
     return useModel(contactModel, async (model) => {
         try {
             if (!await isExistingPatientById(patientId)) {
