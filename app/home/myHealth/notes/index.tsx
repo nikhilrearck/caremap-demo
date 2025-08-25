@@ -290,7 +290,7 @@ function AddNotesPage({
             <TextInput
               value={noteTopic}
               onChangeText={setNoteTopic}
-              placeholder="Please Enter your topic here"
+              placeholder="Please enter your topic here"
               className="border border-gray-300 rounded-md px-3 py-3 text-base"
               multiline
               numberOfLines={3}

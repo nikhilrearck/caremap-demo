@@ -6,25 +6,26 @@ import { ChevronLeft } from "lucide-react-native";
 import { Route, router } from "expo-router";
 import { ROUTES } from "@/utils/route";
 import Header from "@/components/shared/Header";
+import palette from "@/utils/theme/color";
 
 function medicalOverview() {
   const medicalTiles = [
     {
       name: "Snapshot",
       count: "3",
-      icon: require("@/assets/images/medicalOverview.png"),
+      icon: require("@/assets/images/snapshot.png"),
       link: ROUTES.SNAPSHOT,
     },
     {
       name: "Medical Conditions",
       count: "2",
-      icon: require("@/assets/images/emergencyCare.png"),
+      icon: require("@/assets/images/medical-condition.png"),
       link: ROUTES.MEDICAL_CONDITIONS,
     },
     {
       name: "Medical Equipments",
       count: "14",
-      icon: require("@/assets/images/allergies.png"),
+      icon: require("@/assets/images/medical-equipment.png"),
       link: ROUTES.MEDICAL_EQUIPMENTS,
     },
     {
@@ -34,12 +35,7 @@ function medicalOverview() {
       link: ROUTES.HIGH_LEVEL_GOALS,
     },
 
-    {
-      name: "Hospitalization",
-      count: "",
-      icon: require("@/assets/images/hospitalization.png"),
-      link: ROUTES.SNAPSHOT,
-    },
+    
   ];
 
   return (
@@ -65,7 +61,9 @@ function medicalOverview() {
 
                 <View className="flex-row items-center">
                   {tile.count && (
-                    <Badge className="bg-[#49AFBE] rounded-full mr-2">
+                    <Badge
+                   style={{ backgroundColor: palette.primary }}
+                     className="rounded-full mr-2">
                       <BadgeText className="text-white">{tile.count}</BadgeText>
                     </Badge>
                   )}
