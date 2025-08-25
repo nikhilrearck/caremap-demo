@@ -26,6 +26,7 @@ import { DischargeInstruction } from "@/services/database/migrations/v1/schema_v
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
 import { KeyboardAvoidingView, Platform } from "react-native";
+import { logger } from "@/services/logging/logger";
 
 export default function PostDischargeInstructions() {
   const { patient } = useContext(PatientContext);
@@ -47,7 +48,7 @@ export default function PostDischargeInstructions() {
 
   async function fetchDischargeInstructions() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     try {
@@ -56,7 +57,7 @@ export default function PostDischargeInstructions() {
 
       setPatientDischargeInstructions(getDischargeInstructions);
     } catch (e) {
-      console.log(e);
+      logger.debug(String(e));
     }
   }
 
@@ -321,12 +322,12 @@ function AddUpdateFormPage({
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+          // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
         >
           <ScrollView
             className="px-6 pt-8 pb-0 flex-1"
             contentContainerStyle={{
-              paddingBottom: 48,
+              paddingBottom: 30,
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={true}
@@ -401,9 +402,9 @@ function AddUpdateFormPage({
                 />
               </Textarea>
             </View>
-            {/* Save button */}
           </ScrollView>
-          <View className="px-6 mb-4">
+          {/* Save button */}
+          <View className="px-6">
             <TouchableOpacity
               className="py-3 rounded-md mt-3"
               style={{ backgroundColor: palette.primary }}

@@ -6,6 +6,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
@@ -24,6 +25,7 @@ import Header from "@/components/shared/Header";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { PatientCondition } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
 
 const linkedHealthSystem = [
   "Attention Deficient and Hyperactivity Disorder (ADHD)",
@@ -49,7 +51,7 @@ export default function MedicalConditions() {
 
   const fetchConditions = async () => {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     setLoading(true);
@@ -57,7 +59,7 @@ export default function MedicalConditions() {
       const conditions = await getPatientConditionsByPatientId(patient.id);
       setUserConditions(conditions);
     } catch (e) {
-      console.log(e);
+      logger.debug(String(e));
     } finally {
       setLoading(false);
     }
@@ -300,17 +302,17 @@ function AddMedicalConditionsPage({
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        className="bg-white"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        // keyboardVerticalOffset={10} // adjust if you have a header
-      >
-        <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 bg-white">
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          className="bg-white"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+        >
           {/* Header */}
           <Header title="Medical Conditions" onBackPress={onClose} />
 
-          <View className="px-6 py-8 flex-1">
+          <View className="px-6 pt-8 flex-1">
             <Text
               className="text-lg font-medium mb-3"
               style={{ color: palette.heading }}
@@ -355,173 +357,8 @@ function AddMedicalConditionsPage({
               </Text>
             </TouchableOpacity>
           </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </TouchableWithoutFeedback>
   );
 }
-
-// AlertDialog
-{
-  /* <AlertDialog
-  isOpen={showAlertDialog}
-  onClose={() => setShowAlertDialog(false)}
-  size="lg"
->
-  <AlertDialogBackdrop />
-  <AlertDialogContent className="">
-    <AlertDialogHeader>
-      <Text
-        className="font-semibold mb-2 text-lg"
-        style={{ color: palette.heading }}
-      >
-        Are you sure you want to delete?
-      </Text>
-    </AlertDialogHeader>
-    <AlertDialogBody className="">
-      {conditionToDelete ? (
-        <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
-          <View className="flex-row items-center">
-            <Text className="text-lg ml-3 max-w-[220px] text-left">
-              {conditionToDelete.name}
-            </Text>
-          </View>
-          <View className="flex-row items-center">
-            <Text className="text-lg text-gray-500 mr-3">
-              {conditionToDelete.date}
-            </Text>
-          </View>
-        </View>
-      ) : null}
-    </AlertDialogBody>
-    <AlertDialogFooter>
-      <Button
-        variant="solid"
-        action="secondary"
-        onPress={() => setShowAlertDialog(false)}
-        size="md"
-      >
-        <ButtonText>Cancel</ButtonText>
-      </Button>
-      <Button
-        style={{ backgroundColor: palette.primary }}
-        size="md"
-        onPress={async () => {
-          if (conditionToDelete) {
-            await deleteMedicalCondition(conditionToDelete.id);
-            await fetchConditions();
-            showConditionToast(
-              "Condition Deleted",
-              "Medical condition deleted successfully!"
-            );
-          }
-          setShowAlertDialog(false);
-          setConditionToDelete(null);
-        }}
-      >
-        <ButtonText>Delete</ButtonText>
-      </Button>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog> */
-}
-
-// Popover
-{
-  /* <Popover
-                            shouldOverlapWithTrigger={false}
-                            placement="bottom"
-                            size="md"
-                            crossOffset={-30}
-                            // offset={2}
-                            trigger={(triggerProps) => {
-                              return (
-                                <TouchableOpacity
-                                  {...triggerProps}
-                                  hitSlop={10}
-                                >
-                                  <MaterialIcons name="more-vert" size={20} />
-                                </TouchableOpacity>
-                              );
-                            }}
-                          >
-                            <PopoverBackdrop />
-                            <PopoverContent
-                              className="bg-gray-50 pt-1 pb-0 px-4"
-                              style={{
-                                // alignItems: "center",
-                                minWidth: 110,
-                                minHeight: 90,
-                              }}
-                            >
-                              <PopoverArrow
-                                // style={{ marginTop: -35 }}
-                                className="bg-gray-50"
-                              />
-                              <PopoverBody>
-                                <TouchableOpacity
-                                  className="flex-row items-center py-2"
-                                  onPress={() => {
-                                    handleEdit(condition);
-                                  }}
-                                >
-                                  <MaterialIcons
-                                    name="edit"
-                                    size={20}
-                                    style={{ marginRight: 8 }}
-                                  />
-                                  <Text className="text-lg">Edit</Text>
-                                </TouchableOpacity>
-                                <View className="h-px bg-gray-300" />
-                                <TouchableOpacity
-                                  className="flex-row items-center py-2"
-                                  onPress={() => {
-                                    setConditionToDelete(condition);
-                                    setShowAlertDialog(true);
-                                  }}
-                                >
-                                  <MaterialIcons
-                                    name="delete"
-                                    size={20}
-                                    style={{ marginRight: 8 }}
-                                  />
-                                  <Text className="text-lg">Delete</Text>
-                                </TouchableOpacity>
-                              </PopoverBody>
-                            </PopoverContent>
-                          </Popover> */
-}
-
-// Toast
-// const toast = useToast();
-// const showConditionToast = (title: string, description: string) => {
-// const toastId = Math.random().toString();
-// toast.show({
-// id: toastId,
-// placement: "top",
-// duration: 2000,
-// containerStyle: { marginTop: 100, width: 300 },
-// render: ({ id }) => (
-// <Toast
-// nativeID={"toast-" + id}
-// action="success"
-// variant="solid"
-// style={{ backgroundColor: palette.primary }}
-// >
-// <ToastTitle>{title}</ToastTitle>
-// <ToastDescription>{description}</ToastDescription>
-// <TouchableOpacity
-// onPress={() => toast.close(id)}
-// style={{
-// position: "absolute",
-// top: 8,
-// right: 8,
-// zIndex: 1,
-// }}
-// >
-// <Icon as={CloseIcon} style={{ color: "white" }} />
-// </TouchableOpacity>
-// </Toast>
-// ),
-// });
-// };

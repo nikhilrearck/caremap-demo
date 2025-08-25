@@ -26,6 +26,7 @@ import { SurgeryProcedure } from "@/services/database/migrations/v1/schema_v1";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
 import { KeyboardAvoidingView, Platform } from "react-native";
+import { logger } from "@/services/logging/logger";
 
 export default function SurgeriesProcedures() {
   const { patient } = useContext(PatientContext);
@@ -48,7 +49,8 @@ export default function SurgeriesProcedures() {
 
   async function fetchSurgeryProcedures() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
+      ("No patient id found");
       return;
     }
     try {
@@ -57,7 +59,7 @@ export default function SurgeriesProcedures() {
       );
       setPatientSurgeries(getSurgeryProcedures);
     } catch (e) {
-      console.log(e);
+      logger.debug(String(e));
     }
   }
 
@@ -386,19 +388,21 @@ function AddUpdateFormPage({
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
-        {/* Header */}
-        <Header title="Surgeries/Procedure" onBackPress={onClose} />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+          // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
         >
+          {/* Header */}
+          <Header title="Surgeries/Procedure" onBackPress={onClose} />
+
           <ScrollView
-            className="px-6 pt-8 pb-0 flex-1"
+            className="px-6 pt-8 flex-1"
             contentContainerStyle={{
-              paddingBottom: 48,
+              paddingBottom: 30,
             }}
             keyboardShouldPersistTaps="handled"
+            // keyboardDismissMode="on-drag"
             showsVerticalScrollIndicator={true}
           >
             <View className="flex-1">
@@ -519,7 +523,9 @@ function AddUpdateFormPage({
                 />
               </Textarea>
             </View>
-            {/* Save button */}
+          </ScrollView>
+          {/* Save button */}
+          <View className="px-6">
             <TouchableOpacity
               className="py-3 rounded-md mt-3"
               style={{ backgroundColor: palette.primary }}
@@ -532,7 +538,7 @@ function AddUpdateFormPage({
                 {editingItem ? "Update" : "Save"}
               </Text>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </TouchableWithoutFeedback>
