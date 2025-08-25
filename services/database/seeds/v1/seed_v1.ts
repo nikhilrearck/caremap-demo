@@ -273,7 +273,7 @@ export async function seedDatabase(db: SQLiteDatabase) {
 
         // Insert contacts
         for (const contact of sampleContacts) {
-            if (!contact.patient_id || !contact.first_name || !contact.last_name || !contact.relationship || !contact.phone_number) continue;
+            if (!contact.patient_id || !contact.first_name || !contact.phone_number) continue;
             await db.execAsync(
                 `INSERT INTO ${tables.CONTACT} (
                     patient_id,

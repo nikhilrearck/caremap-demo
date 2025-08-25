@@ -38,8 +38,8 @@ export const createContact = async (contact: Partial<Contact>, patientId: number
                 return null;
             }
 
-            if (!contact.first_name || !contact.last_name || !contact.relationship || !contact.phone_number || !contact.email) {
-                throw new Error("Missing required fields");
+            if (!contact.first_name || !contact.phone_number) {
+                throw new Error("Missing required fields: first_name and phone_number are mandatory");
             }
 
             await checkUniqueFields(model, contact);

@@ -196,8 +196,8 @@ export interface Contact {
   id: number;
   patient_id: number;
   first_name: string;
-  last_name: string;
-  relationship: string;
+  last_name?: string;
+  relationship?: string;
   phone_number: string;
   description?: string;
   email?: string;
