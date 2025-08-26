@@ -150,7 +150,7 @@ export default function CareTeamListScreen() {
   const renderItem = ({ item }: { item: Contact }) => (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
       <TouchableOpacity
-        className="flex-1"
+        className="flex-1 p-2 bg-white"
         activeOpacity={0.5}
         onPress={() =>
           router.push({

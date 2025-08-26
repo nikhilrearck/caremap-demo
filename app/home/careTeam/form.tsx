@@ -23,8 +23,6 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { ChevronDownIcon } from "lucide-react-native";
-// import { careTeamContacts, CareContact } from "./index";
-
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LabeledTextInput } from "@/components/shared/labeledTextInput";
 import palette from "@/utils/theme/color";
@@ -38,11 +36,6 @@ import {
 import { Contact } from "@/services/database/migrations/v1/schema_v1";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
-import {
-  FormControl,
-  FormControlLabel,
-  FormControlLabelText,
-} from "@/components/ui/form-control";
 
 type Params = {
   mode?: string;
@@ -52,24 +45,16 @@ type Params = {
 export default function CareTeamForm() {
   const { patient } = useContext(PatientContext);
   const params = useLocalSearchParams() as Params;
-  // const params = useLocalSearchParams();
-  // console.log(params);
   const router = useRouter();
   const mode = (params.mode as string) ?? "add"; // "add" | "view" | "edit"
   const contactId = params.contactId;
-  // console.log(typeof contactId);
+
   // Custom toast
   const showToast = useCustomToast();
 
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
   const isAddMode = mode === "add";
-
-  // const existingContact = contactId
-  //   ? careTeamContacts.find((c) => c.id === contactId)
-  //   : undefined;
-  // Fetch contact from backend if editing or viewing
-  // const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState<Partial<Contact>>({
     first_name: "",
@@ -193,36 +178,20 @@ export default function CareTeamForm() {
         <ScrollView
           className="px-6 pt-8 flex-1"
           contentContainerStyle={{
-            paddingBottom: 30,
+            paddingBottom: 40,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={true}
         >
           {/* First Name */}
-          {/* <Text className="text-gray-500 text-sm mb-1">First Name</Text>
-        <TextInput
-          className="bg-white p-3 rounded-lg mb-4 border border-gray-300"
-          editable={!isViewMode}
-          value={form.firstName}
-          onChangeText={(t) => setForm((p) => ({ ...p, firstName: t }))}
-          placeholder="Enter first name here"
-        /> */}
           <LabeledTextInput
-            label="First Name"
+            label="First Name *"
             value={form.first_name ?? ""}
             editable={!isViewMode}
             onChangeText={(t) => setForm((p) => ({ ...p, first_name: t }))}
           />
 
           {/* Last Name */}
-          {/* <Text className="text-gray-500 text-sm mb-1">Last Name</Text>
-        <TextInput
-          className="bg-white p-3 rounded-lg mb-4 border border-gray-300"
-          editable={!isViewMode}
-          value={form.lastName}
-          onChangeText={(t) => setForm((p) => ({ ...p, lastName: t }))}
-          placeholder="Enter last name here"
-        /> */}
           <LabeledTextInput
             label="Last Name"
             value={form.last_name ?? ""}
@@ -272,41 +241,21 @@ export default function CareTeamForm() {
           </View>
 
           {/* Phone */}
-          {/* <Text className="text-gray-500 text-sm mb-1">Phone Number</Text>
-        <TextInput
-          className="bg-white p-3 rounded-lg mb-4 border border-gray-300"
-          editable={!isViewMode}
-          value={form.phone}
-          onChangeText={(t) => setForm((p) => ({ ...p, phone: t }))}
-          placeholder="+91 0000000000"
-          keyboardType="phone-pad"
-        /> */}
           <LabeledTextInput
-            label="Phone Number"
+            label="Phone Number *"
             value={form.phone_number ?? ""}
             editable={!isViewMode}
             onChangeText={(t) => setForm((p) => ({ ...p, phone_number: t }))}
+            keyboardType="numeric"
           />
 
           {/* Description */}
-          {/* <Text className="text-gray-500 text-sm mb-1">Description</Text>
-        <TextInput
-          className="bg-white p-3 rounded-lg mb-4 border border-gray-300"
-          editable={!isViewMode}
-          value={form.description}
-          onChangeText={(t) => setForm((p) => ({ ...p, description: t }))}
-          placeholder="Enter description"
-          multiline
-          style={{ minHeight: 90, textAlignVertical: "top" }}
-        /> */}
           {/* <LabeledTextInput
           label="Description"
           value={form.description ?? ""}
           editable={!isViewMode}
           onChangeText={(t) => setForm((p) => ({ ...p, description: t }))}
         /> */}
-
-          {/* Description */}
           <Text className="text-gray-500 mb-1 text-sm">Description</Text>
           <Textarea
             size="md"
@@ -324,16 +273,6 @@ export default function CareTeamForm() {
           </Textarea>
 
           {/* Email */}
-          {/* <Text className="text-gray-500 text-sm mb-1">Email</Text>
-        <TextInput
-          className="bg-white p-3 rounded-lg mb-6 border border-gray-300"
-          editable={!isViewMode}
-          value={form.email}
-          onChangeText={(t) => setForm((p) => ({ ...p, email: t }))}
-          placeholder="Enter email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        /> */}
           <LabeledTextInput
             label="Email"
             value={form.email ?? ""}
