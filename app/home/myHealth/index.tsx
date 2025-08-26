@@ -1,6 +1,10 @@
+import {
+  initializeMockSession,
+  isAndroid,
+} from "@/android-bypass/google-auth-android";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
-import { Divider } from "@/components/ui/divider";
+import { Grid, GridItem } from "@/components/ui/grid";
 import { EditIcon, Icon, ShareIcon } from "@/components/ui/icon";
 import { PatientContext } from "@/context/PatientContext";
 import { UserContext } from "@/context/UserContext";
@@ -11,27 +15,32 @@ import { calculateAge } from "@/services/core/utils";
 import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
-import { Route, router } from "expo-router";
-import { Camera, User } from "lucide-react-native";
+import { router } from "expo-router";
+import { User } from "lucide-react-native";
 import { useContext, useEffect, useState } from "react";
-import { Image, Text, TouchableOpacity, View, ScrollView } from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Grid, GridItem } from "@/components/ui/grid";
 export default function HealthProfile() {
   const { user, setUserData } = useContext(UserContext);
   const { patient, setPatientData } = useContext(PatientContext);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    initializeAuthSession(setUserData).finally(() => setLoading(false));
+    if (isAndroid) {
+      logger.debug("Android? :", isAndroid);
+      initializeMockSession(setUserData).finally(() => setLoading(false));
+    } else {
+      initializeAuthSession(setUserData).finally(() => setLoading(false));
+    }
   }, []);
 
   useEffect(() => {
     const sync = async () => {
       try {
         if (!user) return;
-        const patientData = await syncPatientSession(user);
-        setPatientData(patientData);
+        await syncPatientSession(user).then((patientData) => {
+          setPatientData(patientData);
+        });
       } catch (err) {
         logger.debug("Failed to sync patient session:", err);
         return ShowAlert("e", `Failed to sync patient data.`);
@@ -133,7 +142,7 @@ export default function HealthProfile() {
             )}
           </Avatar>
 
-          <View >
+          <View>
             <Text className="text-xl text-white font-semibold">
               {`${patient?.first_name} ${patient?.last_name}`}
             </Text>
@@ -234,13 +243,12 @@ export default function HealthProfile() {
                         <Text className="text-base">{tile.name}</Text>
                       </View> */}
                       <Text
-                      style={{ color: palette.heading }}
-                       className="mt-3 text-base font-medium  text-center">
+                        style={{ color: palette.heading }}
+                        className="mt-3 text-base font-medium  text-center"
+                      >
                         {tile.name}
                       </Text>
-                      
                     </TouchableOpacity>
-                    
                   </GridItem>
                 );
               })}
