@@ -326,7 +326,15 @@ function AddUpdateFormPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Post Discharge Instruction" onBackPress={onClose} />
+        <Header
+          title="Post Discharge Instruction"
+          right={
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text className="text-white font-medium">Cancel</Text>
+            </TouchableOpacity>
+          }
+          onBackPress={onClose}
+        />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}

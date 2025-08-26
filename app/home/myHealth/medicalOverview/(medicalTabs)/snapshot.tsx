@@ -90,7 +90,7 @@ export default function Snapshot() {
           </TouchableOpacity>
         }
       />
-      <View className="p-4">
+      <View className="px-4 pt-4 flex-1">
         <Text
           style={{ color: palette.heading }}
           className="text-lg font-semibold mb-2"

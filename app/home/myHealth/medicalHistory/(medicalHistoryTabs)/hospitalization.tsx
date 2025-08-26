@@ -131,14 +131,15 @@ export default function Hospitalization() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Hospitalizations"
-       right={
-                <TouchableOpacity onPress={() => router.back()}>
-                  <Text className="text-white font-medium">Cancel</Text>
-                </TouchableOpacity>
-              }
-               />
-      <View className="p-4 bg-white flex-1">
+      <Header
+        title="Hospitalizations"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
+      <View className="px-4 pt-4 bg-white flex-1">
         <Text
           className="text-lg font-semibold mb-2"
           style={{ color: palette.heading }}
@@ -290,19 +291,17 @@ function HospitalizationForm({
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
-        <View
-          className="py-3 flex-row items-center"
-          style={{ backgroundColor: palette.primary }}
-        >
-          <TouchableOpacity onPress={onClose} className="p-2 ml-2">
-            <ChevronLeft color="white" size={24} />
-          </TouchableOpacity>
-          <Text className="text-xl text-white font-bold ml-4">
-            {editingItem ? "Edit" : "Add"} Hospitalization
-          </Text>
-        </View>
+        <Header
+          title="Hospitalizations"
+          right={
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text className="text-white font-medium">Cancel</Text>
+            </TouchableOpacity>
+          }
+          onBackPress={onClose}
+        />
 
-        <View className="px-6 py-8">
+        <View className="px-6 pt-8 flex-1">
           <Text
             className="text-lg font-medium mb-3"
             style={{ color: palette.heading }}
@@ -381,7 +380,8 @@ function HospitalizationForm({
             numberOfLines={4}
             textAlignVertical="top"
           />
-
+        </View>
+        <View className="px-6">
           <TouchableOpacity
             className={`py-3 rounded-lg ${isDisabled ? "opacity-50" : ""}`}
             disabled={isDisabled}

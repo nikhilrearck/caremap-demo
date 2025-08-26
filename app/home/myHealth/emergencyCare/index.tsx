@@ -110,16 +110,16 @@ export default function EmergencyCareScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Emergency Care"
-      
-       right={
-                <TouchableOpacity onPress={() => router.back()}>
-                  <Text className="text-white font-medium">Cancel</Text>
-                </TouchableOpacity>
-              }
-              />
+      <Header
+        title="Emergency Care"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
 
-      <View className="p-4 bg-white flex-1">
+      <View className="px-4 pt-4 bg-white flex-1">
         <Text
           style={{ color: palette.heading }}
           className="text-lg font-semibold mb-2"
@@ -137,7 +137,7 @@ export default function EmergencyCareScreen() {
         </Text>
         <Divider className="bg-gray-300" />
         <FlatList
-      className="mt-2"
+          className="mt-2"
           data={careList}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={true}
@@ -177,7 +177,7 @@ export default function EmergencyCareScreen() {
           onPress={() => setShowForm(true)}
         >
           <Text className="text-white font-bold text-center">
-            Add current condition
+            Add emergency care
           </Text>
         </TouchableOpacity>
       </View>
@@ -188,14 +188,14 @@ export default function EmergencyCareScreen() {
           setShowDialog(false);
           setItemToDelete(null);
         }}
-        title="Confirm Deletion" 
+        title="Confirm Deletion"
         description={
           itemToDelete
             ? `Are you sure you want to delete \"${itemToDelete.topic}\"?`
             : "Are you sure you want to delete this item?"
         }
-        confirmText="Delete" 
-        cancelText="Cancel" 
+        confirmText="Delete"
+        cancelText="Cancel"
         confirmButtonProps={{
           style: { backgroundColor: palette.primary, marginLeft: 8 },
         }}
@@ -246,19 +246,17 @@ function EmergencyCareForm({
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
-        <View
-          className="py-3 flex-row items-center"
-          style={{ backgroundColor: palette.primary }}
-        >
-          <TouchableOpacity onPress={onClose} className="p-2 ml-2">
-            <ChevronLeft color="white" size={24} />
-          </TouchableOpacity>
-          <Text className="text-xl text-white font-bold ml-4">
-            {editingItem ? "Edit" : "Add"} Emergency Care
-          </Text>
-        </View>
+        <Header
+          title="Emergency Care"
+          right={
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text className="text-white font-medium">Cancel</Text>
+            </TouchableOpacity>
+          }
+          onBackPress={onClose}
+        />
 
-        <View className="px-6 py-8">
+        <View className="px-6 pt-8 flex-1">
           <Text
             className="text-lg font-medium mb-3"
             style={{ color: palette.heading }}
@@ -288,7 +286,8 @@ function EmergencyCareForm({
             numberOfLines={4}
             textAlignVertical="top"
           />
-
+        </View>
+        <View className="px-6">
           <TouchableOpacity
             className={`py-3 rounded-lg ${isSaveDisabled ? "opacity-50" : ""}`}
             disabled={isSaveDisabled}
