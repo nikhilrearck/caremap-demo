@@ -27,7 +27,8 @@ export default function TrackScreen() {
   } = useContext(TrackContext);
 
   const [currentSelectedDate, setCurrentSelectedDate] = useState(moment());
-
+  //marking dates on calendar
+const [markedDates, setMarkedDates] = useState<string[]>([]);
   useEffect(() => {
     const formatted = currentSelectedDate.format("MM-DD-YYYY");
     if (selectedDate !== formatted) {
@@ -49,6 +50,12 @@ export default function TrackScreen() {
         );
         setCategories(res);
         setRefreshData(false);
+         // 👇 collect all dates that have data (assuming API gives it or you can derive it)
+      const datesWithData = res
+        .filter((cat) => cat.items.length > 0)
+        .map((cat) => currentSelectedDate.format("YYYY-MM-DD")); // adjust format if API gives date
+      setMarkedDates(datesWithData);
+    
       };
 
       loadTrackItemsForSelectedDate();
@@ -67,12 +74,10 @@ export default function TrackScreen() {
       <Header
         title="Track"
         right={
-          <TouchableOpacity onPress={handleAddItem}>
-            <View className="bg-white px-3 py-1.5 rounded-lg">
-              <Text className="font-bold" style={{ color: palette.primary }}>
-                Add Item
-              </Text>
-            </View>
+          <TouchableOpacity onPress={handleAddItem} className="px-2">
+            <Text className="text-white font-medium whitespace-nowrap">
+              Add item
+            </Text>
           </TouchableOpacity>
         }
       />
@@ -84,6 +89,7 @@ export default function TrackScreen() {
       <TrackCalendar
         selectedDate={currentSelectedDate}
         onDateSelected={setCurrentSelectedDate}
+        markedDates={markedDates}
       />
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>

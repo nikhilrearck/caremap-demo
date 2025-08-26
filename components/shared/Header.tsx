@@ -22,10 +22,10 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <View
       style={{ backgroundColor: palette.primary }}
-      className="py-3 flex-row items-center px-4"
+      className="p-2 flex-row items-center justify-between "
     >
       {/* Left section */}
-      <View style={{ width: 60, alignItems: "flex-start" }}>
+      <View style={{ width: 50, alignItems: "flex-start" }}>
         {showBackButton ? (
           <TouchableOpacity
             onPress={onBackPress ?? (() => router.back())}
@@ -39,12 +39,14 @@ const Header: React.FC<HeaderProps> = ({
       </View>
 
       {/* Center title */}
-      <Text className="text-xl text-white font-bold flex-1 text-center">
+      <Text className="text-xl text-white font-bold text-center flex-1">
         {title}
       </Text>
 
       {/* Right section */}
-      <View style={{ maxWidth: 90, alignItems: "flex-end" }}>{right}</View>
+      <View style={{ minWidth: 60, alignItems: "flex-end" }}>
+        {right ? right : <View className="p-2" />}
+      </View>
     </View>
   );
 };
