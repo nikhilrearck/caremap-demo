@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
@@ -150,7 +152,7 @@ export default function Allergies() {
           <View className="h-px bg-gray-300 my-3" />
         </View>
 
-        <View>
+        <View className="flex-1">
           <Text
             className="text-lg font-semibold"
             style={{ color: palette.heading }}
@@ -160,7 +162,7 @@ export default function Allergies() {
 
           {/* hr */}
           <View className="h-px bg-gray-300 my-3" />
-          <View>
+          <View className="flex-1">
             <FlatList
               data={patientAllergy}
               keyExtractor={(item) => item.id.toString()}
@@ -212,7 +214,7 @@ export default function Allergies() {
               ListEmptyComponent={
                 <Text className="text-gray-500">No Allergies found.</Text>
               }
-              style={{ minHeight: 50, maxHeight: 300 }}
+              style={{ minHeight: 50 }}
             />
           </View>
         </View>
@@ -283,97 +285,104 @@ function AddAllergyPage({
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
         <Header title="Allergies" onBackPress={onClose} />
-
-        <View className="px-6 py-8">
-          <Text
-            className="text-lg font-medium mb-3"
-            style={{ color: palette.heading }}
-          >
-            {editingCondition ? "Update Allergy" : " Add Allergy"}
-          </Text>
-
-          {/* Enter Topic */}
-          <View className="mb-4">
-            <Text className="text-gray-600 text-sm mb-2">Enter Topic</Text>
-            <TextInput
-              value={topic}
-              onChangeText={setTopic}
-              placeholder="Please Enter your topic here"
-              className="border border-gray-300 rounded-md px-3 py-3 text-base"
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-            />
-          </View>
-
-          {/* Details */}
-          <Text className="text-gray-500 mb-2 text-sm">Details</Text>
-          <Textarea
-            size="md"
-            isReadOnly={false}
-            isInvalid={false}
-            isDisabled={false}
-            className="w-full"
-          >
-            <TextareaInput
-              placeholder="Enter details"
-              style={{ textAlignVertical: "top", fontSize: 16 }}
-              value={details}
-              onChangeText={setDetails}
-            />
-          </Textarea>
-
-          {/* Severity */}
-          <Text className="text-gray-600 text-sm mb-2 mt-4">Severity</Text>
-          <View style={{ width: "70%", alignSelf: "flex-start" }}>
-            <View
-              className="flex-row border rounded-lg overflow-hidden mb-2"
-              style={{ borderColor: palette.primary }}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          className="bg-white"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+        >
+          <View className="px-6 py-8 flex-1">
+            <Text
+              className="text-lg font-medium mb-3"
+              style={{ color: palette.heading }}
             >
-              {["Mild", "Moderate", "Severe"].map((level, idx) => (
-                <TouchableOpacity
-                  key={level}
-                  style={{
-                    flex: 1,
-                    backgroundColor:
-                      severity === level ? palette.primary : "white",
-                    borderRightWidth: idx < 2 ? 1 : 0,
-                    borderColor: palette.primary,
-                    paddingVertical: 10,
-                    paddingHorizontal: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  onPress={() => setSeverity(level)}
-                  activeOpacity={0.7}
-                >
-                  <Text
+              {editingCondition ? "Update Allergy" : " Add Allergy"}
+            </Text>
+
+            {/* Enter Topic */}
+            <View className="mb-4">
+              <Text className="text-gray-600 text-sm mb-2">Enter Topic</Text>
+              <TextInput
+                value={topic}
+                onChangeText={setTopic}
+                placeholder="Please Enter your topic here"
+                className="border border-gray-300 rounded-md px-3 py-3 text-base"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+
+            {/* Details */}
+            <Text className="text-gray-500 mb-2 text-sm">Details</Text>
+            <Textarea
+              size="md"
+              isReadOnly={false}
+              isInvalid={false}
+              isDisabled={false}
+              className="w-full"
+            >
+              <TextareaInput
+                placeholder="Enter details"
+                style={{ textAlignVertical: "top", fontSize: 16 }}
+                value={details}
+                onChangeText={setDetails}
+              />
+            </Textarea>
+
+            {/* Severity */}
+            <Text className="text-gray-600 text-sm mb-2 mt-4">Severity</Text>
+            <View style={{ width: "70%", alignSelf: "flex-start" }}>
+              <View
+                className="flex-row border rounded-lg overflow-hidden mb-2"
+                style={{ borderColor: palette.primary }}
+              >
+                {["Mild", "Moderate", "Severe"].map((level, idx) => (
+                  <TouchableOpacity
+                    key={level}
                     style={{
-                      color: severity === level ? "white" : palette.primary,
-                      fontWeight: "bold",
+                      flex: 1,
+                      backgroundColor:
+                        severity === level ? palette.primary : "white",
+                      borderRightWidth: idx < 2 ? 1 : 0,
+                      borderColor: palette.primary,
+                      paddingVertical: 10,
+                      paddingHorizontal: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
+                    onPress={() => setSeverity(level)}
+                    activeOpacity={0.7}
                   >
-                    {level}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={{
+                        color: severity === level ? "white" : palette.primary,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {level}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
           </View>
-
           {/* Save button */}
-          <TouchableOpacity
-            className="py-3 rounded-md mt-3"
-            style={{ backgroundColor: palette.primary }}
-            onPress={() => {
-              handleSave();
-              onClose(); // Go back to list
-            }}
-          >
-            <Text className="text-white font-bold text-center">
-              {editingCondition ? "Update" : "Save"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+          <View className="px-6">
+            <TouchableOpacity
+              className="py-3 rounded-md mt-3"
+              style={{ backgroundColor: palette.primary }}
+              onPress={() => {
+                handleSave();
+                onClose(); // Go back to list
+              }}
+            >
+              <Text className="text-white font-bold text-center">
+                {editingCondition ? "Update" : "Save"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );

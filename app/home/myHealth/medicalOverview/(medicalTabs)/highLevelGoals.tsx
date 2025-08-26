@@ -5,6 +5,10 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
@@ -178,7 +182,7 @@ export default function HighLevelGoals() {
         </View>
 
         {/* User Entered Goals */}
-        <View>
+        <View className="flex-1">
           <Text className="text-lg font-semibold text-cyan-700">
             High level goals (User entered)
           </Text>
@@ -186,13 +190,13 @@ export default function HighLevelGoals() {
           {/* hr */}
           <View className="h-px bg-gray-300 my-3" />
 
-          <View>
+          <View className="flex-1">
             <FlatList
               data={userGoals}
               keyExtractor={(item) => item.id.toString()}
               showsVerticalScrollIndicator={true}
               scrollEnabled={true}
-              style={{ minHeight: 50, maxHeight: 250 }}
+              style={{ minHeight: 50 }}
               ListEmptyComponent={
                 <Text className="text-gray-500">No user goals found.</Text>
               }
@@ -343,98 +347,108 @@ function AddYourGoalsPage({
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      <Header title="High level goals" onBackPress={onClose} />
-
-      <View className="px-6 py-8">
-        {/* Heading */}
-        <Text
-          className="text-xl font-semibold mb-2"
-          style={{ color: palette.heading }}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView className="flex-1 bg-white">
+        {/* Header */}
+        <Header title="High level goals" onBackPress={onClose} />
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          className="bg-white"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
         >
-          {editingGoal ? "Update your goals" : "Add your Goal"}
-        </Text>
+          <View className="px-6 py-8 flex-1">
+            {/* Heading */}
+            <Text
+              className="text-xl font-semibold mb-2"
+              style={{ color: palette.heading }}
+            >
+              {editingGoal ? "Update your goals" : "Add your Goal"}
+            </Text>
 
-        {/* Examples */}
-        <Text className="text-gray-600 text-base">
-          Enter high level goals for your health
-        </Text>
-        <Text className="text-gray-600 text-sm mb-1">e.g.</Text>
-        <View className="mb-4 ml-2">
-          <Text className="text-gray-600 text-sm mb-1">
-            • Walk two flights of stairs comfortably
-          </Text>
-          <Text className="text-gray-600 text-sm mb-1">
-            • Eat solid foods and regular liquids
-          </Text>
-          <Text className="text-gray-600 text-sm">
-            • keep my seizures under control
-          </Text>
-        </View>
+            {/* Examples */}
+            <Text className="text-gray-600 text-base">
+              Enter high level goals for your health
+            </Text>
+            <Text className="text-gray-600 text-sm mb-1">e.g.</Text>
+            <View className="mb-4 ml-2">
+              <Text className="text-gray-600 text-sm mb-1">
+                • Walk two flights of stairs comfortably
+              </Text>
+              <Text className="text-gray-600 text-sm mb-1">
+                • Eat solid foods and regular liquids
+              </Text>
+              <Text className="text-gray-600 text-sm">
+                • keep my seizures under control
+              </Text>
+            </View>
 
-        {/* hr */}
-        <View className="h-px bg-gray-300 mb-4" />
+            {/* hr */}
+            <View className="h-px bg-gray-300 mb-4" />
 
-        {/* Goal Description Input */}
-        <Text className="text-gray-600 text-sm mb-2">
-          Enter a goal description
-        </Text>
-        <TextInput
-          value={goalDescription}
-          onChangeText={setGoalDescription}
-          placeholder="Your goals"
-          className="border border-gray-300 rounded-md px-3 py-3 text-base mb-6"
-          multiline
-          numberOfLines={3}
-          textAlignVertical="top"
-        />
-
-        <Text className="text-gray-600 text-sm mb-2">
-          Set date to complete your goal
-        </Text>
-        {/* Completion Date */}
-        <TouchableOpacity
-          className="border border-gray-300 rounded-md px-3"
-          onPress={() => setShowDatePicker(true)}
-        >
-          <View className="flex-row items-center">
+            {/* Goal Description Input */}
+            <Text className="text-gray-600 text-sm mb-2">
+              Enter a goal description
+            </Text>
             <TextInput
-              value={completionDate ? formatDate(completionDate) : ""}
-              placeholder="MM-DD-YY"
-              className="flex-1 text-base"
-              editable={false}
-              pointerEvents="none"
+              value={goalDescription}
+              onChangeText={setGoalDescription}
+              placeholder="Your goals"
+              className="border border-gray-300 rounded-md px-3 py-3 text-base mb-6"
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
             />
-            <Icon
-              as={CalendarDaysIcon}
-              className="text-typography-500 m-1 w-5 h-5"
+
+            <Text className="text-gray-600 text-sm mb-2">
+              Set date to complete your goal
+            </Text>
+            {/* Completion Date */}
+            <TouchableOpacity
+              className="border border-gray-300 rounded-md px-3"
+              onPress={() => setShowDatePicker(true)}
+            >
+              <View className="flex-row items-center">
+                <TextInput
+                  value={completionDate ? formatDate(completionDate) : ""}
+                  placeholder="MM-DD-YY"
+                  className="flex-1 text-base"
+                  editable={false}
+                  pointerEvents="none"
+                />
+                <Icon
+                  as={CalendarDaysIcon}
+                  className="text-typography-500 m-1 w-5 h-5"
+                />
+              </View>
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={showDatePicker}
+              mode="date"
+              onConfirm={handleConfirm}
+              onCancel={() => setShowDatePicker(false)}
+              minimumDate={new Date()} // Prevent selecting past dates
             />
           </View>
-        </TouchableOpacity>
-        <DateTimePickerModal
-          isVisible={showDatePicker}
-          mode="date"
-          onConfirm={handleConfirm}
-          onCancel={() => setShowDatePicker(false)}
-          minimumDate={new Date()} // Prevent selecting past dates
-        />
 
-        {/* Save Button */}
-        <TouchableOpacity
-          className="py-2 rounded-md mt-4"
-          style={{ backgroundColor: palette.primary }}
-          onPress={() => {
-            handleSave();
-            onClose(); // Go back to list
-          }}
-        >
-          <Text className="text-white text-center text-lg font-medium">
-            {editingGoal ? "Update" : "Save"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+          {/* Save Button */}
+          <View className="px-6">
+            <TouchableOpacity
+              className="py-2 rounded-md mt-4"
+              style={{ backgroundColor: palette.primary }}
+              onPress={() => {
+                handleSave();
+                onClose(); // Go back to list
+              }}
+            >
+              <Text className="text-white text-center text-lg font-medium">
+                {editingGoal ? "Update" : "Save"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 

@@ -388,14 +388,13 @@ function AddUpdateFormPage({
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
+        {/* Header */}
+        <Header title="Surgeries/Procedure" onBackPress={onClose} />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
           // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
         >
-          {/* Header */}
-          <Header title="Surgeries/Procedure" onBackPress={onClose} />
-
           <ScrollView
             className="px-6 pt-8 flex-1"
             contentContainerStyle={{

@@ -20,7 +20,7 @@ export default function Snapshot() {
   const [patientOverview, setPatientOverview] = useState("");
   const [healthIssues, setHealthIssues] = useState("");
   const [snapshot, setSnapshot] = useState<PatientSnapshot | null>(null);
- const showToast = useCustomToast();
+  const showToast = useCustomToast();
   useEffect(() => {
     if (patient?.id) {
       getPatientSnapshot(patient.id).then(
@@ -34,11 +34,12 @@ export default function Snapshot() {
       );
     }
   }, [patient]);
-const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
+  const isDisabled =
+    patientOverview.trim() === "" && healthIssues.trim() === "";
   const handleSave = async () => {
     if (!patient?.id) {
       Alert.alert("Error", "Patient not found.");
-      
+
       return;
     }
 
@@ -52,7 +53,7 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
       if (snapshot?.id) {
         await updatePatientSnapshot(data, { id: snapshot.id });
         // Alert.alert("Success", "Snapshot updated successfully.");
-         showToast({
+        showToast({
           title: "Success",
           description: "Snapshot updated successfully.",
           action: "success",
@@ -60,9 +61,9 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
       } else {
         await createPatientSnapshot(data);
         // Alert.alert("Success", "Snapshot created successfully.");
-         showToast({
+        showToast({
           title: "Success",
-          description:"Snapshot created successfully." ,
+          description: "Snapshot created successfully.",
           action: "success",
         });
       }
@@ -71,18 +72,18 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
     } catch (err) {
       // console.error("Failed to save snapshot:", err);
       // Alert.alert("Error", "Failed to save snapshot.");
-       showToast({
-          title: "Error",
-          description: "Failed to save snapshot.",
-          action: "error",
-        });
+      showToast({
+        title: "Error",
+        description: "Failed to save snapshot.",
+        action: "error",
+      });
     }
   };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <Header title="Snapshot" />
-      <View className="p-4">
+      <View className="px-4 pt-4 flex-1">
         <Text
           style={{ color: palette.heading }}
           className="text-lg font-semibold mb-2"
@@ -136,7 +137,8 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
             textAlignVertical="top"
           />
         </Textarea>
-
+      </View>
+      <View className="px-4">
         <TouchableOpacity
           style={{
             backgroundColor: palette.primary,

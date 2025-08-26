@@ -19,7 +19,6 @@ import {
 } from "@/services/core/PatientConditionService";
 import { PatientContext } from "@/context/PatientContext";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
-import { Spinner } from "@/components/ui/spinner";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import Header from "@/components/shared/Header";
 import ActionPopover from "@/components/shared/ActionPopover";
@@ -39,7 +38,6 @@ export default function MedicalConditions() {
   const [editingCondition, setEditingCondition] = useState<
     PatientCondition | undefined
   >(undefined);
-  const [loading, setLoading] = useState(false);
 
   // for Alert while delete
   const [showAlertDialog, setShowAlertDialog] = useState(false);
@@ -54,14 +52,12 @@ export default function MedicalConditions() {
       logger.debug("No patient id found");
       return;
     }
-    setLoading(true);
+
     try {
       const conditions = await getPatientConditionsByPatientId(patient.id);
       setUserConditions(conditions);
     } catch (e) {
       logger.debug(String(e));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -132,7 +128,7 @@ export default function MedicalConditions() {
           .toLocaleDateString("en-US", {
             month: "2-digit",
             day: "2-digit",
-            year: "2-digit",
+            year: "numeric",
           })
           .replace(/\//g, "-")
       : "";
@@ -190,51 +186,44 @@ export default function MedicalConditions() {
           <View className="h-px bg-gray-300 my-3" />
 
           <View className="flex-1">
-            {loading ? (
-              <View className="justify-center items-center min-h-[120px]">
-                <Spinner size="large" color={palette.primary} />
-                <Text className="mt-5">Loading...</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={userConditions}
-                keyExtractor={(item) => item.id.toString()}
-                scrollEnabled={true}
-                showsVerticalScrollIndicator={true}
-                renderItem={({ item }) => {
-                  const formattedDate = getFormattedConditionDate(item);
-                  return (
-                    <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
-                      <View className="flex-row items-center space-x-2">
-                        <Text className="text-lg ml-3 max-w-[220px] text-left">
-                          {item.condition_name}
-                        </Text>
-                      </View>
-                      <View className="flex-row items-center">
-                        <Text className="text-lg text-gray-500 mr-3">
-                          {formattedDate}
-                        </Text>
-                        <ActionPopover
-                          onEdit={() => {
-                            handleEdit(item);
-                          }}
-                          onDelete={() => {
-                            setConditionToDelete(item);
-                            setShowAlertDialog(true);
-                          }}
-                        />
-                      </View>
+            <FlatList
+              data={userConditions}
+              keyExtractor={(item) => item.id.toString()}
+              scrollEnabled={true}
+              showsVerticalScrollIndicator={true}
+              renderItem={({ item }) => {
+                const formattedDate = getFormattedConditionDate(item);
+                return (
+                  <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
+                    <View className="flex-row items-center space-x-2">
+                      <Text className="text-lg ml-3 max-w-[220px] text-left">
+                        {item.condition_name}
+                      </Text>
                     </View>
-                  );
-                }}
-                ListEmptyComponent={
-                  <Text className="text-gray-500">
-                    No Medical conditions found.
-                  </Text>
-                }
-                style={{ minHeight: 50 }}
-              />
-            )}
+                    <View className="flex-row items-center">
+                      <Text className="text-lg text-gray-500 mr-3">
+                        {formattedDate}
+                      </Text>
+                      <ActionPopover
+                        onEdit={() => {
+                          handleEdit(item);
+                        }}
+                        onDelete={() => {
+                          setConditionToDelete(item);
+                          setShowAlertDialog(true);
+                        }}
+                      />
+                    </View>
+                  </View>
+                );
+              }}
+              ListEmptyComponent={
+                <Text className="text-gray-500">
+                  No Medical conditions found.
+                </Text>
+              }
+              style={{ minHeight: 50 }}
+            />
           </View>
         </View>
 
@@ -303,15 +292,14 @@ function AddMedicalConditionsPage({
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
+        {/* Header */}
+        <Header title="Medical Conditions" onBackPress={onClose} />
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           className="bg-white"
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
         >
-          {/* Header */}
-          <Header title="Medical Conditions" onBackPress={onClose} />
-
           <View className="px-6 pt-8 flex-1">
             <Text
               className="text-lg font-medium mb-3"
@@ -338,6 +326,7 @@ function AddMedicalConditionsPage({
             </Textarea>
           </View>
 
+          {/* Save button */}
           <View className="px-6">
             <TouchableOpacity
               className="py-3 rounded-md"

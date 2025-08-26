@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
@@ -118,7 +120,7 @@ export default function Notes() {
 
       <View className="px-6 pt-8 flex-1">
         {/* Heading*/}
-        <View>
+        <View className="flex-1">
           <Text
             className="text-lg font-semibold"
             style={{ color: palette.heading }}
@@ -133,7 +135,7 @@ export default function Notes() {
             <Text className="text-gray-500">Topic</Text>
             <Text className="text-gray-500">Reminder Date</Text>
           </View>
-          <View>
+          <View className="flex-1">
             <FlatList
               data={patientNotes}
               keyExtractor={(item) => item.id.toString()}
@@ -185,7 +187,7 @@ export default function Notes() {
               ListEmptyComponent={
                 <Text className="text-gray-500">No notes found.</Text>
               }
-              style={{ minHeight: 50, maxHeight: 250 }}
+              style={{ minHeight: 50 }}
             />
           </View>
         </View>
@@ -275,90 +277,97 @@ function AddNotesPage({
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
         <Header title="Notes" onBackPress={onClose} />
-
-        <View className="px-6 py-8">
-          <Text
-            className="text-lg font-medium mb-3"
-            style={{ color: palette.heading }}
-          >
-            {editingCondition ? "Update Notes" : "Add Notes"}
-          </Text>
-
-          {/* Enter Topic */}
-          <View className="mb-4">
-            <Text className="text-gray-600 text-sm mb-2">Enter Topic</Text>
-            <TextInput
-              value={noteTopic}
-              onChangeText={setNoteTopic}
-              placeholder="Please enter your topic here"
-              className="border border-gray-300 rounded-md px-3 py-3 text-base"
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-            />
-          </View>
-
-          {/* Reminder Date */}
-          <View className="mb-4">
-            <Text className="text-gray-600 text-sm mb-2">Reminder Date</Text>
-            <TouchableOpacity
-              className="border border-gray-300 rounded-md px-3"
-              onPress={() => setShowDatePicker(true)}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          className="bg-white"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+        >
+          <View className="px-6 py-8 flex-1">
+            <Text
+              className="text-lg font-medium mb-3"
+              style={{ color: palette.heading }}
             >
-              <View className="flex-row items-center">
-                <TextInput
-                  value={reminderDate ? formatDate(reminderDate) : ""}
-                  placeholder="MM-DD-YY"
-                  className="flex-1 text-base"
-                  editable={false}
-                  pointerEvents="none"
-                />
-                <Icon
-                  as={CalendarDaysIcon}
-                  className="text-typography-500 m-1 w-5 h-5"
-                />
-              </View>
-            </TouchableOpacity>
-            <DateTimePickerModal
-              isVisible={showDatePicker}
-              mode="date"
-              onConfirm={handleDateConfirm}
-              onCancel={() => setShowDatePicker(false)}
-              minimumDate={new Date()} // Prevent selecting past dates
-            />
-          </View>
-
-          {/* Details */}
-          <Text className="text-gray-500 mb-2 text-sm">Details</Text>
-          <Textarea
-            size="md"
-            isReadOnly={false}
-            isInvalid={false}
-            isDisabled={false}
-            className="w-full"
-          >
-            <TextareaInput
-              placeholder="Enter details"
-              style={{ textAlignVertical: "top", fontSize: 16 }}
-              value={noteDetails}
-              onChangeText={setNoteDetails}
-            />
-          </Textarea>
-
-          {/* Save button */}
-          <TouchableOpacity
-            className="py-3 rounded-md mt-3"
-            style={{ backgroundColor: palette.primary }}
-            onPress={() => {
-              handleSave();
-              onClose(); // Go back to list
-            }}
-          >
-            <Text className="text-white font-bold text-center">
-              {editingCondition ? "Update" : "Save"}
+              {editingCondition ? "Update Notes" : "Add Notes"}
             </Text>
-          </TouchableOpacity>
-        </View>
+
+            {/* Enter Topic */}
+            <View className="mb-4">
+              <Text className="text-gray-600 text-sm mb-2">Enter Topic</Text>
+              <TextInput
+                value={noteTopic}
+                onChangeText={setNoteTopic}
+                placeholder="Please enter your topic here"
+                className="border border-gray-300 rounded-md px-3 py-3 text-base"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+
+            {/* Reminder Date */}
+            <View className="mb-4">
+              <Text className="text-gray-600 text-sm mb-2">Reminder Date</Text>
+              <TouchableOpacity
+                className="border border-gray-300 rounded-md px-3"
+                onPress={() => setShowDatePicker(true)}
+              >
+                <View className="flex-row items-center">
+                  <TextInput
+                    value={reminderDate ? formatDate(reminderDate) : ""}
+                    placeholder="MM-DD-YY"
+                    className="flex-1 text-base"
+                    editable={false}
+                    pointerEvents="none"
+                  />
+                  <Icon
+                    as={CalendarDaysIcon}
+                    className="text-typography-500 m-1 w-5 h-5"
+                  />
+                </View>
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={showDatePicker}
+                mode="date"
+                onConfirm={handleDateConfirm}
+                onCancel={() => setShowDatePicker(false)}
+                minimumDate={new Date()} // Prevent selecting past dates
+              />
+            </View>
+
+            {/* Details */}
+            <Text className="text-gray-500 mb-2 text-sm">Details</Text>
+            <Textarea
+              size="md"
+              isReadOnly={false}
+              isInvalid={false}
+              isDisabled={false}
+              className="w-full"
+            >
+              <TextareaInput
+                placeholder="Enter details"
+                style={{ textAlignVertical: "top", fontSize: 16 }}
+                value={noteDetails}
+                onChangeText={setNoteDetails}
+              />
+            </Textarea>
+          </View>
+          {/* Save button */}
+          <View className="px-6">
+            <TouchableOpacity
+              className="py-3 rounded-md mt-3"
+              style={{ backgroundColor: palette.primary }}
+              onPress={() => {
+                handleSave();
+                onClose(); // Go back to list
+              }}
+            >
+              <Text className="text-white font-bold text-center">
+                {editingCondition ? "Update" : "Save"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
