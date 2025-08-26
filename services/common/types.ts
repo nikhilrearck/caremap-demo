@@ -1,3 +1,5 @@
+import { Question, ResponseOption, TrackCategory, TrackItem, TrackResponse } from "@/services/database/migrations/v1/schema_v1";
+
 export type AuthTokens = {
   access_token?: string;
   refresh_token?: string;
@@ -18,3 +20,32 @@ export const alertTitleMap: Record<AlertType, string> = {
   e: 'Error',
   w: 'Warning',
 };
+
+// Track module types
+export interface TrackCategoryWithItems extends TrackCategory {
+  items: TrackItemWithProgress[];
+};
+
+export interface TrackItemWithProgress{
+  item: TrackItem;
+  entry_id:number;
+  completed: number;
+  total: number;
+  started: boolean;
+};
+
+export interface TrackItemSelectable {
+  item: TrackItem;
+  selected: boolean;
+}
+
+export interface TrackCategoryWithSelectableItems {
+  category: TrackCategory;
+  items: TrackItemSelectable[];
+}
+
+export interface QuestionWithOptions {
+  question: Question;
+  options: ResponseOption[];
+  existingResponse?: TrackResponse;
+}
