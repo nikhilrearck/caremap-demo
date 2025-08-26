@@ -3,10 +3,7 @@ import { ContactModel } from "@/services/database/models/ContactModel";
 import { logger } from "@/services/logging/logger";
 import { getCurrentTimestamp } from "@/services/core/utils";
 import { useModel } from "@/services/database/BaseModel";
-import {
-  getPatientByUserId,
-  isExistingPatientById,
-} from "@/services/core/PatientService";
+import { isExistingPatientById } from "@/services/core/PatientService";
 
 // Single shared instance of model
 const contactModel = new ContactModel();
@@ -46,14 +43,10 @@ export const createContact = async (
         return null;
       }
 
-      if (
-        !contact.first_name ||
-        !contact.last_name ||
-        !contact.relationship ||
-        !contact.phone_number ||
-        !contact.email
-      ) {
-        throw new Error("Missing required fields");
+      if (!contact.first_name || !contact.phone_number) {
+        throw new Error(
+          "Missing required fields: first_name and phone_number are mandatory"
+        );
       }
 
       await checkUniqueFields(model, contact);
@@ -129,7 +122,7 @@ export const deleteContact = async (id: number): Promise<boolean> => {
   });
 };
 
-export const getContact = async (id: number): Promise<Contact | null> => {
+export const getContactById = async (id: number): Promise<Contact | null> => {
   return useModel(contactModel, async (model) => {
     try {
       const result = await model.getFirstByFields({ id });
@@ -142,7 +135,9 @@ export const getContact = async (id: number): Promise<Contact | null> => {
   });
 };
 
-export const getAllContacts = async (patientId: number): Promise<Contact[]> => {
+export const getAllContactsByPatientId = async (
+  patientId: number
+): Promise<Contact[]> => {
   return useModel(contactModel, async (model) => {
     try {
       if (!(await isExistingPatientById(patientId))) {

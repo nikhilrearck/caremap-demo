@@ -6,8 +6,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/shared/Header";
 import palette from "@/utils/theme/color";
 import { Contact } from "@/services/database/migrations/v1/schema_v1";
-import { getAllContacts, deleteContact } from "@/services/core/ContactService";
+import {
+  getAllContactsByPatientId,
+  deleteContact,
+} from "@/services/core/ContactService";
 import { PatientContext } from "@/context/PatientContext";
+import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
+import { useCustomToast } from "@/components/shared/useCustomToast";
 
 // export type CareContact = {
 //   id: string;
@@ -112,13 +117,20 @@ export default function CareTeamListScreen() {
   const { patient } = useContext(PatientContext);
   const [contacts, setContacts] = useState<Contact[]>([]);
 
+  // for Alert while delete
+  const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
+
+  // Custom toast
+  const showToast = useCustomToast();
+
   const fetchContacts = async () => {
     if (!patient?.id) {
       console.log("No patient id found");
       return;
     }
     try {
-      const backendContacts = await getAllContacts(patient.id);
+      const backendContacts = await getAllContactsByPatientId(patient.id);
       setContacts(backendContacts);
     } catch (e) {
       console.log(e);
@@ -137,33 +149,36 @@ export default function CareTeamListScreen() {
 
   const renderItem = ({ item }: { item: Contact }) => (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
-      <View className="flex-row items-center">
-        {/* checkbox mimic */}
-        <View>
-          <Text className="text-base font-semibold">
-            {item.first_name} {item.last_name}
-          </Text>
-          <Text className="text-sm text-gray-500">{item.relationship}</Text>
-        </View>
-      </View>
-      {/* Use your ActionPopover; we map its editLabel/deleteLabel to View/Edit */}
-      <ActionPopover
-        // editLabel="View"
-        // deleteLabel="Edit"
-        onView={() =>
+      <TouchableOpacity
+        className="flex-1"
+        activeOpacity={0.5}
+        onPress={() =>
           router.push({
             pathname: "/home/careTeam/form",
             params: { mode: "view", contactId: item.id },
           })
         }
+      >
+        <View className="flex-row items-center">
+          <View>
+            <Text className="text-lg font-semibold">
+              {item.first_name} {item.last_name}
+            </Text>
+            <Text className="text-base text-gray-500">{item.relationship}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+      <ActionPopover
         onEdit={() =>
           router.push({
             pathname: "/home/careTeam/form",
             params: { mode: "edit", contactId: item.id },
           })
         }
-        // onDelete={() => console.log("Delete functionality not implemented yet")}
-        onDelete={() => handleDelete(item.id)}
+        onDelete={() => {
+          setContactToDelete(item);
+          setShowAlertDialog(true);
+        }}
       />
     </View>
   );
@@ -172,7 +187,7 @@ export default function CareTeamListScreen() {
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* header */}
       <Header
-        title="Track"
+        title="Care Team"
         right={
           <TouchableOpacity
             onPress={() =>
@@ -199,7 +214,7 @@ export default function CareTeamListScreen() {
         {/* header row inside card */}
         <View className="px-4 py-3 border-b border-gray-200">
           <View className="flex-row justify-between items-center">
-            <Text className="text-base font-medium text-gray-700">Name</Text>
+            <Text className="text-lg font-medium text-gray-700">Name</Text>
             {/* <Text className="text-sm text-gray-700"></Text> */}
           </View>
         </View>
@@ -210,6 +225,25 @@ export default function CareTeamListScreen() {
           keyExtractor={(item) => item.id.toString()}
         />
       </View>
+      <CustomAlertDialog
+        isOpen={showAlertDialog}
+        onClose={() => {
+          setShowAlertDialog(false);
+          setContactToDelete(null);
+        }}
+        description={`${contactToDelete?.first_name} ${contactToDelete?.last_name}`}
+        onConfirm={async () => {
+          if (contactToDelete) {
+            await handleDelete(contactToDelete.id);
+            showToast({
+              title: "Deleted",
+              description: "Contact deleted successfully!",
+            });
+          }
+          setShowAlertDialog(false);
+          setContactToDelete(null);
+        }}
+      />
     </SafeAreaView>
   );
 }

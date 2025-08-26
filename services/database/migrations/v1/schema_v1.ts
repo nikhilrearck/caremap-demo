@@ -190,6 +190,17 @@ export interface TrackItemEntry {
   patient_id: number;
   track_item_id: number;
   date: Date;
+}
+
+export interface Contact {
+  id: number;
+  patient_id: number;
+  first_name: string;
+  last_name?: string;
+  relationship?: string;
+  phone_number: string;
+  description?: string;
+  email?: string;
   created_date: Date;
   updated_date: Date;
 }
@@ -214,4 +225,5 @@ export const tables = {
   RESPONSE_OPTION: "RESPONSE_OPTION",
   TRACK_RESPONSE: "TRACK_RESPONSE",
   TRACK_ITEM_ENTRY: "TRACK_ITEM_ENTRY",
+  CONTACT: "CONTACT",
 };
