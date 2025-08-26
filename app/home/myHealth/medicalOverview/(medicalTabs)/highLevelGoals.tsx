@@ -27,6 +27,7 @@ import ActionPopover from "@/components/shared/ActionPopover";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import palette from "@/utils/theme/color";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { logger } from "@/services/logging/logger";
 
 const linkedGoals = [
   "Establish a consistent sleep schedule for better energy and recovery.",
@@ -51,14 +52,14 @@ export default function HighLevelGoals() {
 
   async function fetchGoals() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     try {
       const getUserGoals = await getPatientGoalsByPatientId(patient.id);
       setUserGoals(getUserGoals);
     } catch (error) {
-      console.log(error);
+      logger.debug(String(error));
     }
   }
 

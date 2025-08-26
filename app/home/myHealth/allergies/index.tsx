@@ -24,6 +24,7 @@ import Header from "@/components/shared/Header";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { PatientAllergy } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
 
 export default function Allergies() {
   const { patient } = useContext(PatientContext);
@@ -44,15 +45,14 @@ export default function Allergies() {
 
   async function fetchAllergies() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     try {
       const allergies = await getPatientAllergiesByPatientId(patient.id);
-      console.log(allergies);
       setPatientAllergy(allergies);
     } catch (e) {
-      console.log(e);
+      logger.debug(String(e));
     }
   }
 
