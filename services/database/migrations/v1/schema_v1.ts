@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-};
+}
 
 export interface Patient {
   id: number;
@@ -78,7 +78,7 @@ export interface PatientAllergy {
   topic: string;
   details?: string;
   onset_date: Date;
-  severity?: 'Mild' | 'Moderate' | 'Severe';
+  severity?: "Mild" | "Moderate" | "Severe";
   created_date: Date;
   updated_date: Date;
 }
@@ -158,7 +158,7 @@ export interface Question {
   id: number;
   item_id: number;
   text: string;
-  type: 'boolean' | 'mcq' | 'msq' | 'numeric' | 'text';
+  type: "boolean" | "mcq" | "msq" | "numeric" | "text";
   instructions?: string;
   required: boolean;
   created_date: Date;
@@ -206,24 +206,24 @@ export interface Contact {
 }
 
 export const tables = {
-  USER: 'USER',
-  PATIENT: 'PATIENT',
-  PATIENT_SNAPSHOT: 'PATIENT_SNAPSHOT',
-  PATIENT_CONDITION: 'PATIENT_CONDITION',
-  PATIENT_EQUIPMENT: 'PATIENT_EQUIPMENT',
-  PATIENT_GOAL: 'PATIENT_GOAL',
-  PATIENT_EMERGENCY_CARE: 'PATIENT_EMERGENCY_CARE',
-  PATIENT_ALLERGY: 'PATIENT_ALLERGY',
-  PATIENT_MEDICATION: 'PATIENT_MEDICATION',
-  PATIENT_NOTE: 'PATIENT_NOTE',
-  HOSPITALIZATION: 'HOSPITALIZATION',
-  SURGERY_PROCEDURE: 'SURGERY_PROCEDURE',
-  DISCHARGE_INSTRUCTION: 'DISCHARGE_INSTRUCTION',
-  TRACK_CATEGORY: 'TRACK_CATEGORY',
-  TRACK_ITEM: 'TRACK_ITEM',
-  QUESTION: 'QUESTION',
-  RESPONSE_OPTION: 'RESPONSE_OPTION',
-  TRACK_RESPONSE: 'TRACK_RESPONSE',
-  TRACK_ITEM_ENTRY: 'TRACK_ITEM_ENTRY',
-  CONTACT: 'CONTACT'
-}
+  USER: "USER",
+  PATIENT: "PATIENT",
+  PATIENT_SNAPSHOT: "PATIENT_SNAPSHOT",
+  PATIENT_CONDITION: "PATIENT_CONDITION",
+  PATIENT_EQUIPMENT: "PATIENT_EQUIPMENT",
+  PATIENT_GOAL: "PATIENT_GOAL",
+  PATIENT_EMERGENCY_CARE: "PATIENT_EMERGENCY_CARE",
+  PATIENT_ALLERGY: "PATIENT_ALLERGY",
+  PATIENT_MEDICATION: "PATIENT_MEDICATION",
+  PATIENT_NOTE: "PATIENT_NOTE",
+  HOSPITALIZATION: "HOSPITALIZATION",
+  SURGERY_PROCEDURE: "SURGERY_PROCEDURE",
+  DISCHARGE_INSTRUCTION: "DISCHARGE_INSTRUCTION",
+  TRACK_CATEGORY: "TRACK_CATEGORY",
+  TRACK_ITEM: "TRACK_ITEM",
+  QUESTION: "QUESTION",
+  RESPONSE_OPTION: "RESPONSE_OPTION",
+  TRACK_RESPONSE: "TRACK_RESPONSE",
+  TRACK_ITEM_ENTRY: "TRACK_ITEM_ENTRY",
+  CONTACT: "CONTACT",
+};
