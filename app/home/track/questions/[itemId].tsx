@@ -102,14 +102,7 @@ export default function QuestionFlowScreen() {
     setCustomOptions((prev) => ({ ...prev, [question_id]: newOption }));
   };
 
-  // helper to compute how many questions have been answered for this item
-  // const countAnswered = (answersObj: Record<number, any>) =>
-  //   questions.reduce(
-  //     (acc, q) =>
-  //       acc +
-  //       (answersObj[q.id] !== undefined && answersObj[q.id] !== null ? 1 : 0),
-  //     0
-  //   );
+  
 
   const submitAnswers = async (responseObj: Record<number, any>) => {
     if (!user?.id) throw new Error("Authentication ERROR");
@@ -169,8 +162,7 @@ export default function QuestionFlowScreen() {
       return;
     }
 
-    // // compute answered count BEFORE navigating
-    // const answeredNow = countAnswered(answers);
+    //compute answered count BEFORE navigating
 
     if (isLast) {
       // mark fully completed (ensure completed === total)
@@ -188,11 +180,11 @@ export default function QuestionFlowScreen() {
       {/* Header */}
       <Header
         title={itemName}
-        right={
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={{ color: "white", fontWeight: "500" }}>Cancel</Text>
-          </TouchableOpacity>
-        }
+       right={
+                       <TouchableOpacity onPress={() => router.back()}>
+                         <Text className="text-white font-medium">Cancel</Text>
+                       </TouchableOpacity>
+                     }
       />
 
       {/* Content */}
@@ -209,7 +201,7 @@ export default function QuestionFlowScreen() {
             contentContainerStyle={{ padding: 20, paddingBottom: 100 }} // extra bottom padding so content doesn't hide under buttons
           >
             {currentQuestion.instructions && (
-              <Text className="text-sm text-gray-600 mb-2">
+              <Text className="text-base text-gray-600 mb-2">
                 {currentQuestion.instructions}
               </Text>
             )}
@@ -227,7 +219,7 @@ export default function QuestionFlowScreen() {
           {/* Fixed bottom buttons */}
           <View className="flex-row p-4 border-t border-gray-200 bg-white">
             {/* Skip */}
-            {!currentQuestion.required && (
+            {!currentQuestion.required && !isLast &&  (
               <TouchableOpacity
                 className="flex-1 py-3 rounded-lg border border-gray-300 mr-2"
                 onPress={() => {
@@ -235,10 +227,7 @@ export default function QuestionFlowScreen() {
                     ...prev,
                     [currentQuestion.id]: null,
                   }));
-                  // const answeredNow = countAnswered({
-                  //   ...answers,
-                  //   [currentQuestion.id]: null,
-                  // });
+                  
                   setCurrentIndex((p) => p + 1);
                 }}
               >
