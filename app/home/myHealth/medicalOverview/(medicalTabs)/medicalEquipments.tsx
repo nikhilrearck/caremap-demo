@@ -25,6 +25,7 @@ import {
   updatePatientEquipment,
 } from "@/services/core/PatientEquipmentService";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { router } from "expo-router";
 
 export default function MedicalEquipmentScreen() {
   const { patient } = useContext(PatientContext);
@@ -107,7 +108,14 @@ export default function MedicalEquipmentScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Medical Equipments" />
+      <Header
+        title="Medical Equipments"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
       {/* <View className="p-4 bg-white flex-1">
         <Text
           style={{ color: palette.heading }}
@@ -126,7 +134,7 @@ export default function MedicalEquipmentScreen() {
                 <Text className="font-semibold text-base">
                   {item.equipment_name}
                 </Text>
-                <Text className="text-gray-500 text-sm mt-1">
+                <Text className="text-gray-500 text-base mt-1">
                   {item.equipment_description}
                 </Text>
               </View>
@@ -178,7 +186,7 @@ export default function MedicalEquipmentScreen() {
                 <Text className="font-semibold text-base">
                   {item.equipment_name}
                 </Text>
-                <Text className="text-gray-500 text-sm mt-1">
+                <Text className="text-gray-500 text-base mt-1">
                   {item.equipment_description}
                 </Text>
               </View>
@@ -301,7 +309,7 @@ function MedicalEquipmentForm({
             {editingItem ? "Edit" : "Add"} Medical Equipment
           </Text>
 
-          <Text className="text-sm mb-1 text-gray-600">Equipment Name</Text>
+          <Text className="text-base mb-1 text-gray-600">Equipment Name</Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
             placeholder="Enter equipment name"
@@ -309,7 +317,7 @@ function MedicalEquipmentForm({
             onChangeText={setName}
           />
 
-          <Text className="text-sm mb-1 text-gray-600">
+          <Text className="text-base mb-1 text-gray-600">
             Equipment Description
           </Text>
           <TextInput

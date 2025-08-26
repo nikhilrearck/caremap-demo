@@ -27,6 +27,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { logger } from "@/services/logging/logger";
+import { router } from "expo-router";
 
 export default function PostDischargeInstructions() {
   const { patient } = useContext(PatientContext);
@@ -121,7 +122,14 @@ export default function PostDischargeInstructions() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title="Post Discharge Instruction" />
+      <Header
+        title="Post Discharge Instruction"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
 
       <View className="px-6 pt-8 flex-1">
         <View className="flex-1">
@@ -343,7 +351,7 @@ function AddUpdateFormPage({
               </Text>
               {/* Discharge summary */}
               <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">Summary</Text>
+                <Text className="text-gray-600 text-base mb-1">Summary</Text>
                 <TextInput
                   value={dischargeSummary}
                   onChangeText={setDischargeSummary}
@@ -356,7 +364,7 @@ function AddUpdateFormPage({
               </View>
               {/* Date of discharge*/}
               <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
+                <Text className="text-gray-600 text-base mb-1">
                   Date of discharge
                 </Text>
                 <TouchableOpacity
@@ -386,7 +394,7 @@ function AddUpdateFormPage({
                 />
               </View>
               {/* Details */}
-              <Text className="text-gray-500 mb-1 text-sm">Description</Text>
+              <Text className="text-gray-500 mb-1 text-base">Description</Text>
               <Textarea
                 size="md"
                 isReadOnly={false}

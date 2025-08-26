@@ -28,6 +28,7 @@ import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import palette from "@/utils/theme/color";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { logger } from "@/services/logging/logger";
+import { router } from "expo-router";
 
 const linkedGoals = [
   "Establish a consistent sleep schedule for better energy and recovery.",
@@ -149,7 +150,14 @@ export default function HighLevelGoals() {
   return (
     <SafeAreaView className="flex-1 bg-white ">
       {/* Header */}
-      <Header title="High level goals" />
+      <Header
+        title="High level goals"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
 
       <View className="px-6 pt-4 flex-1">
         {/* Linked Health System */}
@@ -238,7 +246,7 @@ export default function HighLevelGoals() {
                     {/* Only show days remaining if target_date exists */}
                     {item.target_date && (
                       <View className="flex-row justify-end">
-                        <Text className="text-sm text-gray-500 mr-2">
+                        <Text className="text-base text-gray-500 mr-2">
                           {getDaysRemaining(item.target_date)} days remaining
                         </Text>
                       </View>
@@ -351,7 +359,15 @@ function AddYourGoalsPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="High level goals" onBackPress={onClose} />
+        <Header
+          title="High level goals"
+          right={
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text className="text-white font-medium">Cancel</Text>
+            </TouchableOpacity>
+          }
+          onBackPress={onClose}
+        />
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           className="bg-white"
@@ -371,15 +387,15 @@ function AddYourGoalsPage({
             <Text className="text-gray-600 text-base">
               Enter high level goals for your health
             </Text>
-            <Text className="text-gray-600 text-sm mb-1">e.g.</Text>
+            <Text className="text-gray-600 text-base mb-1">e.g.</Text>
             <View className="mb-4 ml-2">
-              <Text className="text-gray-600 text-sm mb-1">
+              <Text className="text-gray-600 text-base mb-1">
                 • Walk two flights of stairs comfortably
               </Text>
-              <Text className="text-gray-600 text-sm mb-1">
+              <Text className="text-gray-600 text-base mb-1">
                 • Eat solid foods and regular liquids
               </Text>
-              <Text className="text-gray-600 text-sm">
+              <Text className="text-gray-600 text-base">
                 • keep my seizures under control
               </Text>
             </View>
@@ -388,7 +404,7 @@ function AddYourGoalsPage({
             <View className="h-px bg-gray-300 mb-4" />
 
             {/* Goal Description Input */}
-            <Text className="text-gray-600 text-sm mb-2">
+            <Text className="text-gray-600 text-base mb-2">
               Enter a goal description
             </Text>
             <TextInput
@@ -401,7 +417,7 @@ function AddYourGoalsPage({
               textAlignVertical="top"
             />
 
-            <Text className="text-gray-600 text-sm mb-2">
+            <Text className="text-gray-600 text-base mb-2">
               Set date to complete your goal
             </Text>
             {/* Completion Date */}

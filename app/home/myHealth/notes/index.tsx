@@ -26,6 +26,8 @@ import { useCustomToast } from "@/components/shared/useCustomToast";
 import { PatientNote } from "@/services/database/migrations/v1/schema_v1";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
+import { router } from "expo-router";
+import { logger } from "@/services/logging/logger";
 
 export default function Notes() {
   const { patient } = useContext(PatientContext);
@@ -44,7 +46,7 @@ export default function Notes() {
 
   async function fetchNotes() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     try {
@@ -52,7 +54,7 @@ export default function Notes() {
       console.log(notes);
       setPatientNotes(notes);
     } catch (e) {
-      console.log(e);
+      logger.debug(String(e));
     }
   }
 
@@ -116,7 +118,14 @@ export default function Notes() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title="Notes" />
+      <Header
+        title="Notes"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
 
       <View className="px-6 pt-8 flex-1">
         {/* Heading*/}
@@ -276,7 +285,14 @@ function AddNotesPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Notes" onBackPress={onClose} />
+        <Header
+          title="Notes"
+          right={
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text className="text-white font-medium">Cancel</Text>
+            </TouchableOpacity>
+          }
+        />
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           className="bg-white"
@@ -293,7 +309,7 @@ function AddNotesPage({
 
             {/* Enter Topic */}
             <View className="mb-4">
-              <Text className="text-gray-600 text-sm mb-2">Enter Topic</Text>
+              <Text className="text-gray-600 text-base mb-2">Enter Topic</Text>
               <TextInput
                 value={noteTopic}
                 onChangeText={setNoteTopic}
@@ -307,7 +323,9 @@ function AddNotesPage({
 
             {/* Reminder Date */}
             <View className="mb-4">
-              <Text className="text-gray-600 text-sm mb-2">Reminder Date</Text>
+              <Text className="text-gray-600 text-base mb-2">
+                Reminder Date
+              </Text>
               <TouchableOpacity
                 className="border border-gray-300 rounded-md px-3"
                 onPress={() => setShowDatePicker(true)}
@@ -336,7 +354,7 @@ function AddNotesPage({
             </View>
 
             {/* Details */}
-            <Text className="text-gray-500 mb-2 text-sm">Details</Text>
+            <Text className="text-gray-500 mb-2 text-base">Details</Text>
             <Textarea
               size="md"
               isReadOnly={false}

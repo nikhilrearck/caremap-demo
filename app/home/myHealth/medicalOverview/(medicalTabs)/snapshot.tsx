@@ -82,8 +82,15 @@ export default function Snapshot() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Snapshot" />
-      <View className="px-4 pt-4 flex-1">
+      <Header
+        title="Snapshot"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
+      <View className="p-4">
         <Text
           style={{ color: palette.heading }}
           className="text-lg font-semibold mb-2"
@@ -100,7 +107,7 @@ export default function Snapshot() {
           isDisabled={false}
           isInvalid={false}
           isReadOnly={false}
-          className="mb-6 border border-gray-300"
+          className="mb-6 border border-gray-300 h-60"
         >
           <TextareaInput
             value={patientOverview}
@@ -126,7 +133,7 @@ export default function Snapshot() {
           isDisabled={false}
           isInvalid={false}
           isReadOnly={false}
-          className="mb-6 border border-gray-300"
+          className="mb-6 border border-gray-300 h-60"
         >
           <TextareaInput
             value={healthIssues}

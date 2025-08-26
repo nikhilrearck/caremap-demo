@@ -1,13 +1,20 @@
 import Header from "@/components/shared/Header";
+import { router } from "expo-router";
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ComingSoonScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title="Coming Soon" showBackButton={true} />
+      <Header title="Coming Soon" 
+       right={
+                <TouchableOpacity onPress={() => router.back()}>
+                  <Text className="text-white font-medium">Cancel</Text>
+                </TouchableOpacity>
+              }
+      showBackButton={true} />
 
     <View className="flex-1  justify-center items-center px-6">
       <View className="items-center">

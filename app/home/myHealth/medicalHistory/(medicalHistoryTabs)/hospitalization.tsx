@@ -27,6 +27,7 @@ import {
   getHospitalizationsByPatientId,
   updateHospitalization,
 } from "@/services/core/HospitalizationService";
+import { router } from "expo-router";
 
 export default function Hospitalization() {
   const { patient } = useContext(PatientContext);
@@ -130,7 +131,13 @@ export default function Hospitalization() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Hospitalizations" />
+      <Header title="Hospitalizations"
+       right={
+                <TouchableOpacity onPress={() => router.back()}>
+                  <Text className="text-white font-medium">Cancel</Text>
+                </TouchableOpacity>
+              }
+               />
       <View className="p-4 bg-white flex-1">
         <Text
           className="text-lg font-semibold mb-2"
@@ -306,7 +313,7 @@ function HospitalizationForm({
           </Text>
 
           <View className="mb-4">
-            <Text className="text-sm mb-1 text-gray-600">
+            <Text className="text-base mb-1 text-gray-600">
               Date of Admission
             </Text>
             <TouchableOpacity
@@ -330,7 +337,7 @@ function HospitalizationForm({
           </View>
 
           <View className="mb-4">
-            <Text className="text-sm mb-1 text-gray-600">
+            <Text className="text-base mb-1 text-gray-600">
               Date of Discharge
             </Text>
             <TouchableOpacity
@@ -364,7 +371,7 @@ function HospitalizationForm({
             }
           />
 
-          <Text className="text-sm mb-1 text-gray-600 mt-2">Description</Text>
+          <Text className="text-base mb-1 text-gray-600 mt-2">Description</Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
             placeholder="Enter description"

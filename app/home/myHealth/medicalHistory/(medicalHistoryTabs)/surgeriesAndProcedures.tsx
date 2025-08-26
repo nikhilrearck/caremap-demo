@@ -27,6 +27,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { logger } from "@/services/logging/logger";
+import { router } from "expo-router";
 
 export default function SurgeriesProcedures() {
   const { patient } = useContext(PatientContext);
@@ -129,7 +130,14 @@ export default function SurgeriesProcedures() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title="Surgeries/Procedure" />
+      <Header
+        title="Surgeries/Procedure"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
 
       <View className="px-6 pt-8 flex-1">
         <View className="flex-1">
@@ -389,7 +397,15 @@ function AddUpdateFormPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Surgeries/Procedure" onBackPress={onClose} />
+        <Header
+          title="Surgeries/Procedure"
+          right={
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text className="text-white font-medium">Cancel</Text>
+            </TouchableOpacity>
+          }
+          onBackPress={onClose}
+        />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
@@ -415,7 +431,7 @@ function AddUpdateFormPage({
               </Text>
               {/* Prodedure Name */}
               <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
+                <Text className="text-gray-600 text-base mb-1">
                   Procedure Name
                 </Text>
                 <TextInput
@@ -431,7 +447,7 @@ function AddUpdateFormPage({
 
               {/* Facility Name */}
               <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
+                <Text className="text-gray-600 text-base mb-1">
                   Facility Name, City
                 </Text>
                 <TextInput
@@ -446,7 +462,7 @@ function AddUpdateFormPage({
               </View>
               {/* Complications */}
               <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
+                <Text className="text-gray-600 text-base mb-1">
                   Complications
                 </Text>
                 <TextInput
@@ -461,7 +477,7 @@ function AddUpdateFormPage({
               </View>
               {/* Surgeon name */}
               <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
+                <Text className="text-gray-600 text-base mb-1">
                   Surgeon's Name
                 </Text>
                 <TextInput
@@ -476,7 +492,7 @@ function AddUpdateFormPage({
               </View>
               {/* Date of Surgery*/}
               <View className="mb-4">
-                <Text className="text-gray-600 text-sm mb-1">
+                <Text className="text-gray-600 text-base mb-1">
                   Date of Surgery
                 </Text>
                 <TouchableOpacity
@@ -506,7 +522,7 @@ function AddUpdateFormPage({
                 />
               </View>
               {/* Details */}
-              <Text className="text-gray-500 mb-1 text-sm">Description</Text>
+              <Text className="text-gray-500 mb-1 text-base">Description</Text>
               <Textarea
                 size="md"
                 isReadOnly={false}
