@@ -31,4 +31,3 @@ export default careTeam;
 import { router } from "expo-router";
 import { Button, ButtonText } from "@/components/ui/button";import palette from "@/utils/theme/color";
 import { ROUTES } from "@/utils/route";
-

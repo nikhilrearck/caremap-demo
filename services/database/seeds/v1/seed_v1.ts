@@ -10,7 +10,8 @@ import {
     samplePatientNotes,
     sampleHospitalizations,
     sampleSurgeryProcedures,
-    sampleDischargeInstructions
+    sampleDischargeInstructions,
+    sampleContacts
 } from "@/services/database/seeds/v1/sample_data";
 import { logger } from "@/services/logging/logger";
 import { SQLiteDatabase } from "expo-sqlite";
@@ -266,6 +267,34 @@ export async function seedDatabase(db: SQLiteDatabase) {
                     '${note.reminder_date ? note.reminder_date.toISOString() : new Date().toISOString()}',
                     '${note.created_date ? note.created_date.toISOString() : new Date().toISOString()}',
                     '${note.updated_date ? note.updated_date.toISOString() : new Date().toISOString()}'
+                )`
+            );
+        }
+
+        // Insert contacts
+        for (const contact of sampleContacts) {
+            if (!contact.patient_id || !contact.first_name || !contact.phone_number) continue;
+            await db.execAsync(
+                `INSERT INTO ${tables.CONTACT} (
+                    patient_id,
+                    first_name,
+                    last_name,
+                    relationship,
+                    phone_number,
+                    description,
+                    email,
+                    created_date,
+                    updated_date
+                ) VALUES (
+                    ${contact.patient_id},
+                    '${escapeSQL(contact.first_name)}',
+                    '${escapeSQL(contact.last_name)}',
+                    '${escapeSQL(contact.relationship)}',
+                    '${escapeSQL(contact.phone_number)}',
+                    '${escapeSQL(contact.description || "")}',
+                    '${escapeSQL(contact.email || "")}',
+                    '${contact.created_date ? contact.created_date.toISOString() : new Date().toISOString()}',
+                    '${contact.updated_date ? contact.updated_date.toISOString() : new Date().toISOString()}'
                 )`
             );
         }
