@@ -81,7 +81,13 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Snapshot" />
+      <Header title="Snapshot"
+      right={
+                      <TouchableOpacity onPress={() => router.back()}>
+                        <Text className="text-white font-medium">Cancel</Text>
+                      </TouchableOpacity>
+                    }
+                     />
       <View className="p-4">
         <Text
           style={{ color: palette.heading }}
@@ -99,7 +105,7 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
           isDisabled={false}
           isInvalid={false}
           isReadOnly={false}
-          className="mb-6 border border-gray-300"
+          className="mb-6 border border-gray-300 h-60"
         >
           <TextareaInput
             value={patientOverview}
@@ -125,7 +131,7 @@ const isDisabled = patientOverview.trim() === "" && healthIssues.trim() === "";
           isDisabled={false}
           isInvalid={false}
           isReadOnly={false}
-          className="mb-6 border border-gray-300"
+          className="mb-6 border border-gray-300 h-60"
         >
           <TextareaInput
             value={healthIssues}

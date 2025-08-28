@@ -36,8 +36,10 @@ export default function TabLayout() {
     >
       <Tabs.Screen
         name="myHealth"
+        
         options={{
           title: "My Health",
+          popToTopOnBlur: true,
           tabBarIcon: ({ focused }) =>
             focused ? (
               <MyHealthIconActive width={32} height={32} />
@@ -50,6 +52,7 @@ export default function TabLayout() {
         name="track"
         options={{
           title: "Track",
+          href:"/home/track",
           tabBarIcon: ({ focused }) =>
             focused ? (
               <TrackIconActive width={32} height={32} />
@@ -62,6 +65,7 @@ export default function TabLayout() {
         name="insight"
         options={{
           title: "Insight",
+          href:"/home/insight",
           tabBarIcon: ({ focused }) =>
             focused ? (
               <InsightIconActive width={32} height={32} />
@@ -74,6 +78,7 @@ export default function TabLayout() {
         name="careTeam"
         options={{
           title: "Care Team",
+          href:"/home/careTeam",
           tabBarIcon: ({ focused }) =>
             focused ? (
               <CareTeamIconActive width={32} height={32} />
