@@ -22,6 +22,7 @@ import Header from "@/components/shared/Header";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { PatientAllergy } from "@/services/database/migrations/v1/schema_v1";
+import { router } from "expo-router";
 
 export default function Allergies() {
   const { patient } = useContext(PatientContext);
@@ -133,7 +134,12 @@ export default function Allergies() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title="Allergies" />
+      <Header title="Allergies" 
+       right={
+                <TouchableOpacity onPress={() => router.back()}>
+                  <Text className="text-white font-medium">Cancel</Text>
+                </TouchableOpacity>
+              }/>
 
       <View className="px-6 pt-8 flex-1">
         <View>
@@ -282,7 +288,13 @@ function AddAllergyPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Allergies" onBackPress={onClose} />
+        <Header title="Allergies"
+         right={
+                  <TouchableOpacity onPress={() => router.back()}>
+                    <Text className="text-white font-medium">Cancel</Text>
+                  </TouchableOpacity>
+                }
+                 onBackPress={onClose} />
 
         <View className="px-6 py-8">
           <Text
@@ -294,7 +306,7 @@ function AddAllergyPage({
 
           {/* Enter Topic */}
           <View className="mb-4">
-            <Text className="text-gray-600 text-sm mb-2">Enter Topic</Text>
+            <Text className="text-gray-600 text-base mb-2">Enter Topic</Text>
             <TextInput
               value={topic}
               onChangeText={setTopic}
@@ -307,7 +319,7 @@ function AddAllergyPage({
           </View>
 
           {/* Details */}
-          <Text className="text-gray-500 mb-2 text-sm">Details</Text>
+          <Text className="text-gray-500 mb-2 text-base">Details</Text>
           <Textarea
             size="md"
             isReadOnly={false}
@@ -324,7 +336,7 @@ function AddAllergyPage({
           </Textarea>
 
           {/* Severity */}
-          <Text className="text-gray-600 text-sm mb-2 mt-4">Severity</Text>
+          <Text className="text-gray-600 text-base mb-2 mt-4">Severity</Text>
           <View style={{ width: "70%", alignSelf: "flex-start" }}>
             <View
               className="flex-row border rounded-lg overflow-hidden mb-2"
