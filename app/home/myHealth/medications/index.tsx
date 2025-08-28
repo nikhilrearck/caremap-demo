@@ -25,6 +25,7 @@ import {
   updatePatientMedication,
   deletePatientMedication,
 } from "@/services/core/PatientMedicationService";
+import { router } from "expo-router";
 
 export default function MedicationsScreen() {
   const { patient } = useContext(PatientContext);
@@ -106,7 +107,13 @@ export default function MedicationsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Medications" />
+      <Header title="Medications"
+      right={
+                      <TouchableOpacity onPress={() => router.back()}>
+                        <Text className="text-white font-medium">Cancel</Text>
+                      </TouchableOpacity>
+                    }
+                     />
 
       <View className="p-4 bg-white flex-1">
           <Text
@@ -136,7 +143,7 @@ export default function MedicationsScreen() {
             <View className="flex-row items-start border border-gray-300 rounded-xl p-4 mb-4">
               <View className="ml-3 flex-1">
                 <Text className="font-semibold text-base">{item.name}</Text>
-                <Text className="text-gray-500 text-sm mt-1">
+                <Text className="text-gray-500 text-base mt-1">
                   {item.details}
                 </Text>
               </View>
@@ -259,7 +266,7 @@ function MedicationForm({
             {editingItem ? "Edit" : "Add"} Medications 
           </Text>
 
-          <Text className="text-sm mb-1 text-gray-600">Medications Name</Text>
+          <Text className="text-base mb-1 text-gray-600">Medications Name</Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
             placeholder="Enter medication name"
@@ -267,7 +274,7 @@ function MedicationForm({
             onChangeText={setName}
           />
 
-          <Text className="text-sm mb-1 text-gray-600">Medications detail</Text>
+          <Text className="text-base mb-1 text-gray-600">Medications detail</Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
             placeholder="Enter guidance steps"

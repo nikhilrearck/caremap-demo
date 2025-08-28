@@ -1,8 +1,7 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Divider } from "@/components/ui/divider";
-import { Badge, BadgeText } from "@/components/ui/badge";
+// import { Badge, BadgeText } from "@/components/ui/badge";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronLeft } from "lucide-react-native";
 import { Route, router } from "expo-router";
 import { ROUTES } from "@/utils/route";
 import Header from "@/components/shared/Header";
@@ -40,7 +39,13 @@ function medicalOverview() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title=" Medical Overview" />
+      <Header title=" Medical Overview" 
+      right={
+                      <TouchableOpacity onPress={() => router.back()}>
+                        <Text className="text-white font-medium">Cancel</Text>
+                      </TouchableOpacity>
+                    }
+                    />
 
       <View className="p-4">
         <View className=" rounded-lg">
@@ -60,13 +65,13 @@ function medicalOverview() {
                 </View>
 
                 <View className="flex-row items-center">
-                  {tile.count && (
+                  {/* {tile.count && (
                     <Badge
                    style={{ backgroundColor: palette.primary }}
                      className="rounded-full mr-2">
                       <BadgeText className="text-white">{tile.count}</BadgeText>
                     </Badge>
-                  )}
+                  )} */}
                   <Image
                     source={require("@/assets/images/arrow.png")}
                     className="w-4 h-4"

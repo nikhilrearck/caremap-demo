@@ -17,10 +17,11 @@ import Header from "@/components/shared/Header";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { PatientCondition } from "@/services/database/migrations/v1/schema_v1";
+import { router } from "expo-router";
 
-const linkedHealthSystem = [
-  "Attention Deficient and Hyperactivity Disorder (ADHD)",
-  "Irritable Bowel Syndrome (IBS)",
+const linkedHealthSystem : string[]= [
+  // "Attention Deficient and Hyperactivity Disorder (ADHD)",
+  // "Irritable Bowel Syndrome (IBS)",
 ];
 
 export default function MedicalConditions() {
@@ -132,7 +133,13 @@ export default function MedicalConditions() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title="Medical Conditions" />
+      <Header title="Medical Conditions"
+      right={
+                      <TouchableOpacity onPress={() => router.back()}>
+                        <Text className="text-white font-medium">Cancel</Text>
+                      </TouchableOpacity>
+                    }
+                     />
 
       <View className="px-6 pt-4 flex-1">
         {/* Linked Health System */}
@@ -295,7 +302,13 @@ function AddMedicalConditionsPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Medical Conditions" onBackPress={onClose} />
+        <Header title="Medical Conditions"
+        right={
+                        <TouchableOpacity onPress={() => router.back()}>
+                          <Text className="text-white font-medium">Cancel</Text>
+                        </TouchableOpacity>
+                      }
+        onBackPress={onClose} />
 
         <View className="px-6 py-8">
           <Text

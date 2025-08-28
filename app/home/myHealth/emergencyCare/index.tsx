@@ -25,6 +25,7 @@ import {
   getPatientEmergencyCaresByPatientId,
   updatePatientEmergencyCare,
 } from "@/services/core/PatientEmergencyCareService";
+import { router } from "expo-router";
 
 export default function EmergencyCareScreen() {
   const { patient } = useContext(PatientContext);
@@ -109,7 +110,14 @@ export default function EmergencyCareScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Emergency Care" />
+      <Header title="Emergency Care"
+      
+       right={
+                <TouchableOpacity onPress={() => router.back()}>
+                  <Text className="text-white font-medium">Cancel</Text>
+                </TouchableOpacity>
+              }
+              />
 
       <View className="p-4 bg-white flex-1">
         <Text
@@ -137,7 +145,7 @@ export default function EmergencyCareScreen() {
             <View className="flex-row items-start border border-gray-300 rounded-xl p-4 mb-4">
               <View className="ml-3 flex-1">
                 <Text className="font-semibold text-base">{item.topic}</Text>
-                <Text className="text-gray-500 text-sm mt-1">
+                <Text className="text-gray-500 text-base mt-1">
                   {item.details}
                 </Text>
               </View>
@@ -258,7 +266,7 @@ function EmergencyCareForm({
             {editingItem ? "Edit" : "Add"} Emergency Care
           </Text>
 
-          <Text className="text-sm mb-1 text-gray-600">
+          <Text className="text-base mb-1 text-gray-600">
             Emergency Care Name
           </Text>
           <TextInput
@@ -268,7 +276,7 @@ function EmergencyCareForm({
             onChangeText={setName}
           />
 
-          <Text className="text-sm mb-1 text-gray-600">
+          <Text className="text-base mb-1 text-gray-600">
             Emergency Care Details
           </Text>
           <TextInput
