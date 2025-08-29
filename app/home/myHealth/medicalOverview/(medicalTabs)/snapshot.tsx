@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import palette from "@/utils/theme/color";
@@ -15,12 +22,15 @@ import { PatientSnapshot } from "@/services/database/migrations/v1/schema_v1";
 import { Divider } from "@/components/ui/divider";
 import Header from "@/components/shared/Header";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { CustomButton } from "@/components/shared/CustomButton";
+
 export default function Snapshot() {
   const { patient } = useContext(PatientContext);
   const [patientOverview, setPatientOverview] = useState("");
   const [healthIssues, setHealthIssues] = useState("");
   const [snapshot, setSnapshot] = useState<PatientSnapshot | null>(null);
   const showToast = useCustomToast();
+
   useEffect(() => {
     if (patient?.id) {
       getPatientSnapshot(patient.id).then(
@@ -34,12 +44,13 @@ export default function Snapshot() {
       );
     }
   }, [patient]);
+
   const isDisabled =
     patientOverview.trim() === "" && healthIssues.trim() === "";
+
   const handleSave = async () => {
     if (!patient?.id) {
       Alert.alert("Error", "Patient not found.");
-
       return;
     }
 
@@ -90,74 +101,84 @@ export default function Snapshot() {
           </TouchableOpacity>
         }
       />
-      <View className="px-4 pt-4 flex-1">
-        <Text
-          style={{ color: palette.heading }}
-          className="text-lg font-semibold mb-2"
-        >
-          Describe about yourself.
-        </Text>
-        <Text className="text-gray-500 mb-4">
-          E.g. You may include your preferences, what they like or dislike. What
-          are their motivations, goals and favorite things.
-        </Text>
-
-        <Textarea
-          size="md"
-          isDisabled={false}
-          isInvalid={false}
-          isReadOnly={false}
-          className="mb-6 border border-gray-300 h-60"
-        >
-          <TextareaInput
-            value={patientOverview}
-            onChangeText={setPatientOverview}
-            placeholder="Type here..."
-            multiline
-            numberOfLines={5}
-            textAlignVertical="top"
-          />
-        </Textarea>
-
-        <Divider className="bg-gray-300" />
-
-        <Text
-          style={{ color: palette.heading }}
-          className="text-lg font-semibold mb-2"
-        >
-          Describe your health issues.
-        </Text>
-
-        <Textarea
-          size="md"
-          isDisabled={false}
-          isInvalid={false}
-          isReadOnly={false}
-          className="mb-6 border border-gray-300 h-60"
-        >
-          <TextareaInput
-            value={healthIssues}
-            onChangeText={setHealthIssues}
-            placeholder="Type here..."
-            multiline
-            numberOfLines={5}
-            textAlignVertical="top"
-          />
-        </Textarea>
-      </View>
-      <View className="px-4">
-        <TouchableOpacity
-          style={{
-            backgroundColor: palette.primary,
-            opacity: isDisabled ? 0.5 : 1,
+      <KeyboardAvoidingView
+        // behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={"padding"}
+        style={{ flex: 1 }}
+        // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      >
+        <ScrollView
+          className="px-5 pt-5 flex-1"
+          contentContainerStyle={{
+            paddingBottom: 10,
           }}
-          className="py-3 rounded-lg"
-          onPress={isDisabled ? undefined : handleSave}
-          disabled={isDisabled}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={true}
         >
-          <Text className="text-white font-bold text-center">Save</Text>
-        </TouchableOpacity>
-      </View>
+          <Text
+            style={{ color: palette.heading }}
+            className="text-xl font-semibold mb-2"
+          >
+            Describe about yourself.
+          </Text>
+          <Text className="text-base text-gray-500 mb-4 leading-5">
+            E.g. You may include your preferences, what they like or dislike.
+            What are their motivations, goals and favorite things.
+          </Text>
+
+          <Textarea
+            size="lg"
+            isDisabled={false}
+            isInvalid={false}
+            isReadOnly={false}
+            className="mb-6 border border-gray-300 h-60"
+          >
+            <TextareaInput
+              value={patientOverview}
+              onChangeText={setPatientOverview}
+              placeholder="Type here..."
+              // multiline
+              // numberOfLines={5}
+              textAlignVertical="top"
+            />
+          </Textarea>
+
+          <Divider className="bg-gray-300 mb-4" />
+
+          <Text
+            style={{ color: palette.heading }}
+            className="text-xl font-semibold mb-4"
+          >
+            Describe your health issues.
+          </Text>
+
+          <Textarea
+            size="lg"
+            isDisabled={false}
+            isInvalid={false}
+            isReadOnly={false}
+            className="mb-6 border border-gray-300 h-60"
+          >
+            <TextareaInput
+              value={healthIssues}
+              onChangeText={setHealthIssues}
+              placeholder="Type here..."
+              // multiline
+              // numberOfLines={5}
+              textAlignVertical="top"
+            />
+          </Textarea>
+        </ScrollView>
+
+        {/* Save Button */}
+        <View className="px-5">
+          <CustomButton
+            title="Save"
+            onPress={handleSave}
+            disabled={isDisabled}
+          />
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

@@ -4,9 +4,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Keyboard,
-  TouchableWithoutFeedback,
   FlatList,
+  ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -26,6 +26,7 @@ import {
   updatePatientEmergencyCare,
 } from "@/services/core/PatientEmergencyCareService";
 import { router } from "expo-router";
+import { CustomButton } from "@/components/shared/CustomButton";
 
 export default function EmergencyCareScreen() {
   const { patient } = useContext(PatientContext);
@@ -119,15 +120,15 @@ export default function EmergencyCareScreen() {
         }
       />
 
-      <View className="px-4 pt-4 bg-white flex-1">
+      <View className="px-5 pt-5 bg-white flex-1">
         <Text
           style={{ color: palette.heading }}
-          className="text-lg font-semibold mb-2"
+          className="text-xl font-semibold mb-2"
         >
           Guidance in case of Emergency
         </Text>
         <Divider className="bg-gray-300" />
-        <Text className="text-gray-700 mt-2 mb-3">
+        <Text className="text-gray-700 mt-3 mb-2 text-lg leading-5">
           List specific guidance for others on what steps to take in response to
           emergency care situations.
         </Text>
@@ -144,7 +145,7 @@ export default function EmergencyCareScreen() {
           renderItem={({ item }) => (
             <View className="flex-row items-start border border-gray-300 rounded-xl p-4 mb-4">
               <View className="ml-3 flex-1">
-                <Text className="font-semibold text-base">{item.topic}</Text>
+                <Text className="font-semibold text-lg">{item.topic}</Text>
                 <Text className="text-gray-500 text-base mt-1">
                   {item.details}
                 </Text>
@@ -169,17 +170,11 @@ export default function EmergencyCareScreen() {
           }
         />
 
-        <Divider className="bg-gray-300" />
-
-        <TouchableOpacity
-          style={{ backgroundColor: palette.primary }}
-          className="py-3 rounded-lg mt-2"
+        <Divider className="bg-gray-300 my-2" />
+        <CustomButton
+          title="Add emergency care"
           onPress={() => setShowForm(true)}
-        >
-          <Text className="text-white font-bold text-center">
-            Add emergency care
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
 
       <CustomAlertDialog
@@ -194,12 +189,6 @@ export default function EmergencyCareScreen() {
             ? `Are you sure you want to delete \"${itemToDelete.topic}\"?`
             : "Are you sure you want to delete this item?"
         }
-        confirmText="Delete"
-        cancelText="Cancel"
-        confirmButtonProps={{
-          style: { backgroundColor: palette.primary, marginLeft: 8 },
-        }}
-        cancelButtonProps={{ variant: "outline" }}
         onConfirm={async () => {
           if (itemToDelete) {
             await deletePatientEmergencyCare(itemToDelete.id);
@@ -244,24 +233,34 @@ function EmergencyCareForm({
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView className="flex-1 bg-white">
-        <Header
-          title="Emergency Care"
-          right={
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text className="text-white font-medium">Cancel</Text>
-            </TouchableOpacity>
-          }
-          onBackPress={onClose}
-        />
+    <SafeAreaView className="flex-1 bg-white">
+      <Header
+        title="Emergency Care"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+        onBackPress={onClose}
+      />
 
-        <View className="px-6 pt-8 flex-1">
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        className="bg-white"
+        // behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={"padding"}
+        // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      >
+        <ScrollView
+          className="px-5 pt-5 flex-1"
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <Text
-            className="text-lg font-medium mb-3"
+            className="text-xl font-medium mb-3"
             style={{ color: palette.heading }}
           >
-            {editingItem ? "Edit" : "Add"} Emergency Care
+            {editingItem ? "Update" : "Add"} Emergency Care
           </Text>
 
           <Text className="text-base mb-1 text-gray-600">
@@ -286,18 +285,16 @@ function EmergencyCareForm({
             numberOfLines={4}
             textAlignVertical="top"
           />
-        </View>
-        <View className="px-6">
-          <TouchableOpacity
-            className={`py-3 rounded-lg ${isSaveDisabled ? "opacity-50" : ""}`}
-            disabled={isSaveDisabled}
-            style={{ backgroundColor: palette.primary }}
+        </ScrollView>
+
+        <View className="px-5">
+          <CustomButton
+            title={editingItem ? "Update" : "Add"}
             onPress={handleSave}
-          >
-            <Text className="text-white font-bold text-center">Save</Text>
-          </TouchableOpacity>
+            disabled={isSaveDisabled}
+          />
         </View>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }

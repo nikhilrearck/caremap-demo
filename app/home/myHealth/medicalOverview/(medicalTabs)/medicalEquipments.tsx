@@ -4,9 +4,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Keyboard,
-  TouchableWithoutFeedback,
   FlatList,
+  ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import palette from "@/utils/theme/color";
@@ -26,6 +26,7 @@ import {
 } from "@/services/core/PatientEquipmentService";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { router } from "expo-router";
+import { CustomButton } from "@/components/shared/CustomButton";
 
 export default function MedicalEquipmentScreen() {
   const { patient } = useContext(PatientContext);
@@ -165,10 +166,10 @@ export default function MedicalEquipmentScreen() {
           </Text>
         </TouchableOpacity>
       </View> */}
-      <View className="pt-4 px-4 bg-white flex-1">
+      <View className="pt-5 px-5 bg-white flex-1">
         <Text
           style={{ color: palette.heading }}
-          className="text-lg font-semibold mb-2"
+          className="text-xl font-semibold mb-2"
         >
           Enter any medical devices or equipment that you rely on for daily
           living
@@ -183,10 +184,10 @@ export default function MedicalEquipmentScreen() {
           renderItem={({ item }) => (
             <View className="flex-row items-start border border-gray-300 rounded-xl p-4 mb-4">
               <View className="ml-3 flex-1">
-                <Text className="font-semibold text-base">
+                <Text className="font-semibold text-lg">
                   {item.equipment_name}
                 </Text>
-                <Text className="text-gray-500 text-base mt-1">
+                <Text className="text-gray-500 text-lg mt-1">
                   {item.equipment_description}
                 </Text>
               </View>
@@ -204,15 +205,15 @@ export default function MedicalEquipmentScreen() {
             </View>
           )}
           ListEmptyComponent={
-            <Text className="text-gray-500 text-center my-4">
+            <Text className="text-gray-500 text-center my-4 text-lg">
               No medical equipment found.
             </Text>
           }
         />
 
-        <Divider className="bg-gray-300" />
+        <Divider className="bg-gray-300 mb-2" />
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{ backgroundColor: palette.primary }}
           className="py-3 rounded-lg mt-2"
           onPress={() => setShowForm(true)}
@@ -220,7 +221,11 @@ export default function MedicalEquipmentScreen() {
           <Text className="text-white font-bold text-center">
             Add medical equipment
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <CustomButton
+          title="Add medical equipment"
+          onPress={() => setShowForm(true)}
+        />
       </View>
 
       <CustomAlertDialog
@@ -235,12 +240,9 @@ export default function MedicalEquipmentScreen() {
             ? `Are you sure you want to delete "${itemToDelete.equipment_name}"?`
             : "Are you sure you want to delete this item?"
         }
-        confirmText="Delete"
-        cancelText="Cancel"
         confirmButtonProps={{
           style: { backgroundColor: palette.primary, marginLeft: 8 },
         }}
-        cancelButtonProps={{ variant: "outline" }}
         onConfirm={async () => {
           if (itemToDelete) {
             await deletePatientEquipment(itemToDelete.id);
@@ -287,24 +289,34 @@ function MedicalEquipmentForm({
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView className="flex-1 bg-white">
-        <Header
-          title="Medical Equipments"
-          right={
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text className="text-white font-medium">Cancel</Text>
-            </TouchableOpacity>
-          }
-          onBackPress={onClose}
-        />
+    <SafeAreaView className="flex-1 bg-white">
+      <Header
+        title="Medical Equipments"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+        onBackPress={onClose}
+      />
 
-        <View className="px-6 pt-8 flex-1">
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        className="bg-white"
+        // behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={"padding"}
+        // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      >
+        <ScrollView
+          className="px-5 pt-5 flex-1"
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <Text
-            className="text-lg font-medium mb-3"
+            className="text-xl font-medium mb-3"
             style={{ color: palette.heading }}
           >
-            {editingItem ? "Edit" : "Add"} Medical Equipment
+            {editingItem ? "Update" : "Add"} Medical Equipment
           </Text>
 
           <Text className="text-base mb-1 text-gray-600">Equipment Name</Text>
@@ -327,18 +339,17 @@ function MedicalEquipmentForm({
             numberOfLines={4}
             textAlignVertical="top"
           />
-        </View>
-        <View className="px-6">
-          <TouchableOpacity
-            className={`py-3 rounded-lg ${isSaveDisabled ? "opacity-50" : ""}`}
+        </ScrollView>
+
+        {/* Button */}
+        <View className="px-5">
+          <CustomButton
+            title={editingItem ? "Update" : "Save"}
             disabled={isSaveDisabled}
-            style={{ backgroundColor: palette.primary }}
             onPress={handleSave}
-          >
-            <Text className="text-white font-bold text-center">Save</Text>
-          </TouchableOpacity>
+          />
         </View>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }

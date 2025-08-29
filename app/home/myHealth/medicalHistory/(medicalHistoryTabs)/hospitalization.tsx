@@ -4,9 +4,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Keyboard,
-  TouchableWithoutFeedback,
   FlatList,
+  ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -28,6 +28,7 @@ import {
   updateHospitalization,
 } from "@/services/core/HospitalizationService";
 import { router } from "expo-router";
+import { CustomButton } from "@/components/shared/CustomButton";
 
 export default function Hospitalization() {
   const { patient } = useContext(PatientContext);
@@ -139,9 +140,9 @@ export default function Hospitalization() {
           </TouchableOpacity>
         }
       />
-      <View className="px-4 pt-4 bg-white flex-1">
+      <View className="px-5 pt-5 bg-white flex-1">
         <Text
-          className="text-lg font-semibold mb-2"
+          className="text-xl font-semibold mb-2"
           style={{ color: palette.heading }}
         >
           List your active hospitalizations
@@ -192,17 +193,11 @@ export default function Hospitalization() {
           }
         />
 
-        <Divider className="bg-gray-300" />
-
-        <TouchableOpacity
-          className="py-3 rounded-lg mt-2"
-          style={{ backgroundColor: palette.primary }}
+        <Divider className="bg-gray-300 mb-2" />
+        <CustomButton
+          title="Add Hospitalizations Details"
           onPress={() => setShowForm(true)}
-        >
-          <Text className="text-white font-bold text-center">
-            Add Hospitalizations Details
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
 
       <CustomAlertDialog
@@ -217,12 +212,6 @@ export default function Hospitalization() {
             ? `Are you sure you want to delete the hospitalization record?`
             : "Are you sure you want to delete this item?"
         }
-        confirmText="Delete"
-        cancelText="Cancel"
-        confirmButtonProps={{
-          style: { backgroundColor: palette.primary, marginLeft: 8 },
-        }}
-        cancelButtonProps={{ variant: "outline" }}
         onConfirm={async () => {
           if (itemToDelete) {
             await deleteHospitalization(itemToDelete.id);
@@ -289,25 +278,35 @@ function HospitalizationForm({
   const isDisabled = !admission || !discharge || !description.trim();
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView className="flex-1 bg-white">
-        <Header
-          title="Hospitalizations"
-          right={
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text className="text-white font-medium">Cancel</Text>
-            </TouchableOpacity>
-          }
-          onBackPress={onClose}
-        />
+    <SafeAreaView className="flex-1 bg-white">
+      <Header
+        title="Hospitalizations"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+        onBackPress={onClose}
+      />
 
-        <View className="px-6 pt-8 flex-1">
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        className="bg-white"
+        // behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={"padding"}
+        // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      >
+        <ScrollView
+          className="px-5 pt-5 flex-1"
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <Text
-            className="text-lg font-medium mb-3"
+            className="text-xl font-medium mb-3"
             style={{ color: palette.heading }}
           >
             {editingItem
-              ? "Edit Hospitalization"
+              ? "Update Hospitalization"
               : "Enter details of recent hospitalizations"}
           </Text>
 
@@ -380,12 +379,11 @@ function HospitalizationForm({
             numberOfLines={4}
             textAlignVertical="top"
           />
-        </View>
-        <View className="px-6">
-          <TouchableOpacity
-            className={`py-3 rounded-lg ${isDisabled ? "opacity-50" : ""}`}
+        </ScrollView>
+        <View className="px-5">
+          <CustomButton
+            title={editingItem ? "Update" : "Add"}
             disabled={isDisabled}
-            style={{ backgroundColor: palette.primary }}
             onPress={() => {
               if (!isDisabled && admission && discharge) {
                 if (discharge < admission) {
@@ -405,11 +403,9 @@ function HospitalizationForm({
                 });
               }
             }}
-          >
-            <Text className="text-white font-bold text-center">Save</Text>
-          </TouchableOpacity>
+          />
         </View>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
