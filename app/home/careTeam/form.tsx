@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   Platform,
@@ -26,7 +25,6 @@ import { ChevronDownIcon } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LabeledTextInput } from "@/components/shared/labeledTextInput";
 import palette from "@/utils/theme/color";
-import { useContext } from "react";
 import { PatientContext } from "@/context/PatientContext";
 import {
   createContact,
@@ -46,15 +44,12 @@ export default function CareTeamForm() {
   const { patient } = useContext(PatientContext);
   const params = useLocalSearchParams() as Params;
   const router = useRouter();
-  const mode = (params.mode as string) ?? "add"; // "add" | "view" | "edit"
-  const contactId = params.contactId;
-
-  // Custom toast
-  const showToast = useCustomToast();
-
-  const isViewMode = mode === "view";
+  const mode = (params.mode as string) ?? "add"; // "add" | "edit"
   const isEditMode = mode === "edit";
   const isAddMode = mode === "add";
+  const contactId = params.contactId;
+
+  const showToast = useCustomToast();
 
   const [form, setForm] = useState<Partial<Contact>>({
     first_name: "",
@@ -66,7 +61,7 @@ export default function CareTeamForm() {
   });
 
   useEffect(() => {
-    if ((isEditMode || isViewMode) && contactId) {
+    if (isEditMode && contactId) {
       getContactById(Number(contactId)).then((contact) => {
         if (contact) {
           setForm({
@@ -157,13 +152,7 @@ export default function CareTeamForm() {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <Header
-        title={
-          isAddMode
-            ? "Add Contact"
-            : isEditMode
-            ? "Edit Contact"
-            : "View Contact"
-        }
+        title={isAddMode ? "Add Contact" : "Edit Contact"}
         right={
           <TouchableOpacity onPress={() => router.back()}>
             <Text className="text-white">Cancel</Text>
@@ -187,7 +176,6 @@ export default function CareTeamForm() {
           <LabeledTextInput
             label="First Name *"
             value={form.first_name ?? ""}
-            editable={!isViewMode}
             onChangeText={(t) => setForm((p) => ({ ...p, first_name: t }))}
           />
 
@@ -195,7 +183,6 @@ export default function CareTeamForm() {
           <LabeledTextInput
             label="Last Name"
             value={form.last_name ?? ""}
-            editable={!isViewMode}
             onChangeText={(t) => setForm((p) => ({ ...p, last_name: t }))}
           />
 
@@ -204,7 +191,7 @@ export default function CareTeamForm() {
             <Text className="text-gray-500 text-sm mb-1">Relationship</Text>
             <Select
               selectedValue={form.relationship}
-              isDisabled={isViewMode}
+              // isDisabled={isViewMode}
               onValueChange={(value: string) =>
                 setForm((p) => ({ ...p, relationship: value }))
               }
@@ -216,7 +203,7 @@ export default function CareTeamForm() {
               >
                 {/* <SelectInput placeholder="Select relationship" /> */}
                 <Text
-                  className={`text-base ${
+                  className={`text-lg ${
                     form.relationship ? "text-gray-900" : "text-gray-400"
                   }`}
                 >
@@ -224,14 +211,12 @@ export default function CareTeamForm() {
                 </Text>
                 <SelectIcon className="" as={ChevronDownIcon} />
               </SelectTrigger>
-
               <SelectPortal>
                 <SelectBackdrop />
                 <SelectContent>
                   <SelectDragIndicatorWrapper>
                     <SelectDragIndicator />
                   </SelectDragIndicatorWrapper>
-
                   {relationshipOptions.map((rel) => (
                     <SelectItem key={rel} label={rel} value={rel} />
                   ))}
@@ -244,24 +229,23 @@ export default function CareTeamForm() {
           <LabeledTextInput
             label="Phone Number *"
             value={form.phone_number ?? ""}
-            editable={!isViewMode}
             onChangeText={(t) => setForm((p) => ({ ...p, phone_number: t }))}
             keyboardType="numeric"
           />
 
           {/* Description */}
           {/* <LabeledTextInput
-          label="Description"
-          value={form.description ?? ""}
-          editable={!isViewMode}
-          onChangeText={(t) => setForm((p) => ({ ...p, description: t }))}
-        /> */}
+            label="Description"
+            value={form.description ?? ""}
+            editable={!isViewMode}
+            onChangeText={(t) => setForm((p) => ({ ...p, description: t }))}
+          /> */}
           <Text className="text-gray-500 mb-1 text-sm">Description</Text>
           <Textarea
             size="md"
-            isReadOnly={isViewMode}
+            isReadOnly={false}
             isInvalid={false}
-            isDisabled={isViewMode}
+            isDisabled={false}
             className="w-full bg-white mb-3"
           >
             <TextareaInput
@@ -276,50 +260,17 @@ export default function CareTeamForm() {
           <LabeledTextInput
             label="Email"
             value={form.email ?? ""}
-            editable={!isViewMode}
             onChangeText={(t) => setForm((p) => ({ ...p, email: t }))}
           />
         </ScrollView>
-
-        {/* Action Buttons */}
         <View className="px-6">
-          {isViewMode ? (
-            <View className="space-y-3">
-              {/* Close Button */}
-              <TouchableOpacity
-                style={{ backgroundColor: palette.primary }}
-                className="p-3 rounded-lg"
-                onPress={() => router.back()}
-              >
-                <Text className="text-white text-center font-semibold">
-                  Close
-                </Text>
-              </TouchableOpacity>
-
-              {/* Edit Button */}
-              {/* <TouchableOpacity
-              style={{ backgroundColor: palette.primary }}
-              className="p-3 rounded-lg"
-              onPress={() =>
-                router.push({
-                  pathname: "/home/careTeam/form",
-                  params: { mode: "edit", contactId },
-                })
-              }
-            >
-              <Text className="text-white text-center font-semibold">Edit</Text>
-            </TouchableOpacity> */}
-            </View>
-          ) : (
-            /* Save Button */
-            <TouchableOpacity
-              style={{ backgroundColor: palette.primary }}
-              className="p-3 rounded-lg"
-              onPress={handleSave}
-            >
-              <Text className="text-white text-center font-semibold">Save</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={{ backgroundColor: palette.primary }}
+            className="p-3 rounded-lg"
+            onPress={handleSave}
+          >
+            <Text className="text-white text-center font-semibold">Save</Text>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
