@@ -48,5 +48,4 @@ export interface QuestionWithOptions {
   question: Question;
   options: ResponseOption[];
   existingResponse?: TrackResponse;
-  summary?: string; // question-level summary
 }

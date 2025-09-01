@@ -143,7 +143,8 @@ export const getAllCategoriesWithSelectableItems = async (
 
 
 export const getQuestionsWithOptions = async (
-    itemId: number
+    itemId: number,
+    entryId: number
 ): Promise<QuestionWithOptions[]> => {
     logger.debug('getQuestionsWithOptions called', { itemId });
 
@@ -155,10 +156,21 @@ export const getQuestionsWithOptions = async (
             return result as any[];
         });
 
+        // Get existing responses for the given entryId
+        const existingResponses = await useModel(trackResponseModel, async (respModel: any) => {
+            return await respModel.getByFields({ track_item_entry_id: entryId });
+        });
+
+        // Map responses by question_id for fast lookup
+        const responseMap = new Map<number, any>();
+        for (const resp of existingResponses) {
+            responseMap.set(resp.question_id, resp);
+        }
+
         return questions.map((q: any) => ({
             question: q,
             options: allOptions.filter((opt: any) => opt.question_id === q.id),
-            existingResponse: undefined
+            existingResponse: responseMap.get(q.id) ?? undefined
         }));
     });
 
