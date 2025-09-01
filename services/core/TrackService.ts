@@ -64,7 +64,6 @@ export const getTrackCategoriesWithItemsAndProgress = async (
 
             for (const row of items.filter((r: any) => r.category_id === cat.id)) {
                 const summaries = row.entry_id ? await getSummariesForItem(row.entry_id) : [];
-                logger.debug("Summaries for entry", row.entry_id, summaries); // ✅ Debug line
                 catItems.push({
                     item: {
                         id: row.item_id,

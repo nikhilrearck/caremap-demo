@@ -191,6 +191,8 @@ export interface TrackItemEntry {
   patient_id: number;
   track_item_id: number;
   date: Date;
+  created_date: Date;
+  updated_date: Date;
 }
 
 export interface Contact {
