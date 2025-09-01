@@ -31,8 +31,7 @@ export interface TrackItemWithProgress {
   entry_id: number;
   completed: number;
   total: number;
-  started: boolean;
-  summaries?: string[];
+  summaries?: string[]; // item-level summaries
 };
 
 export interface TrackItemSelectable {
@@ -49,5 +48,5 @@ export interface QuestionWithOptions {
   question: Question;
   options: ResponseOption[];
   existingResponse?: TrackResponse;
-  summary?: string;
+  summary?: string; // question-level summary
 }
