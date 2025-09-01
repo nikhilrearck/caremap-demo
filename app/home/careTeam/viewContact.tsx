@@ -76,12 +76,14 @@ export default function ViewContact() {
   //   }
   // };
 
-  const openDialer = (phone?: string | null) => {
+  const openDialer = async (phone?: string | null) => {
     if (!phone) return;
-    const scheme = Platform.OS === "ios" ? "tel://" : "tel:";
-    Linking.openURL(`${scheme}${phone}`).catch(() =>
-      Alert.alert("Unable to open dialer.")
-    );
+    try {
+      const scheme = Platform.OS === "ios" ? "tel://" : "tel:";
+      await Linking.openURL(`${scheme}${phone}`);
+    } catch {
+      Alert.alert("Unable to open dialer.");
+    }
   };
 
   const openSMS = async (phone?: string | null) => {
@@ -101,6 +103,7 @@ export default function ViewContact() {
       Alert.alert("Unable to open mail app");
     }
   };
+
   const shareContact = async () => {
     if (!contact) return;
     try {
@@ -133,7 +136,7 @@ export default function ViewContact() {
         activeOpacity={tappable ? 0.65 : 1}
         onPress={() => tappable && onPress && onPress()}
       >
-        <View className="w-10 h-10 rounded-xl items-center justify-center mr-3 bg-[#F1F3F5]">
+        <View className="w-10 h-10 rounded-xl items-center justify-center mr-3 bg-white">
           {icon}
         </View>
         <View className="flex-1">
@@ -162,7 +165,7 @@ export default function ViewContact() {
           contact && (
             <TouchableOpacity
               activeOpacity={0.7}
-              className="flex-row items-center px-1"
+              className="flex-row items-center"
               onPress={() =>
                 router.push({
                   pathname: "/home/careTeam/form",
@@ -170,9 +173,9 @@ export default function ViewContact() {
                 })
               }
             >
-              <PencilLine size={16} color="white" />
+              {/* <PencilLine size={16} color="white" /> */}
               <Text
-                className="text-lg font-semibold ml-2 text-white"
+                className="text-base font-semibold mr-2 text-white"
                 // style={{ color: palette.primary }}
               >
                 Edit
@@ -199,12 +202,12 @@ export default function ViewContact() {
         </View>
       ) : (
         <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ padding: 18, paddingBottom: 140 }}
+          showsVerticalScrollIndicator={true}
+          contentContainerStyle={{ padding: 18 }}
         >
           {/* Profile */}
           <View
-            className="bg-white rounded-3xl items-center mb-4 px-5 py-5"
+            className="bg-white rounded-2xl items-center mb-4 px-5 py-5"
             style={styles.shadowCard}
           >
             {/* <View
@@ -223,13 +226,16 @@ export default function ViewContact() {
             </View> */}
             <Text
               className="text-[22px] font-bold text-[#111C28] text-center"
-              style={{ color: palette.primary }}
+              // style={{ color: palette.primary }}
             >
               {contact.first_name} {contact.last_name}
             </Text>
             {!!contact.relationship && (
-              <View className="mt-2 px-4 py-1.5 rounded-2xl bg-[#E9EEF2]">
-                <Text className="text-sm font-semibold text-gray-600">
+              <View className="mt-2 px-4 py-1 rounded-2xl bg-gray-200">
+                <Text
+                  className="text-base font-medium"
+                  style={{ color: palette.heading }}
+                >
                   {contact.relationship}
                 </Text>
               </View>
@@ -252,7 +258,7 @@ export default function ViewContact() {
                 label="Email"
                 icon={<Mail size={20} color={palette.primary} />}
                 disabled={!contact.email}
-                onPress={() => openEmail(contact.email)}
+                onPress={() => contact.email && openEmail(contact.email)}
               />
               {/* <MiniAction
                 label="Share"
@@ -264,7 +270,7 @@ export default function ViewContact() {
 
           {/* Contact Info */}
           <View
-            className="bg-white rounded-3xl px-4 py-3.5 mb-4"
+            className="bg-white rounded-2xl px-4 py-3.5 mb-4"
             style={styles.shadowLight}
           >
             <Text className="text-[12px] font-bold tracking-wider text-gray-500 mb-1.5">
@@ -273,8 +279,8 @@ export default function ViewContact() {
             <InfoItem
               label="Phone"
               value={contact.phone_number}
-              icon={<Phone size={18} color="#6B7280" />}
-              onPress={() => openDialer(contact.phone_number)}
+              icon={<Phone size={18} color={palette.primary} />}
+              // onPress={() => openDialer(contact.phone_number)}
             />
             {/* <Separator /> */}
             {/* <InfoItem
@@ -287,21 +293,21 @@ export default function ViewContact() {
             <InfoItem
               label="Email"
               value={contact.email}
-              icon={<Mail size={18} color="#6B7280" />}
-              onPress={() => openEmail(contact.email)}
+              icon={<Mail size={18} color={palette.primary} />}
+              // onPress={() => contact.email && openEmail(contact.email)}
             />
             <Separator />
             <InfoItem
               label="Role / Relationship"
               value={contact.relationship}
-              icon={<User2 size={18} color="#6B7280" />}
+              icon={<User2 size={18} color={palette.primary} />}
             />
           </View>
 
           {/* Notes */}
           {contact.description ? (
             <View
-              className="bg-white rounded-3xl px-4 py-3.5"
+              className="bg-white rounded-2xl px-4 py-3.5"
               style={styles.shadowLight}
             >
               <Text className="text-[12px] font-bold tracking-wider text-gray-500 mb-2">
@@ -389,15 +395,15 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.22,
-    shadowRadius: 1.5,
-    elevation: 1, // Android
+    shadowRadius: 2.22,
+    elevation: 2, // Android
   },
   shadowLight: {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.22,
-    shadowRadius: 1.5, // for a soft blur
-    elevation: 1,
+    shadowRadius: 2.22, // for a soft blur
+    elevation: 2,
   },
 });
 
