@@ -180,6 +180,7 @@ export const up = async (db: SQLiteDatabase) => {
       type TEXT CHECK(type IN ('boolean', 'mcq', 'msq', 'numeric', 'text')) NOT NULL,
       instructions TEXT DEFAULT NULL,
       required INTEGER NOT NULL DEFAULT 0,
+      summary_template TEXT,
       created_date TEXT NOT NULL DEFAULT (datetime('now')),
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY(item_id) REFERENCES ${tables.TRACK_ITEM}(id) ON DELETE CASCADE

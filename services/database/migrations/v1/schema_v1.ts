@@ -161,6 +161,7 @@ export interface Question {
   type: "boolean" | "mcq" | "msq" | "numeric" | "text";
   instructions?: string;
   required: boolean;
+  summary_template?:string;
   created_date: Date;
   updated_date: Date;
 }
