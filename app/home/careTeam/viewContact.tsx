@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
   Alert,
   StyleSheet,
-  Share,
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -29,6 +28,7 @@ import {
   Info,
 } from "lucide-react-native";
 import { logger } from "@/services/logging/logger";
+import { CustomButton } from "@/components/shared/CustomButton";
 
 type Params = { contactId?: string | number };
 
@@ -53,28 +53,6 @@ export default function ViewContact() {
   useEffect(() => {
     load();
   }, [load]);
-
-  const initials = (c?: Contact | null) =>
-    c
-      ? `${(c.first_name || "").charAt(0)}${(c.last_name || "").charAt(0)}`
-          .trim()
-          .toUpperCase()
-      : "";
-
-  // const sanitizePhone = (raw?: string | null) =>
-  //   (raw || "")
-  //     .trim()
-  //     .replace(/[\s\-().]/g, "")
-  //     .replace(/^\+{2,}/, "+");
-
-  // const openDialer = async (phone?: string | null) => {
-  //   if (!phone) return;
-  //   try {
-  //     await Linking.openURL(`tel:${phone}`);
-  //   } catch {
-  //     Alert.alert("Unable to open dialer");
-  //   }
-  // };
 
   const openDialer = async (phone?: string | null) => {
     if (!phone) return;
@@ -104,61 +82,8 @@ export default function ViewContact() {
     }
   };
 
-  const shareContact = async () => {
-    if (!contact) return;
-    try {
-      await Share.share({
-        title: "Contact",
-        message: `${contact.first_name} ${contact.last_name}${
-          contact.relationship ? " (" + contact.relationship + ")" : ""
-        }\n${contact.phone_number || ""}\n${contact.email || ""}`,
-      });
-    } catch (e) {
-      logger.debug("Share error", e);
-    }
-  };
-
-  const InfoItem = ({
-    label,
-    value,
-    icon,
-    onPress,
-  }: {
-    label: string;
-    value?: string | null;
-    icon: React.ReactNode;
-    onPress?: () => void;
-  }) => {
-    const tappable = !!onPress && !!value;
-    return (
-      <TouchableOpacity
-        className="flex-row items-center py-3"
-        activeOpacity={tappable ? 0.65 : 1}
-        onPress={() => tappable && onPress && onPress()}
-      >
-        <View className="w-10 h-10 rounded-xl items-center justify-center mr-3 bg-white">
-          {icon}
-        </View>
-        <View className="flex-1">
-          <Text className="text-[10px] font-semibold tracking-wider text-gray-500 mb-0.5">
-            {label}
-          </Text>
-          <Text
-            numberOfLines={2}
-            className={`text-[15px] font-medium ${
-              value ? "text-gray-800" : "text-gray-400 italic"
-            }`}
-          >
-            {value || "—"}
-          </Text>
-        </View>
-        {tappable && <ChevronRight size={18} color="#C5CAD0" />}
-      </TouchableOpacity>
-    );
-  };
-
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: "#F5F7F9" }}>
+    <SafeAreaView className="flex-1 bg-gray-50">
       <Header
         title="Contact Details"
         right={
@@ -175,7 +100,7 @@ export default function ViewContact() {
             >
               {/* <PencilLine size={16} color="white" /> */}
               <Text
-                className="text-base font-semibold mr-2 text-white"
+                className="text-base font-semibold text-white"
                 // style={{ color: palette.primary }}
               >
                 Edit
@@ -210,20 +135,6 @@ export default function ViewContact() {
             className="bg-white rounded-2xl items-center mb-4 px-5 py-5"
             style={styles.shadowCard}
           >
-            {/* <View
-              className="w-[92px] h-[92px] rounded-full mb-5 items-center justify-center border-2"
-              style={{
-                backgroundColor: palette.primary + "20",
-                borderColor: palette.primary + "55",
-              }}
-            >
-              <Text
-                className="font-bold"
-                style={{ fontSize: 36, color: palette.primary }}
-              >
-                {initials(contact)}
-              </Text>
-            </View> */}
             <Text
               className="text-[22px] font-bold text-[#111C28] text-center"
               // style={{ color: palette.primary }}
@@ -231,7 +142,7 @@ export default function ViewContact() {
               {contact.first_name} {contact.last_name}
             </Text>
             {!!contact.relationship && (
-              <View className="mt-2 px-4 py-1 rounded-2xl bg-gray-200">
+              <View className="mt-2 px-4 py-[2px] rounded-2xl bg-gray-200">
                 <Text
                   className="text-base font-medium"
                   style={{ color: palette.heading }}
@@ -260,15 +171,10 @@ export default function ViewContact() {
                 disabled={!contact.email}
                 onPress={() => contact.email && openEmail(contact.email)}
               />
-              {/* <MiniAction
-                label="Share"
-                icon={<Share2 size={20} color={palette.primary} />}
-                onPress={shareContact}
-              /> */}
             </View>
           </View>
 
-          {/* Contact Info */}
+          {/* Contact InfoRow */}
           <View
             className="bg-white rounded-2xl px-4 py-3.5 mb-4"
             style={styles.shadowLight}
@@ -276,28 +182,21 @@ export default function ViewContact() {
             <Text className="text-[12px] font-bold tracking-wider text-gray-500 mb-1.5">
               CONTACT INFO
             </Text>
-            <InfoItem
+            <InfoRow
               label="Phone"
               value={contact.phone_number}
               icon={<Phone size={18} color={palette.primary} />}
               // onPress={() => openDialer(contact.phone_number)}
             />
-            {/* <Separator /> */}
-            {/* <InfoItem
-              label="Message"
-              value={contact.phone_number}
-              icon={<MessageSquare size={18} color="#6B7280" />}
-              onPress={() => openSMS(contact.phone_number)}
-            /> */}
             <Separator />
-            <InfoItem
+            <InfoRow
               label="Email"
               value={contact.email}
               icon={<Mail size={18} color={palette.primary} />}
               // onPress={() => contact.email && openEmail(contact.email)}
             />
             <Separator />
-            <InfoItem
+            <InfoRow
               label="Role / Relationship"
               value={contact.relationship}
               icon={<User2 size={18} color={palette.primary} />}
@@ -331,19 +230,51 @@ export default function ViewContact() {
 
       {!loading && contact && (
         <View className="absolute left-0 right-0 bottom-4 px-4">
-          <TouchableOpacity
-            activeOpacity={0.75}
-            className="rounded-xl items-center py-3"
-            style={{ backgroundColor: palette.primary }}
-            onPress={() => router.back()}
-          >
-            <Text className="text-white text-base font-semibold">Close</Text>
-          </TouchableOpacity>
+          <CustomButton title="Close" onPress={() => router.back()} />
         </View>
       )}
     </SafeAreaView>
   );
 }
+
+const InfoRow = ({
+  label,
+  value,
+  icon,
+  onPress,
+}: {
+  label: string;
+  value?: string | null;
+  icon: React.ReactNode;
+  onPress?: () => void;
+}) => {
+  const tappable = !!onPress && !!value;
+  return (
+    <TouchableOpacity
+      className="flex-row items-center py-3"
+      activeOpacity={tappable ? 0.65 : 1}
+      onPress={() => tappable && onPress && onPress()}
+    >
+      <View className="w-10 h-10 rounded-xl items-center justify-center mr-3 bg-white">
+        {icon}
+      </View>
+      <View className="flex-1">
+        <Text className="text-[10px] font-semibold tracking-wider text-gray-500 mb-0.5">
+          {label}
+        </Text>
+        <Text
+          numberOfLines={2}
+          className={`text-[15px] font-medium ${
+            value ? "text-gray-800" : "text-gray-400 italic"
+          }`}
+        >
+          {value || "—"}
+        </Text>
+      </View>
+      {tappable && <ChevronRight size={18} color="#C5CAD0" />}
+    </TouchableOpacity>
+  );
+};
 
 function MiniAction({
   label,
@@ -406,9 +337,3 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 });
-
-// IOS shadow:
-// shadowColor: "#000",
-// shadowOpacity: 0.03,
-// shadowRadius: 12,
-// shadowOffset: { width: 0, height: 4 },

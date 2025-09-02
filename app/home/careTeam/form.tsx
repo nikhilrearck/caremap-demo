@@ -24,6 +24,7 @@ import {
 import { ChevronDownIcon } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LabeledTextInput } from "@/components/shared/labeledTextInput";
+import { CustomFormInput } from "@/components/shared/CustomFormInput";
 import palette from "@/utils/theme/color";
 import { PatientContext } from "@/context/PatientContext";
 import {
@@ -34,6 +35,19 @@ import {
 import { Contact } from "@/services/database/migrations/v1/schema_v1";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import {
+  FormControl,
+  FormControlLabel,
+  FormControlLabelText,
+  FormControlHelper,
+  FormControlHelperText,
+  FormControlError,
+  FormControlErrorText,
+  FormControlErrorIcon,
+} from "@/components/ui/form-control";
+import { Input, InputField } from "@/components/ui/input";
+import { AlertCircleIcon } from "@/components/ui/icon";
+import { CustomButton } from "@/components/shared/CustomButton";
 
 type Params = {
   mode?: string;
@@ -106,7 +120,54 @@ export default function CareTeamForm() {
     "Other",
   ];
 
+  const [errors, setErrors] = useState<{
+    first_name?: string;
+    phone_number?: string;
+    email?: string;
+  }>({});
+
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  const phoneDigitsRegex = /^[0-9]{10}$/; // adjust to your rule
+
+  const validateFirstName = (val?: string) => {
+    if (!val || !val.trim()) return "First name is required";
+    return undefined;
+  };
+  const validatePhone = (val?: string) => {
+    if (!val || !val.trim()) return "Phone number is required";
+    if (!phoneDigitsRegex.test(val.replace(/\D/g, "")))
+      return "Enter 10 digit phone number";
+    return undefined;
+  };
+
+  const validateEmail = (val?: string) => {
+    // if (!val || !val.trim()) return "mail is required";
+    if (!val || !val.trim()) return undefined; // allow empty
+    if (!emailRegex.test(val.trim())) return "Enter a valid email";
+    return undefined;
+  };
+
+  const validateAll = () => {
+    const firstNameError = validateFirstName(form.first_name);
+    const phoneError = validatePhone(form.phone_number);
+    const emailError = validateEmail(form.email);
+    setErrors({
+      first_name: firstNameError,
+      phone_number: phoneError,
+      email: emailError,
+    });
+    return !firstNameError && !phoneError && !emailError;
+  };
+
+  const isSaveDisabled =
+    !!errors.first_name ||
+    !!errors.phone_number ||
+    !!errors.email ||
+    !form.first_name?.trim() ||
+    !form.phone_number?.trim();
+
   const handleSave = async () => {
+    if (!validateAll()) return;
     if (!patient?.id) return;
     try {
       if (isAddMode) {
@@ -150,7 +211,7 @@ export default function CareTeamForm() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-50">
       <Header
         title={isAddMode ? "Add Contact" : "Edit Contact"}
         right={
@@ -165,30 +226,43 @@ export default function CareTeamForm() {
         // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <ScrollView
-          className="px-6 pt-8 flex-1"
+          className="px-5 pt-6 flex-1"
           contentContainerStyle={{
-            paddingBottom: 40,
+            paddingBottom: 30,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={true}
         >
           {/* First Name */}
-          <LabeledTextInput
-            label="First Name *"
+          <CustomFormInput
+            label="First Name"
+            isRequired
             value={form.first_name ?? ""}
-            onChangeText={(t) => setForm((p) => ({ ...p, first_name: t }))}
+            onChangeText={(t) => {
+              setForm((p) => ({ ...p, first_name: t }));
+              if (errors.first_name) {
+                setErrors((e) => ({ ...e, first_name: validateFirstName(t) }));
+              }
+            }}
+            onBlur={() =>
+              setErrors((e) => ({
+                ...e,
+                first_name: validateFirstName(form.first_name),
+              }))
+            }
+            error={errors.first_name}
           />
 
           {/* Last Name */}
-          <LabeledTextInput
+          <CustomFormInput
             label="Last Name"
             value={form.last_name ?? ""}
             onChangeText={(t) => setForm((p) => ({ ...p, last_name: t }))}
           />
 
           {/* Relationship (GlueStack Select) */}
-          <View className="mb-3">
-            <Text className="text-gray-500 text-sm mb-1">Relationship</Text>
+          <View className="mb-4">
+            <Text className="font-medium mb-1 text-base">Relationship</Text>
             <Select
               selectedValue={form.relationship}
               // isDisabled={isViewMode}
@@ -226,27 +300,34 @@ export default function CareTeamForm() {
           </View>
 
           {/* Phone */}
-          <LabeledTextInput
-            label="Phone Number *"
+          <CustomFormInput
+            label="Phone"
+            isRequired
             value={form.phone_number ?? ""}
-            onChangeText={(t) => setForm((p) => ({ ...p, phone_number: t }))}
+            onChangeText={(t) => {
+              setForm((p) => ({ ...p, phone_number: t }));
+              if (errors.phone_number) {
+                setErrors((e) => ({ ...e, phone_number: validatePhone(t) }));
+              }
+            }}
+            onBlur={() =>
+              setErrors((e) => ({
+                ...e,
+                phone_number: validatePhone(form.phone_number),
+              }))
+            }
+            error={errors.phone_number}
             keyboardType="numeric"
+            // placeholder=""
           />
 
-          {/* Description */}
-          {/* <LabeledTextInput
-            label="Description"
-            value={form.description ?? ""}
-            editable={!isViewMode}
-            onChangeText={(t) => setForm((p) => ({ ...p, description: t }))}
-          /> */}
-          <Text className="text-gray-500 mb-1 text-sm">Description</Text>
+          <Text className="font-medium mb-1 text-base">Description</Text>
           <Textarea
             size="md"
             isReadOnly={false}
             isInvalid={false}
             isDisabled={false}
-            className="w-full bg-white mb-3"
+            className="w-full bg-white mb-4"
           >
             <TextareaInput
               placeholder=""
@@ -257,20 +338,42 @@ export default function CareTeamForm() {
           </Textarea>
 
           {/* Email */}
-          <LabeledTextInput
+          <CustomFormInput
             label="Email"
             value={form.email ?? ""}
-            onChangeText={(t) => setForm((p) => ({ ...p, email: t }))}
+            onChangeText={(t) => {
+              setForm((p) => ({ ...p, email: t }));
+              if (errors.email) {
+                setErrors((e) => ({ ...e, email: validateEmail(t) }));
+              }
+            }}
+            onBlur={() =>
+              setErrors((e) => ({
+                ...e,
+                email: validateEmail(form.email),
+              }))
+            }
+            error={errors.email}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            // placeholder="example@domain.com"
           />
         </ScrollView>
-        <View className="px-6">
-          <TouchableOpacity
+
+        <View className="px-5">
+          {/* <TouchableOpacity
             style={{ backgroundColor: palette.primary }}
             className="p-3 rounded-lg"
             onPress={handleSave}
+            disabled={isSaveDisabled}
           >
             <Text className="text-white text-center font-semibold">Save</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+          <CustomButton
+            title="Save"
+            onPress={handleSave}
+            disabled={isSaveDisabled}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
