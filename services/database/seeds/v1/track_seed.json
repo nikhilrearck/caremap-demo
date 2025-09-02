@@ -17,7 +17,7 @@
       "text": "How many times did you need to take a rescue/as-needed medication in the past week?",
       "type": "numeric",
       "required": true,
-      "summary_template": "Medication was taken {{answer}} times."
+      "summary_template":"Medication was taken {{answer}} times."
     },
     {
       "id": 2,
@@ -25,7 +25,7 @@
       "text": "What is the name of the rescue/as-needed medication you took?",
       "type": "mcq",
       "required": true,
-      "summary_template": "Medication - {{answer}}"
+      "summary_template":"Medication - {{answer}}"
     },
     {
       "id": 3,
@@ -33,7 +33,7 @@
       "text": "Did you exercise today?",
       "type": "boolean",
       "required": true,
-      "summary_template": "Exercise {{answer}}"
+      "summary_template":"Exercise {{answer}}"
     },
     {
       "id": 4,
@@ -41,7 +41,7 @@
       "text": "What type of exercises did you do?",
       "type": "msq",
       "required": false,
-      "summary_template": "Exercises done: {{answer}}"
+      "summary_template":"Exercise done: {{answer}}"
     },
     {
       "id": 5,

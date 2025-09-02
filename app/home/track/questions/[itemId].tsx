@@ -60,9 +60,12 @@ export default function QuestionFlowScreen() {
     return;
   }
 
-  const loadQuestionsWithOptions = async () => {
-    if (!itemIdNum) return;
-    const questionWithOptions = await getQuestionsWithOptions(itemIdNum, entryIdNum);
+    const loadQuestionsWithOptions = async () => {
+      if (!itemIdNum) return;
+      const questionWithOptions = await getQuestionsWithOptions(
+        itemIdNum,
+        entryIdNum
+      );
 
     const questionsArray = questionWithOptions.map((qwo) => qwo.question);
     const responseOptionsArray = questionWithOptions.flatMap((qwo) => qwo.options);
@@ -97,55 +100,6 @@ export default function QuestionFlowScreen() {
 
   loadQuestionsWithOptions();
 }, [itemIdNum]);
-
-  // useEffect(() => {
-  //   if (!user) {
-  //     router.replace(ROUTES.LOGIN);
-  //     return;
-  //   }
-  //   if (!patient) {
-  //     router.replace(ROUTES.MY_HEALTH);
-  //     return;
-  //   }
-
-  //   const loadQuestionsWithOptions = async () => {
-  //     if (!itemIdNum) return;
-  //     const questionWithOptions = await getQuestionsWithOptions(
-  //       itemIdNum,
-  //       entryIdNum
-  //     );
-
-  //     const questionsArray = questionWithOptions.map((qwo) => qwo.question);
-  //     const responseOptionsArray = questionWithOptions.flatMap(
-  //       (qwo) => qwo.options
-  //     );
-
-  //     const existingResponses: Record<number, any> = {};
-
-  //     questionWithOptions.forEach((qwo) => {
-  //       const response = qwo.existingResponse;
-  //       if (response && response.question_id != null) {
-  //         existingResponses[response.question_id] = response.answer;
-  //         logger.debug(
-  //           `Existing answer for question id ${response.question_id} is/are : ${response.answer}`
-  //         );
-  //       }
-  //     });
-      
-
-  //     // --------------------------------------------------------------------------------------
-  //     // NOTE ::
-  //     // Frontend to utilize this existingResponses of type Record<number,any> to
-  //     // Either setAnswers(existingResponses);
-  //     // OR in other way of implementation further to populate UI with existing responses.
-  //     // --------------------------------------------------------------------------------------
-
-  //     setQuestions(questionsArray);
-  //     setResponseOptions(responseOptionsArray);
-  //      setAnswers(existingResponses);
-  //   };
-  //   loadQuestionsWithOptions();
-  // }, [itemIdNum]);
 
   useEffect(() => {
     if (questions.length > 0) {

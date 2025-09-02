@@ -1,19 +1,15 @@
-import {
-  QuestionWithOptions,
-  TrackCategoryWithItems,
-  TrackCategoryWithSelectableItems,
-  TrackItemWithProgress,
-} from "../common/types";
-import { getCurrentTimestamp } from "@/services/core/utils";
-import { useModel } from "@/services/database/BaseModel";
-import { tables } from "@/services/database/migrations/v1/schema_v1";
-import { QuestionModel } from "@/services/database/models/QuestionModel";
-import { ResponseOptionModel } from "@/services/database/models/ResponseOptionModel";
-import { TrackCategoryModel } from "@/services/database/models/TrackCategoryModel";
-import { TrackItemEntryModel } from "@/services/database/models/TrackItemEntryModel";
-import { TrackItemModel } from "@/services/database/models/TrackItemModel";
-import { TrackResponseModel } from "@/services/database/models/TrackResponseModel";
-import { logger } from "@/services/logging/logger";
+import { QuestionWithOptions, TrackCategoryWithItems, TrackCategoryWithSelectableItems, TrackItemWithProgress } from '@/services/common/types';
+import { getCurrentTimestamp } from '@/services/core/utils';
+import { useModel } from '@/services/database/BaseModel';
+import { tables } from '@/services/database/migrations/v1/schema_v1';
+import { QuestionModel } from '@/services/database/models/QuestionModel';
+import { ResponseOptionModel } from '@/services/database/models/ResponseOptionModel';
+import { TrackCategoryModel } from '@/services/database/models/TrackCategoryModel';
+import { TrackItemEntryModel } from '@/services/database/models/TrackItemEntryModel';
+import { TrackItemModel } from '@/services/database/models/TrackItemModel';
+import { TrackResponseModel } from '@/services/database/models/TrackResponseModel';
+import { logger } from '@/services/logging/logger';
+
 
 // Single shared instance of models
 const trackCategoryModel = new TrackCategoryModel();
@@ -25,23 +21,18 @@ const trackItemEntryModel = new TrackItemEntryModel();
 
 const now = getCurrentTimestamp();
 
+
 export const getTrackCategoriesWithItemsAndProgress = async (
-  patientId: number,
-  date: string
+    patientId: number,
+    date: string
 ): Promise<TrackCategoryWithItems[]> => {
-  logger.debug("getTrackCategoriesWithItemsAndProgress called", {
-    patientId,
-    date,
-  });
+    logger.debug('getTrackCategoriesWithItemsAndProgress called', { patientId, date });
 
-  const categories = await useModel(
-    trackCategoryModel,
-    async (categoryModel) => {
-      const cats = await categoryModel.getAll();
+    const categories = await useModel(trackCategoryModel, async (categoryModel) => {
+        const cats = await categoryModel.getAll();
 
-      const items = await useModel(trackItemModel, async (itemModel: any) => {
-        const rows = await itemModel.runQuery(
-          `
+        const items = await useModel(trackItemModel, async (itemModel: any) => {
+            const rows = await itemModel.runQuery(`
         SELECT
           ti.id                     AS item_id,
           tie.id                    AS entry_id,
@@ -61,69 +52,60 @@ export const getTrackCategoriesWithItemsAndProgress = async (
         LEFT JOIN ${tables.TRACK_RESPONSE} r
           ON r.track_item_entry_id = tie.id
         GROUP BY tie.id, ti.id, ti.name, ti.category_id, ti.created_date, ti.updated_date
-      `,
-          [patientId, date]
-        );
-        return rows as any[];
-      });
+      `, [patientId, date]);
+            return rows as any[];
+        });
 
-      // Build categories with items + summaries inline
-      const result: TrackCategoryWithItems[] = [];
+        // Build categories with items + summaries inline
+        const result: TrackCategoryWithItems[] = [];
 
-      for (const cat of cats) {
-        const catItems: TrackItemWithProgress[] = [];
+        for (const cat of cats) {
+            const catItems: TrackItemWithProgress[] = [];
 
-        for (const row of items.filter((r: any) => r.category_id === cat.id)) {
-          const summaries = row.entry_id
-            ? await getSummariesForItem(row.entry_id)
-            : [];
-          logger.debug("Summaries for entry", row.entry_id, summaries); // ✅ Debug line
-          catItems.push({
-            item: {
-              id: row.item_id,
-              category_id: row.category_id,
-              name: row.name,
-              created_date: row.created_date,
-              updated_date: row.updated_date,
-            },
-            entry_id: row.entry_id,
-            completed: row.completed,
-            total: row.total,
-            summaries,
-          });
+            for (const row of items.filter((r: any) => r.category_id === cat.id)) {
+                const summaries = row.entry_id ? await getSummariesForItem(row.entry_id) : [];
+                catItems.push({
+                    item: {
+                        id: row.item_id,
+                        category_id: row.category_id,
+                        name: row.name,
+                        created_date: row.created_date,
+                        updated_date: row.updated_date,
+                    },
+                    entry_id: row.entry_id,
+                    completed: row.completed,
+                    total: row.total,
+                    summaries,
+                });
+            }
+
+            result.push({ ...cat, items: catItems });
         }
 
-        result.push({ ...cat, items: catItems });
-      }
+        return result;
+    });
 
-      return result;
-    }
-  );
-
-  logger.debug(
-    "getTrackCategoriesWithItemsAndProgress completed",
-    JSON.stringify(categories, null, 2)
-  );
-  return categories;
+    logger.debug(
+        'getTrackCategoriesWithItemsAndProgress completed',
+        JSON.stringify(categories, null, 2)
+    );
+    return categories;
 };
 
+
 export const getAllCategoriesWithSelectableItems = async (
-  patientId: number,
-  date: string
+    patientId: number,
+    date: string
 ): Promise<TrackCategoryWithSelectableItems[]> => {
-  logger.debug("getAllCategoriesWithSelectableItems called", {
-    patientId,
-    date,
-  });
+    logger.debug('getAllCategoriesWithSelectableItems called', { patientId, date });
 
-  return useModel(trackCategoryModel, async (categoryModel) => {
-    // Get all categories
-    const categories = await categoryModel.getAll();
+    return useModel(trackCategoryModel, async (categoryModel) => {
+        // Get all categories
+        const categories = await categoryModel.getAll();
 
-    // Get all items with a flag if already linked for this patient/date
-    const items = await useModel(trackItemModel, async (itemModel: any) => {
-      const result = await itemModel.runQuery(
-        `
+        // Get all items with a flag if already linked for this patient/date
+        const items = await useModel(trackItemModel, async (itemModel: any) => {
+            const result = await itemModel.runQuery(`
                 SELECT 
                     ti.id,
                     ti.name,
@@ -134,289 +116,240 @@ export const getAllCategoriesWithSelectableItems = async (
                     ON tie.track_item_id = ti.id
                     AND tie.patient_id = ?
                     AND tie.date = ?
-            `,
-        [patientId, date]
-      );
-      return result as {
-        id: number;
-        name: string;
-        category_id: number;
-        selected: number;
-      }[];
+            `, [patientId, date]);
+            return result as { id: number; name: string; category_id: number; selected: number }[];
+        });
+
+        // Group items under categories with "selected" mapped to boolean
+        const result: TrackCategoryWithSelectableItems[] = categories.map((cat: any) => ({
+            category: cat,
+            items: items
+                .filter((item) => item.category_id === cat.id)
+                .map((item) => ({
+                    item: {
+                        id: item.id,
+                        category_id: item.category_id,
+                        name: item.name,
+                    },
+                    selected: item.selected === 1
+                }))
+        }));
+
+        logger.debug('getAllCategoriesWithSelectableItems completed', JSON.stringify(result, null, 2));
+        return result;
     });
-
-    // Group items under categories with "selected" mapped to boolean
-    const result: TrackCategoryWithSelectableItems[] = categories.map(
-      (cat: any) => ({
-        category: cat,
-        items: items
-          .filter((item) => item.category_id === cat.id)
-          .map((item) => ({
-            item: {
-              id: item.id,
-              category_id: item.category_id,
-              name: item.name,
-            },
-            selected: item.selected === 1,
-          })),
-      })
-    );
-
-    logger.debug(
-      "getAllCategoriesWithSelectableItems completed",
-      JSON.stringify(result, null, 2)
-    );
-    return result;
-  });
 };
 
+
 export const getQuestionsWithOptions = async (
-  itemId: number,
-  entryId: number
+    itemId: number,
+    entryId: number
 ): Promise<QuestionWithOptions[]> => {
-  logger.debug("getQuestionsWithOptions called", { itemId });
+    logger.debug('getQuestionsWithOptions called', { itemId });
 
-  const result = await useModel(questionModel, async (model) => {
-    const questions = await model.getByFields({ item_id: itemId });
+    const result = await useModel(questionModel, async (model) => {
+        const questions = await model.getByFields({ item_id: itemId });
 
-    const allOptions = await useModel(
-      responseOptionModel,
-      async (optModel: any) => {
-        const result = await optModel.getAll();
-        return result as any[];
-      }
-    );
+        const allOptions = await useModel(responseOptionModel, async (optModel: any) => {
+            const result = await optModel.getAll();
+            return result as any[];
+        });
 
-    // Get existing responses for the given entryId
-    const existingResponses = await useModel(
-      trackResponseModel,
-      async (respModel: any) => {
-        return await respModel.getByFields({ track_item_entry_id: entryId });
-      }
-    );
+        // Get existing responses for the given entryId
+        const existingResponses = await useModel(trackResponseModel, async (respModel: any) => {
+            return await respModel.getByFields({ track_item_entry_id: entryId });
+        });
 
-    // Map responses by question_id for fast lookup
-    const responseMap = new Map<number, any>();
-    for (const resp of existingResponses) {
-      responseMap.set(resp.question_id, resp);
-    }
+        // Map responses by question_id for fast lookup
+        const responseMap = new Map<number, any>();
+        for (const resp of existingResponses) {
+            responseMap.set(resp.question_id, resp);
+        }
 
-    return questions.map((q: any) => ({
-      question: q,
-      options: allOptions.filter((opt: any) => opt.question_id === q.id),
-      existingResponse: responseMap.get(q.id) ?? undefined,
-    }));
-  });
+        return questions.map((q: any) => ({
+            question: q,
+            options: allOptions.filter((opt: any) => opt.question_id === q.id),
+            existingResponse: responseMap.get(q.id) ?? undefined
+        }));
+    });
 
-  logger.debug(
-    "getQuestionsWithOptions completed",
-    { itemId },
-    `${JSON.stringify(result)}`
-  );
-  return result;
+    logger.debug('getQuestionsWithOptions completed', { itemId }, `${JSON.stringify(result)}`);
+    return result;
 };
 
 export const saveResponse = async (
-  entryId: number,
-  questionId: number,
-  answer: string,
-  userId: string,
-  patientId: number
+    entryId: number,
+    questionId: number,
+    answer: string,
+    userId: string,
+    patientId: number
 ): Promise<void> => {
-  logger.debug("saveResponse called", { entryId, questionId, answer });
+    logger.debug('saveResponse called', { entryId, questionId, answer });
 
-  const result = await useModel(trackResponseModel, async (model) => {
-    const existing = await model.getFirstByFields({
-      track_item_entry_id: entryId,
-      question_id: questionId,
-      user_id: userId,
-      patient_id: patientId,
+    const result = await useModel(trackResponseModel, async (model) => {
+        const existing = await model.getFirstByFields({
+            track_item_entry_id: entryId,
+            question_id: questionId,
+            user_id: userId,
+            patient_id: patientId
+        });
+
+        if (existing) {
+            await model.updateByFields(
+                {
+                    answer: JSON.stringify(answer),
+                    updated_date: getCurrentTimestamp(),
+                },
+                {
+                    track_item_entry_id: entryId,
+                    question_id: questionId,
+                    user_id: userId,
+                    patient_id: patientId
+                }
+            );
+        } else {
+            await model.insert({
+                user_id: userId,
+                patient_id: patientId,
+                question_id: questionId,
+                track_item_entry_id: entryId,
+                answer: JSON.stringify(answer),
+                created_date: getCurrentTimestamp(),
+                updated_date: getCurrentTimestamp(),
+            });
+        }
     });
 
-    if (existing) {
-      await model.updateByFields(
-        {
-          answer: JSON.stringify(answer),
-          updated_date: getCurrentTimestamp(),
-        },
-        {
-          track_item_entry_id: entryId,
-          question_id: questionId,
-          user_id: userId,
-          patient_id: patientId,
-        }
-      );
-    } else {
-      await model.insert({
-        user_id: userId,
-        patient_id: patientId,
-        question_id: questionId,
-        track_item_entry_id: entryId,
-        answer: JSON.stringify(answer),
-        created_date: getCurrentTimestamp(),
-        updated_date: getCurrentTimestamp(),
-      });
-    }
-  });
-
-  logger.debug("saveResponse completed", { entryId, questionId, answer });
-  return result;
+    logger.debug('saveResponse completed', { entryId, questionId, answer });
+    return result;
 };
 
 export const addOptionToQuestion = async (
-  questionId: number,
-  label: string
+    questionId: number,
+    label: string
 ): Promise<number> => {
-  logger.debug("addOptionToQuestion called", { questionId, label });
+    logger.debug('addOptionToQuestion called', { questionId, label });
 
-  const result = await useModel(responseOptionModel, async (model) => {
-    const insertResult = await model.insert({
-      question_id: questionId,
-      text: label,
-      created_date: getCurrentTimestamp(),
-      updated_date: getCurrentTimestamp(),
+    const result = await useModel(responseOptionModel, async (model) => {
+        const insertResult = await model.insert({
+            question_id: questionId,
+            text: label,
+            created_date: getCurrentTimestamp(),
+            updated_date: getCurrentTimestamp(),
+        });
+        return insertResult.lastInsertRowId;
     });
-    return insertResult.lastInsertRowId;
-  });
 
-  logger.debug("addOptionToQuestion completed", { questionId, label, result });
-  return result;
+    logger.debug('addOptionToQuestion completed', { questionId, label, result });
+    return result;
 };
 
 // Link item to patient/date
 export const addTrackItemOnDate = async (
-  itemId: number,
-  userId: string,
-  patientId: number,
-  date: string
+    itemId: number,
+    userId: string,
+    patientId: number,
+    date: string
 ): Promise<void> => {
-  logger.debug("linkItemToPatientDate called", { itemId, patientId, date });
+    logger.debug('linkItemToPatientDate called', { itemId, patientId, date });
 
-  await useModel(trackItemEntryModel, async (model) => {
-    const existing = await model.getFirstByFields({
-      track_item_id: itemId,
-      patient_id: patientId,
-      date,
+    await useModel(trackItemEntryModel, async (model) => {
+        const existing = await model.getFirstByFields({
+            track_item_id: itemId,
+            patient_id: patientId,
+            date
+        });
+
+        if (existing) {
+            logger.debug('linkItemToPatientDate: Item already linked', { itemId, patientId, date });
+            return;
+        }
+
+        await model.insert({
+            user_id: userId,
+            patient_id: patientId,
+            track_item_id: itemId,
+            date,
+            created_date: now,
+            updated_date: now,
+        });
     });
 
-    if (existing) {
-      logger.debug("linkItemToPatientDate: Item already linked", {
-        itemId,
-        patientId,
-        date,
-      });
-      return;
-    }
-
-    await model.insert({
-      user_id: userId,
-      patient_id: patientId,
-      track_item_id: itemId,
-      date,
-      created_date: now,
-      updated_date: now,
-    });
-  });
-
-  logger.debug("linkItemToPatientDate completed", { itemId, patientId, date });
+    logger.debug('linkItemToPatientDate completed', { itemId, patientId, date });
 };
 
 // Unlink item from patient/date
 export const removeTrackItemFromDate = async (
-  itemId: number,
-  userId: string,
-  patientId: number,
-  date: string
+    itemId: number,
+    userId: string,
+    patientId: number,
+    date: string
 ): Promise<void> => {
-  logger.debug("unlinkItemFromPatientDate called", { itemId, patientId, date });
+    logger.debug('unlinkItemFromPatientDate called', { itemId, patientId, date });
 
-  await useModel(trackItemEntryModel, async (model) => {
-    const existing = await model.getFirstByFields({
-      track_item_id: itemId,
-      patient_id: patientId,
-      date,
+    await useModel(trackItemEntryModel, async (model) => {
+        const existing = await model.getFirstByFields({
+            track_item_id: itemId,
+            patient_id: patientId,
+            date
+        });
+
+        if (!existing) {
+            logger.debug('unlinkItemFromPatientDate: Item not linked', { itemId, patientId, date });
+            return;
+        }
+
+        await model.deleteByFields({
+            track_item_id: itemId,
+            user_id: userId,
+            patient_id: patientId,
+            date
+        });
     });
 
-    if (!existing) {
-      logger.debug("unlinkItemFromPatientDate: Item not linked", {
-        itemId,
-        patientId,
-        date,
-      });
-      return;
-    }
-
-    await model.deleteByFields({
-      track_item_id: itemId,
-      user_id: userId,
-      patient_id: patientId,
-      date,
-    });
-  });
-
-  logger.debug("unlinkItemFromPatientDate completed", {
-    itemId,
-    patientId,
-    date,
-  });
+    logger.debug('unlinkItemFromPatientDate completed', { itemId, patientId, date });
 };
 
-export const generateSummary = (
-  template: string,
-  answer: string,
-  optionsMap?: Map<number, string> // optional: map of optionId -> optionText
-): string | null => {
-  if (!template || !answer) return null;
+export const generateSummary = (template: string, answer: string): string | null => {
+    if (!template || !answer) return null;
 
-  try {
-    let parsed: any;
     try {
-      parsed = JSON.parse(answer);
+        let parsed: any;
+        try {
+            parsed = JSON.parse(answer);
+        } catch {
+            parsed = answer;
+        }
+
+        if (Array.isArray(parsed)) {
+            return template.replace('{{answer}}', parsed.join(', '));
+        }
+        logger.debug(`${template.replace('{{answer}}', String(parsed))}`);
+        return template.replace('{{answer}}', String(parsed));
     } catch {
-      parsed = answer;
+        return null;
     }
-
-    // Convert IDs to option text if map is provided
-    if (optionsMap) {
-      if (Array.isArray(parsed)) {
-        parsed = parsed.map((id) => optionsMap.get(Number(id)) ?? id);
-      } else {
-        const idNum = Number(parsed);
-        if (!isNaN(idNum)) parsed = optionsMap.get(idNum) ?? parsed;
-      }
-    }
-
-    if (Array.isArray(parsed)) {
-      return template.replace("{{answer}}", parsed.join(", "));
-    }
-
-    return template.replace("{{answer}}", String(parsed));
-  } catch {
-    return null;
-  }
 };
 
-export const getSummariesForItem = async (
-  entryId: number
-): Promise<string[]> => {
-  return useModel(questionModel, async (qModel) => {
-    const rows = await qModel.runQuery(
-      `
+export const getSummariesForItem = async (entryId: number): Promise<string[]> => {
+    return useModel(questionModel, async (qModel) => {
+        const rows = await qModel.runQuery(
+            `
       SELECT q.summary_template, r.answer
       FROM ${tables.QUESTION} q
       LEFT JOIN ${tables.TRACK_RESPONSE} r
         ON q.id = r.question_id AND r.track_item_entry_id = ?
       WHERE q.item_id = (SELECT item_id FROM ${tables.TRACK_ITEM_ENTRY} WHERE id = ?)
       `,
-      [entryId, entryId]
-    );
+            [entryId, entryId]
+        );
 
-    return rows
-      .map((row: { summary_template: string; answer: string }) =>
-        row.summary_template && row.answer
-          ? generateSummary(row.summary_template, row.answer)
-          : null
-      )
-      .filter((s: any): s is string => !!s);
-  });
+        return rows
+            .map((row: { summary_template: string; answer: string; }) =>
+                row.summary_template && row.answer
+                    ? generateSummary(row.summary_template, row.answer)
+                    : null
+            )
+            .filter((s: any): s is string => !!s);
+    });
 };

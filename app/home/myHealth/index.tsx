@@ -17,13 +17,19 @@ import { useContext, useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Grid, GridItem } from "@/components/ui/grid";
+import { initializeMockSession, isAndroid } from "@/android-bypass/google-auth-android";
 export default function HealthProfile() {
   const { user, setUserData } = useContext(UserContext);
   const { patient, setPatientData } = useContext(PatientContext);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    initializeAuthSession(setUserData).finally(() => setLoading(false));
+useEffect(() => {
+    if (isAndroid) {
+      logger.debug("Android? :", isAndroid);
+      initializeMockSession(setUserData).finally(() => setLoading(false));
+    } else {
+      initializeAuthSession(setUserData).finally(() => setLoading(false));
+    }
   }, []);
 
   useEffect(() => {
