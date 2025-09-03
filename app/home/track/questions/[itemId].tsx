@@ -4,12 +4,15 @@ import { useCustomToast } from "@/components/shared/useCustomToast";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
 import { UserContext } from "@/context/UserContext";
-import { addOptionToQuestion, getQuestionsWithOptions, saveResponse } from "@/services/core/TrackService";
+import {
+  addOptionToQuestion,
+  getQuestionsWithOptions,
+  saveResponse,
+} from "@/services/core/TrackService";
 import {
   Question,
   ResponseOption,
 } from "@/services/database/migrations/v1/schema_v1";
-import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -30,10 +33,7 @@ export default function QuestionFlowScreen() {
   const { patient } = useContext(PatientContext);
   const { setRefreshData } = useContext(TrackContext);
 
-  // sampleQuestions
   const [questions, setQuestions] = useState<Question[]>([]);
-
-  // sampleResponse
   const [responseOptions, setResponseOptions] = useState<ResponseOption[]>([]);
 
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -48,17 +48,52 @@ export default function QuestionFlowScreen() {
     {}
   );
 
-  const isLast = currentIndex === questions.length - 1;
+  // Utility to check if a question is visible given current answers
+  const isQuestionVisible = (
+    q: Question,
+    answers: Record<number, any>
+  ): boolean => {
+    if (!q.parent_question_id || !q.display_condition) return true;
+
+    try {
+      const cond = JSON.parse(q.display_condition);
+      const parentAnswer = answers[q.parent_question_id];
+
+      if (cond.eq !== undefined) return parentAnswer === cond.eq;
+      if (cond.neq !== undefined) return parentAnswer !== cond.neq;
+      if (cond.gt !== undefined) return Number(parentAnswer) > cond.gt;
+      if (cond.gte !== undefined) return Number(parentAnswer) >= cond.gte;
+      if (cond.lt !== undefined) return Number(parentAnswer) < cond.lt;
+      if (cond.lte !== undefined) return Number(parentAnswer) <= cond.lte;
+      if (cond.contains !== undefined && Array.isArray(parentAnswer)) {
+        return parentAnswer.includes(cond.contains);
+      }
+      return true;
+    } catch {
+      return true;
+    }
+  };
+
+  // Compute visibleQuestions dynamically (no separate state needed)
+  const visibleQuestions = questions.filter((q) =>
+    isQuestionVisible(q, answers)
+  );
+
+  // isLast now checks against last visible question, not total questions
+  const isLast =
+    currentQuestion &&
+    visibleQuestions.length > 0 &&
+    visibleQuestions[visibleQuestions.length - 1].id === currentQuestion.id;
 
   useEffect(() => {
-  if (!user) {
-    router.replace(ROUTES.LOGIN);
-    return;
-  }
-  if (!patient) {
-    router.replace(ROUTES.MY_HEALTH);
-    return;
-  }
+    if (!user) {
+      router.replace(ROUTES.LOGIN);
+      return;
+    }
+    if (!patient) {
+      router.replace(ROUTES.MY_HEALTH);
+      return;
+    }
 
     const loadQuestionsWithOptions = async () => {
       if (!itemIdNum) return;
@@ -67,44 +102,40 @@ export default function QuestionFlowScreen() {
         entryIdNum
       );
 
-    const questionsArray = questionWithOptions.map((qwo) => qwo.question);
-    const responseOptionsArray = questionWithOptions.flatMap((qwo) => qwo.options);
+      const questionsArray = questionWithOptions.map((qwo) => qwo.question);
+      const responseOptionsArray = questionWithOptions.flatMap(
+        (qwo) => qwo.options
+      );
 
-    const existingResponses: Record<number, any> = {};
+      const existingResponses: Record<number, any> = {};
 
-    questionWithOptions.forEach((qwo) => {
-      const response = qwo.existingResponse;
-      if (response && response.question_id != null) {
-        let answerValue: any = response.answer;
-
-        // Parse JSON to clean quotes and arrays
-        try {
-          answerValue = JSON.parse(answerValue);
-        } catch (e) {
-          // If not JSON, keep as-is (e.g., numeric answers)
+      questionWithOptions.forEach((qwo) => {
+        const response = qwo.existingResponse;
+        if (response && response.question_id != null) {
+          let answerValue: any = response.answer;
+          try {
+            answerValue = JSON.parse(answerValue);
+          } catch {
+            // leave as-is if not JSON
+          }
+          existingResponses[response.question_id] = answerValue;
         }
+      });
 
-        existingResponses[response.question_id] = answerValue;
+      setQuestions(questionsArray);
+      setResponseOptions(responseOptionsArray);
+      setAnswers(existingResponses);
+    };
 
-        logger.debug(
-          `Existing answer for question id ${response.question_id} is/are :`,
-          answerValue
-        );
-      }
-    });
+    loadQuestionsWithOptions();
+  }, [itemIdNum]);
 
-    setQuestions(questionsArray);
-    setResponseOptions(responseOptionsArray);
-    setAnswers(existingResponses); // <-- now all question types will highlight properly
-  };
-
-  loadQuestionsWithOptions();
-}, [itemIdNum]);
-
+  // Update currentQuestion & options whenever answers or index change
   useEffect(() => {
     if (questions.length > 0) {
-      const itemQuestions = questions.filter((q) => q.item_id === itemIdNum);
-      const currentQ = itemQuestions[currentIndex] || null;
+      const filtered = visibleQuestions; // already computed based on answers
+
+      const currentQ = filtered[currentIndex] || null;
       const optionsForCurrent = responseOptions.filter(
         (r) => r.question_id === currentQ?.id
       );
@@ -112,15 +143,15 @@ export default function QuestionFlowScreen() {
       setCurrentQuestion(currentQ);
       setCurrentOptions(optionsForCurrent);
     }
-  }, [questions, responseOptions, currentIndex, itemIdNum]);
+  }, [questions, responseOptions, currentIndex, answers]);
 
-  // Answer setter (used by QuestionRenderer)
+  // Answer setter
   const handleSetAnswer = (val: any) => {
-    if (!currentQuestion || !currentQuestion.id) return;
-    setAnswers((prev) => ({ ...prev, [currentQuestion?.id]: val }));
+    if (!currentQuestion?.id) return;
+    setAnswers((prev) => ({ ...prev, [currentQuestion.id]: val }));
   };
 
-  // Custom option adder (used by QuestionRenderer for MSQ question type)
+  // Add custom option (MSQ only)
   const handleAddOption = (question_id: number, newOption: string) => {
     setCustomOptions((prev) => ({ ...prev, [question_id]: newOption }));
   };
@@ -132,22 +163,14 @@ export default function QuestionFlowScreen() {
     try {
       for (const [questionIdStr, answerObj] of Object.entries(responseObj)) {
         const questionId = Number(questionIdStr);
+        if (answerObj === null || answerObj === undefined) continue;
 
-        if (answerObj === null || answerObj === undefined) {
-          // Skip saving if no answer
-          continue;
-        }
-
-        // Handle custom options before saving response
+        // add custom options if present
         for (const [customQuesIdStr, customVal] of Object.entries(
           customOptions
         )) {
           const customQuesId = Number(customQuesIdStr);
-
           if (JSON.stringify(answerObj).includes(customVal)) {
-            console.log(
-              `Adding new option '${customVal}' for question id: ${customQuesId}`
-            );
             await addOptionToQuestion(customQuesId, customVal);
           }
         }
@@ -159,17 +182,13 @@ export default function QuestionFlowScreen() {
           user.id,
           patient.id
         );
-        console.log(`Answer saved for question ${questionId}`);
       }
-
-      console.log("All answers saved successfully.");
     } catch (error) {
       console.error("Error saving answers:", error);
     }
   };
 
   const handleNext = async () => {
-    // check required
     if (
       currentQuestion &&
       currentQuestion.required &&
@@ -183,16 +202,12 @@ export default function QuestionFlowScreen() {
       return;
     }
 
-    //compute answered count BEFORE navigating
-
     if (isLast) {
-      // mark fully completed (ensure completed === total)
       await submitAnswers(answers);
-      // setRefreshData(true);
       router.back();
       setRefreshData(true);
     } else {
-      setCurrentIndex((p) => p + 1);
+      setCurrentIndex((p) => p + 1); // 🔹 move to next visible question
     }
   };
 
@@ -219,7 +234,7 @@ export default function QuestionFlowScreen() {
         <>
           {/* Scrollable area */}
           <ScrollView
-            contentContainerStyle={{ padding: 20, paddingBottom: 100 }} // extra bottom padding so content doesn't hide under buttons
+            contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
           >
             {currentQuestion.instructions && (
               <Text className="text-base text-gray-600 mb-2">
@@ -232,14 +247,13 @@ export default function QuestionFlowScreen() {
               answer={answers[currentQuestion.id]}
               setAnswer={handleSetAnswer}
               responses={currentOptions}
-              // To add custom options for MSQ type questions
               setCustomOption={handleAddOption}
             />
           </ScrollView>
 
           {/* Fixed bottom buttons */}
           <View className="flex-row p-4 border-t border-gray-200 bg-white">
-            {/* Skip */}
+            {/* Skip (only if not required and not last visible) */}
             {!currentQuestion.required && !isLast && (
               <TouchableOpacity
                 className="flex-1 py-3 rounded-lg border border-gray-300 mr-2"
@@ -248,8 +262,7 @@ export default function QuestionFlowScreen() {
                     ...prev,
                     [currentQuestion.id]: null,
                   }));
-
-                  setCurrentIndex((p) => p + 1);
+                  setCurrentIndex((p) => p + 1); // 🔹 skip respects visibleQuestions now
                 }}
               >
                 <Text className="text-center text-gray-500 font-medium">

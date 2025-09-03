@@ -181,6 +181,8 @@ export const up = async (db: SQLiteDatabase) => {
       instructions TEXT DEFAULT NULL,
       required INTEGER NOT NULL DEFAULT 0,
       summary_template TEXT,
+      parent_question_id INTEGER,
+      display_condition TEXT,
       created_date TEXT NOT NULL DEFAULT (datetime('now')),
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY(item_id) REFERENCES ${tables.TRACK_ITEM}(id) ON DELETE CASCADE

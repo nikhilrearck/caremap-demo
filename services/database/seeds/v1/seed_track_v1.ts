@@ -55,26 +55,31 @@ export async function seedTrackDatabase(db: SQLiteDatabase) {
             if (!question.item_id || !question.text || !question.type) continue;
             await db.execAsync(
                 `INSERT INTO ${tables.QUESTION} (
-                    item_id,
-                    text,
-                    type,
-                    instructions,
-                    required,
-                    summary_template,
-                    created_date,
-                    updated_date
-                ) VALUES (
-                    ${question.item_id},
-                    '${escapeSQL(question.text)}',
-                    '${escapeSQL(question.type)}',
-                    NULL,
-                    ${question.required ? 1 : 0},
-                    '${escapeSQL(question.summary_template)}',
-                    '${new Date().toISOString()}',
-                    '${new Date().toISOString()}'
-                )`
+        item_id,
+        text,
+        type,
+        instructions,
+        required,
+        summary_template,
+        parent_question_id,
+        display_condition,
+        created_date,
+        updated_date
+    ) VALUES (
+        ${question.item_id},
+        '${escapeSQL(question.text)}',
+        '${escapeSQL(question.type)}',
+        NULL,
+        ${question.required ? 1 : 0},
+        ${question.summary_template ? `'${escapeSQL(question.summary_template)}'` : 'NULL'},
+        ${question.parent_question_id ?? 'NULL'},
+        ${question.display_condition ? `'${escapeSQL(question.display_condition)}'` : 'NULL'},
+        '${new Date().toISOString()}',
+        '${new Date().toISOString()}'
+    )`
             );
         }
+
 
         // Insert response options
         for (const option of sampleResponseOptions) {

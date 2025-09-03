@@ -162,6 +162,8 @@ export interface Question {
   instructions?: string;
   required: boolean;
   summary_template?:string;
+  parent_question_id?: number | null;
+  display_condition?: string | null;
   created_date: Date;
   updated_date: Date;
 }

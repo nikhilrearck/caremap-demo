@@ -17,7 +17,9 @@
       "text": "How many times did you need to take a rescue/as-needed medication in the past week?",
       "type": "numeric",
       "required": true,
-      "summary_template":"Medication was taken {{answer}} times."
+      "summary_template": "Medication was taken {{answer}} times.",
+      "parent_question_id": null,
+      "display_condition": null
     },
     {
       "id": 2,
@@ -25,7 +27,9 @@
       "text": "What is the name of the rescue/as-needed medication you took?",
       "type": "mcq",
       "required": true,
-      "summary_template":"Medication - {{answer}}"
+      "summary_template": "Medication - {{answer}}",
+      "parent_question_id": 1,
+      "display_condition": "{\"gt\": 0}"
     },
     {
       "id": 3,
@@ -33,7 +37,7 @@
       "text": "Did you exercise today?",
       "type": "boolean",
       "required": true,
-      "summary_template":"Exercise {{answer}}"
+      "summary_template": "Exercise {{answer}}"
     },
     {
       "id": 4,
@@ -41,7 +45,7 @@
       "text": "What type of exercises did you do?",
       "type": "msq",
       "required": false,
-      "summary_template":"Exercise done: {{answer}}"
+      "summary_template": "Exercise done: {{answer}}"
     },
     {
       "id": 5,
@@ -65,9 +69,8 @@
       "text": "Your food choices",
       "type": "text",
       "required": false,
-       "summary_template": "Food choice: {{answer}}"
+      "summary_template": "Food choice: {{answer}}"
     }
-
   ],
   "sampleResponseOptions": [
     {
