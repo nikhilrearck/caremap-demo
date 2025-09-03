@@ -23,17 +23,17 @@ export default function MSQQuestion({
 }) {
   // Fallback to [] if value is null/undefined or not an array
   const normalize = (str: string) => String(str).trim().toLowerCase();
-  const safeValue = Array.isArray(value) ? value.map(normalize) : [];
-  
-  const toggleOption = (opt: string) => {
+  const safeValue = Array.isArray(value) ? value : [];
+
+const toggleOption = (opt: string) => {
   const normalizedOpt = opt.trim().toLowerCase();
   const normalizedValues = safeValue.map((v) => v.trim().toLowerCase());
 
   if (normalizedValues.includes(normalizedOpt)) {
-    // remove
+    // remove while keeping original casing in stored values
     onChange(safeValue.filter((v) => v.trim().toLowerCase() !== normalizedOpt));
   } else {
-    // add
+    // add with original casing
     onChange([...safeValue, opt]);
   }
 };
@@ -57,8 +57,7 @@ export default function MSQQuestion({
             <ResponseOption
               key={opt.id}
               label={label}
-              // selected={safeValue.includes(label)}
-              selected={safeValue.includes(normalize(label))}
+             selected={safeValue.some((v) => v.trim().toLowerCase() === label.trim().toLowerCase())}
               onPress={() => toggleOption(label)}
             />
           );
