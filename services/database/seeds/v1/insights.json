@@ -1,0 +1,14 @@
+[
+  {
+    "topic_id": 1,
+    "topic": "Emergency Medication Usage",
+    "questionId": 1,
+    "transform": "numeric"
+  },
+  {
+    "topic_id": 2,
+    "topic": "Exercise Frequency",
+    "questionId": 4,
+    "transform": "boolean"
+  }
+]
