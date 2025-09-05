@@ -1,4 +1,4 @@
-import { QuestionWithOptions, TrackCategoryWithItems, TrackCategoryWithSelectableItems, TrackItemWithProgress } from '@/services/common/types';
+import { QuestionWithOptions, TrackCategoryWithItems, TrackCategoryWithSelectableItems, TrackItemWithProgress, CustomGoalParams} from '@/services/common/types';
 import { getCurrentTimestamp } from '@/services/core/utils';
 import { useModel } from '@/services/database/BaseModel';
 import { tables } from '@/services/database/migrations/v1/schema_v1';
@@ -92,7 +92,6 @@ export const getTrackCategoriesWithItemsAndProgress = async (
     return categories;
 };
 
-
 export const getAllCategoriesWithSelectableItems = async (
     patientId: number,
     date: string
@@ -139,7 +138,6 @@ export const getAllCategoriesWithSelectableItems = async (
         return result;
     });
 };
-
 
 export const getQuestionsWithOptions = async (
     itemId: number,
@@ -352,4 +350,78 @@ export const getSummariesForItem = async (entryId: number): Promise<string[]> =>
             )
             .filter((s: any): s is string => !!s);
     });
+};
+
+export const addCustomGoal = async (params: CustomGoalParams): Promise<number> => {
+    const { name, patientId, date, questions } = params;
+    logger.debug('addCustomGoal called', { name, patientId, date });
+
+    // Find the Custom category ID
+    const customCategoryId = await useModel(trackCategoryModel, async (model) => {
+        const category = await model.getFirstByFields({ name: 'Custom' });
+        if (!category) {
+            throw new Error('Custom category not found');
+        }
+        return category.id;
+    });
+
+    // Create a new track item for the custom goal
+    const trackItemId = await useModel(trackItemModel, async (model) => {
+        const result = await model.insert({
+            name,
+            category_id: customCategoryId,
+            created_date: now,
+            updated_date: now,
+        });
+        return result.lastInsertRowId;
+    });
+
+    // Create questions for the custom goal
+    for (const question of questions) {
+        const questionId = await useModel(questionModel, async (model) => {
+            const result = await model.insert({
+                item_id: trackItemId,
+                text: question.text,
+                type: question.type,
+                required: question.required ? 1 : 0,
+                created_date: now,
+                updated_date: now,
+            });
+            return result.lastInsertRowId;
+        });
+
+        // If question type is mcq, msq, or boolean, add default/options
+        if (question.type === 'boolean') {
+            await useModel(responseOptionModel, async (model) => {
+                await model.insert({
+                    question_id: questionId,
+                    text: 'Yes',
+                    created_date: now,
+                    updated_date: now,
+                });
+                await model.insert({
+                    question_id: questionId,
+                    text: 'No',
+                    created_date: now,
+                    updated_date: now,
+                });
+            });
+        } else if ((question.type === 'mcq' || question.type === 'msq') && Array.isArray(question.options)) {
+            const cleanOptions = question.options.filter((o) => !!o && o.trim().length > 0);
+            if (cleanOptions.length > 0) {
+                await useModel(responseOptionModel, async (model) => {
+                    for (const opt of cleanOptions) {
+                        await model.insert({
+                            question_id: questionId,
+                            text: opt.trim(),
+                            created_date: now,
+                            updated_date: now,
+                        });
+                    }
+                });
+            }
+        }
+    }
+    logger.debug('addCustomGoal completed', { trackItemId, name, patientId, date });
+    return trackItemId;
 };
