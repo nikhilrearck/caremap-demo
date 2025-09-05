@@ -21,7 +21,7 @@ export const alertTitleMap: Record<AlertType, string> = {
   w: 'Warning',
 };
 
-// Track module types
+// Track module types -----------------------------------------------------------------------
 export interface TrackCategoryWithItems extends TrackCategory {
   items: TrackItemWithProgress[];
 };
@@ -48,4 +48,35 @@ export interface QuestionWithOptions {
   question: Question;
   options: ResponseOption[];
   existingResponse?: TrackResponse;
+}
+
+// Insights module type -----------------------------------------------------------------------
+
+export const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+export type DayLabel = typeof DAY_LABELS[number];
+
+export interface InsightsRequest {
+  patientId: number;
+  selectedDate?: string; // MM-DD-YYYY (Sunday anchor of week)
+}
+
+export interface WeeklyPoint {
+  label: DayLabel;
+  date: string;
+  value: number | null;
+  responseId: number | null;
+}
+
+export interface QuestionSeries {
+  questionId: number;
+  transform: string;
+  topicId: number;
+  topic: string;
+  points: WeeklyPoint[];
+}
+
+export interface InsightsResponse {
+  weekStart: string;
+  weekEnd: string;
+  series: QuestionSeries[];
 }
