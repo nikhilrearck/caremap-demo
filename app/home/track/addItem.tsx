@@ -1,19 +1,18 @@
+import { CustomButton } from "@/components/shared/CustomButton";
 import Header from "@/components/shared/Header";
 import { CheckIcon, Icon } from "@/components/ui/icon";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
 import { UserContext } from "@/context/UserContext";
 import { TrackCategoryWithSelectableItems } from "@/services/common/types";
-import { addTrackItemOnDate, getAllCategoriesWithSelectableItems, removeTrackItemFromDate } from "@/services/core/TrackService";
-// import { TrackCategoryWithSelectableItems } from "@/services/common/types";
-// import {
-//   addTrackItemOnDate,
-//   getAllCategoriesWithSelectableItems,
-//   removeTrackItemFromDate,
-// } from "@/services/core/TrackService";
+import {
+  addTrackItemOnDate,
+  getAllCategoriesWithSelectableItems,
+  removeTrackItemFromDate,
+} from "@/services/core/TrackService";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,13 +22,14 @@ export default function AddItem() {
 
   const { user } = useContext(UserContext);
   const { patient } = useContext(PatientContext);
-  const { selectedDate, setRefreshData } = useContext(TrackContext);
+  const { selectedDate, setRefreshData, refreshData } = useContext(TrackContext);
   const [selectableCategories, setSelectableCategories] = useState<
     TrackCategoryWithSelectableItems[]
   >([]);
-  const selectableCategoriesRef = useRef<TrackCategoryWithSelectableItems[]>([]);
+  const selectableCategoriesRef = useRef<TrackCategoryWithSelectableItems[]>(
+    []
+  );
   const initialCategoriesRef = useRef<TrackCategoryWithSelectableItems[]>([]);
-
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -51,9 +51,10 @@ export default function AddItem() {
       selectableCategoriesRef.current = res;
       initialCategoriesRef.current = res;
       setSelectableCategories(res);
+      if (refreshData) setRefreshData(false);
     };
     loadSelectableItems();
-  }, [patient, selectedDate]);
+  }, [user, patient, selectedDate , refreshData]);
 
   const toggleSelect = (categoryIndex: number, itemIndex: number) => {
     setSelectableCategories((prev) => {
@@ -106,20 +107,25 @@ export default function AddItem() {
         await addTrackItemOnDate(itemId, user.id, patient.id, selectedDate);
       }
       for (const itemId of toRemove) {
-        await removeTrackItemFromDate(itemId, user.id, patient.id, selectedDate);
+        await removeTrackItemFromDate(
+          itemId,
+          user.id,
+          patient.id,
+          selectedDate
+        );
       }
 
       initialCategoriesRef.current = selectableCategoriesRef.current;
 
       setRefreshData(true);
-      router.back();
+      router.replace("/home/track");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView edges={['right', 'top', 'left']} className="flex-1 bg-white">
       <Header
         title="Select care items to track"
         right={
@@ -132,7 +138,7 @@ export default function AddItem() {
         {selectableCategories.map((categoryGroup, categoryIndex) => (
           <View key={categoryGroup.category.id} className="mb-6">
             <Text
-              style={{ color:  palette.secondary}}
+              style={{ color: palette.secondary }}
               className="font-bold text-xl mb-3"
             >
               {categoryGroup.category.name}
@@ -161,16 +167,26 @@ export default function AddItem() {
           </View>
         ))}
 
-        <TouchableOpacity
-          onPress={handleSave}
-          disabled={isLoading}
-          style={{ backgroundColor: palette.primary }}
-          className="rounded-lg py-3 items-center"
-        >
-          <Text className="text-white font-bold text-[16px]">Save</Text>
-        </TouchableOpacity>
+        
+
+
+       
       </ScrollView>
+       <View
+        className="bg-white absolute bottom-0 left-0 right-0 px-4 py-4  border-t border-gray-200">
+    <TouchableOpacity
+      onPress={() => router.push(ROUTES.TRACK_CUSTOM_GOALS)}
+      className="flex-row items-center justify-center border border-dashed border-gray-400 rounded-xl py-3 px-4 mb-3"
+    >
+      <Text className="text-cyan-600 font-semibold">+ Add Custom Goal</Text>
+    </TouchableOpacity>
+
+    <CustomButton
+      onPress={handleSave}
+      disabled={isLoading}
+      title="Save"
+    />
+</View>
     </SafeAreaView>
   );
 }
-

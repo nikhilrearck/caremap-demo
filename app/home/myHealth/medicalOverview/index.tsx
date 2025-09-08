@@ -21,18 +21,7 @@ function medicalOverview() {
       icon: require("@/assets/images/medical-condition.png"),
       link: ROUTES.MEDICAL_CONDITIONS,
     },
-    {
-      name: "Medical Equipments",
-      count: "14",
-      icon: require("@/assets/images/medical-equipment.png"),
-      link: ROUTES.MEDICAL_EQUIPMENTS,
-    },
-    {
-      name: "High level Goals",
-      count: "7",
-      icon: require("@/assets/images/highLevelGoals.png"),
-      link: ROUTES.HIGH_LEVEL_GOALS,
-    },
+    
 
     
   ];
