@@ -2,7 +2,8 @@
   "sampleTrackCategories": [
     { "id": 1, "name": "Meds and Treatment" },
     { "id": 2, "name": "Fitness Tracking" },
-    { "id": 3, "name": "Nutrition" }
+    { "id": 3, "name": "Nutrition" },
+    {"id":4,"name":"Custom"}
   ],
   "sampleTrackItems": [
     { "id": 1, "category_id": 1, "name": "Emergency Medication" },

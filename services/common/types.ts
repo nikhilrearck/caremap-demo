@@ -50,6 +50,21 @@ export interface QuestionWithOptions {
   existingResponse?: TrackResponse;
 }
 
+export interface CustomGoalQuestion {
+  text: string;
+  type: string;
+  required: boolean;
+  options?: string[];
+}
+
+export interface CustomGoalParams {
+  name: string;
+  userId: string;
+  patientId: number;
+  date: string;
+  questions: CustomGoalQuestion[];
+}
+
 // Insights module type -----------------------------------------------------------------------
 
 export const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
@@ -79,18 +94,4 @@ export interface InsightsResponse {
   weekStart: string;
   weekEnd: string;
   series: QuestionSeries[];
-}
-export interface CustomGoalQuestion {
-  text: string;
-  type: string;
-  required: boolean;
-  options?: string[];
-}
-
-export interface CustomGoalParams {
-  name: string;
-  userId: string;
-  patientId: number;
-  date: string;
-  questions: CustomGoalQuestion[];
 }

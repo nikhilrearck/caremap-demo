@@ -12,8 +12,8 @@ import {
 } from "@/services/core/TrackService";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
-import { usePathname, useRouter } from "expo-router";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -22,7 +22,8 @@ export default function AddItem() {
 
   const { user } = useContext(UserContext);
   const { patient } = useContext(PatientContext);
-  const { selectedDate, setRefreshData, refreshData } = useContext(TrackContext);
+  const { selectedDate, setRefreshData, refreshData } =
+    useContext(TrackContext);
   const [selectableCategories, setSelectableCategories] = useState<
     TrackCategoryWithSelectableItems[]
   >([]);
@@ -32,7 +33,9 @@ export default function AddItem() {
   const initialCategoriesRef = useRef<TrackCategoryWithSelectableItems[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
+
+useFocusEffect(
+    useCallback(() => {
     if (!user) {
       router.replace(ROUTES.LOGIN);
       return;
@@ -41,6 +44,8 @@ export default function AddItem() {
       router.replace(ROUTES.MY_HEALTH);
       return;
     }
+
+    console.log("Track AddItem for date:", selectedDate, "patient:", patient?.id, "refreshFlag:", refreshData);
 
     const loadSelectableItems = async () => {
       const res = await getAllCategoriesWithSelectableItems(
@@ -52,9 +57,11 @@ export default function AddItem() {
       initialCategoriesRef.current = res;
       setSelectableCategories(res);
       if (refreshData) setRefreshData(false);
+
     };
     loadSelectableItems();
-  }, [user, patient, selectedDate , refreshData]);
+  }, [patient, selectedDate,refreshData])
+);
 
   const toggleSelect = (categoryIndex: number, itemIndex: number) => {
     setSelectableCategories((prev) => {
@@ -92,6 +99,7 @@ export default function AddItem() {
 
       const toAdd: number[] = [];
       const toRemove: number[] = [];
+
       for (const group of current) {
         for (const it of group.items) {
           const wasSelected = initialMap[it.item.id] ?? false;
@@ -117,15 +125,18 @@ export default function AddItem() {
 
       initialCategoriesRef.current = selectableCategoriesRef.current;
 
+      // const tempFlag = true;
+      // console.log("Temp flag :",tempFlag);
+
       setRefreshData(true);
-      router.replace("/home/track");
+      router.navigate(ROUTES.TRACK);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <SafeAreaView edges={['right', 'top', 'left']} className="flex-1 bg-white">
+    <SafeAreaView edges={["right", "top", "left"]} className="flex-1 bg-white">
       <Header
         title="Select care items to track"
         right={
@@ -166,27 +177,17 @@ export default function AddItem() {
             ))}
           </View>
         ))}
-
-        
-
-
-       
       </ScrollView>
-       <View
-        className="bg-white absolute bottom-0 left-0 right-0 px-4 py-4  border-t border-gray-200">
-    <TouchableOpacity
-      onPress={() => router.push(ROUTES.TRACK_CUSTOM_GOALS)}
-      className="flex-row items-center justify-center border border-dashed border-gray-400 rounded-xl py-3 px-4 mb-3"
-    >
-      <Text className="text-cyan-600 font-semibold">+ Add Custom Goal</Text>
-    </TouchableOpacity>
+      <View className="bg-white absolute bottom-0 left-0 right-0 px-4 py-4  border-t border-gray-200">
+        <TouchableOpacity
+          onPress={() => router.push(ROUTES.TRACK_CUSTOM_GOALS)}
+          className="flex-row items-center justify-center border border-dashed border-gray-400 rounded-xl py-3 px-4 mb-3"
+        >
+          <Text className="text-cyan-600 font-semibold">+ Add Custom Goal</Text>
+        </TouchableOpacity>
 
-    <CustomButton
-      onPress={handleSave}
-      disabled={isLoading}
-      title="Save"
-    />
-</View>
+        <CustomButton onPress={handleSave} disabled={isLoading} title="Save" />
+      </View>
     </SafeAreaView>
   );
 }

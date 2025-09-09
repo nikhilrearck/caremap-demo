@@ -27,14 +27,13 @@ export default function TrackScreen() {
   } = useContext(TrackContext);
 
   const [currentSelectedDate, setCurrentSelectedDate] = useState(moment());
-  //marking dates on calendar
-const [markedDates, setMarkedDates] = useState<string[]>([]);
+
   useEffect(() => {
     const formatted = currentSelectedDate.format("MM-DD-YYYY");
     if (selectedDate !== formatted) {
       setSelectedDate(formatted);
     }
-  }, [currentSelectedDate, selectedDate]);
+  }, [currentSelectedDate,selectedDate]);
 
   useFocusEffect(
     useCallback(() => {
@@ -43,19 +42,22 @@ const [markedDates, setMarkedDates] = useState<string[]>([]);
         return;
       }
 
+      console.log(
+        "Track Home for date:",
+        selectedDate,
+        "patient:",
+        patient?.id,
+        "refreshFlag:",
+        refreshData
+      );
+
       const loadTrackItemsForSelectedDate = async () => {
         const res = await getTrackCategoriesWithItemsAndProgress(
           patient.id,
           currentSelectedDate.format("MM-DD-YYYY")
         );
         setCategories(res);
-        setRefreshData(false);
-         // 👇 collect all dates that have data (assuming API gives it or you can derive it)
-      const datesWithData = res
-        .filter((cat) => cat.items.length > 0)
-        .map((cat) => currentSelectedDate.format("YYYY-MM-DD")); // adjust format if API gives date
-      setMarkedDates(datesWithData);
-    
+        if (refreshData) setRefreshData(false);
       };
 
       loadTrackItemsForSelectedDate();
@@ -64,7 +66,7 @@ const [markedDates, setMarkedDates] = useState<string[]>([]);
 
   const handleAddItem = () => {
     router.push({
-      pathname: "/home/track/addItem",
+      pathname: ROUTES.TRACK_ADD_ITEM,
     });
   };
 
@@ -76,7 +78,10 @@ const [markedDates, setMarkedDates] = useState<string[]>([]);
         right={
           <TouchableOpacity onPress={handleAddItem} className="px-2">
             <Text className="text-white font-medium whitespace-nowrap">
-              {categories.some((cat) => cat.items.length > 0) ? "Edit item" : "Add item"}
+              {/* {categories.some((cat) => cat.items.length > 0)
+                ? "Edit item"
+                : "Add item"} */}
+                Add item
             </Text>
           </TouchableOpacity>
         }
@@ -89,7 +94,7 @@ const [markedDates, setMarkedDates] = useState<string[]>([]);
       <TrackCalendar
         selectedDate={currentSelectedDate}
         onDateSelected={setCurrentSelectedDate}
-        markedDates={markedDates}
+        // markedDates={markedDates}
       />
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -109,10 +114,8 @@ const [markedDates, setMarkedDates] = useState<string[]>([]);
 
                 {/* Items under this category */}
                 {cat.items.map((itm) => (
-                  
                   <TrackCard
-                  
-                  summaries={itm.summaries ?? []} 
+                    summaries={itm.summaries ?? []}
                     key={itm.item.id}
                     item_id={itm.item.id}
                     entry_id={itm.entry_id}
@@ -120,7 +123,7 @@ const [markedDates, setMarkedDates] = useState<string[]>([]);
                     completed={itm.completed}
                     total={itm.total}
                     date={currentSelectedDate.format("MM-DD-YYYY")}
-                    />
+                  />
                 ))}
               </View>
             ) : null

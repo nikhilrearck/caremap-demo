@@ -1,5 +1,3 @@
-
-
 // import React, { useState } from "react";
 // import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
 // import { useRouter, useLocalSearchParams } from "expo-router";
@@ -37,7 +35,7 @@
 
 //   const handleSaveAll = () => {
 //     router.push({
-        
+
 //       pathname: ROUTES.TRACK_CUSTOM_GOALS,
 //       params: { addedQuestions: JSON.stringify(questions),
 //         goalName,
@@ -94,15 +92,12 @@
 
 import React from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import AddQuestionForm, { Question } from "@/components/shared/track-shared-components/AddQuestionForm";
+import AddQuestionForm, {
+  Question,
+} from "@/components/shared/track-shared-components/AddQuestionForm";
 import { ROUTES } from "@/utils/route";
 import Header from "@/components/shared/Header";
-import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
- 
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function AddQuestionScreen() {
   const router = useRouter();
@@ -125,15 +120,18 @@ export default function AddQuestionScreen() {
       updatedQuestions.push(q);
     }
 
+    console.log("Add Question :", JSON.stringify(updatedQuestions));
+
     router.replace({
       pathname: ROUTES.TRACK_CUSTOM_GOALS,
       params: { addedQuestions: JSON.stringify(updatedQuestions), goalName },
     });
+
   };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-         <Header
+      <Header
         title="Add Custom Goal"
         right={
           <TouchableOpacity onPress={() => router.back()}>
@@ -145,11 +143,12 @@ export default function AddQuestionScreen() {
         <AddQuestionForm
           onSave={handleSave}
           editing={
-            editIndex !== undefined ? existingQuestions[Number(editIndex)] : null
+            editIndex !== undefined
+              ? existingQuestions[Number(editIndex)]
+              : null
           }
         />
       </ScrollView>
     </SafeAreaView>
   );
 }
-

@@ -414,6 +414,7 @@ export const shouldDisplayQuestion = (
         return true;
     }
 };
+
 export const addCustomGoal = async (params: CustomGoalParams): Promise<number> => {
     const { name, patientId, date, questions } = params;
     logger.debug('addCustomGoal called', { name, patientId, date });

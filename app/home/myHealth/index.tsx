@@ -131,7 +131,7 @@ useEffect(() => {
   const COLUMNS = 2 as const;
   const gridColsClass = "grid-cols-2"; // gluestack grid expects 1..12
   return (
-    <SafeAreaView className="flex-1 m-0 bg-white">
+    <SafeAreaView className="flex-1 m-0 bg-white" edges={['right', 'top', 'left']}>
       <View
         style={{ backgroundColor: palette.primary }}
         className="pt-4 pb-6 px-6 "

@@ -12,9 +12,8 @@ interface CalendarProps {
 const TrackCalendar: React.FC<CalendarProps> = ({
   selectedDate,
   onDateSelected,
-  markedDates = [],
+  // markedDates = [],
 }) => {
-
   return (
     <CalendarStrip
       scrollable
@@ -25,11 +24,11 @@ const TrackCalendar: React.FC<CalendarProps> = ({
       dateNumberStyle={{ color: palette.whiteColor, fontSize: 16 }}
       dateNameStyle={{ color: palette.whiteColor, fontSize: 12 }}
       highlightDateContainerStyle={{
-         borderWidth: 1,
-  borderColor: palette.whiteColor, // use hex instead of "white"
-  borderRadius: 999,
-  padding: 5,
-  backgroundColor: "transparent", // make sure no fill
+        borderWidth: 1,
+        borderColor: palette.whiteColor, // use hex instead of "white"
+        borderRadius: 999,
+        padding: 5,
+        backgroundColor: "transparent", // make sure no fill
       }}
       highlightDateNumberStyle={{
         color: palette.whiteColor,
@@ -39,20 +38,19 @@ const TrackCalendar: React.FC<CalendarProps> = ({
       selectedDate={selectedDate}
       onDateSelected={onDateSelected}
       // 👇 dotted circle for marked dates
-     // 👇 pass ALL marked dates, not just the selected one
+      // 👇 pass ALL marked dates, not just the selected one
       // markedDates={markedDates.map((d) => ({
       //   date: moment(d, "YYYY-MM-DD"),
       //   dots: [
       //     {
       //       color: "white",
       //       selectedColor: "white",
-          
-           
+
       //     },
       //   ],
       // }))}
       iconContainer={{ flex: 0.05 }} // keep spacing small
-  iconStyle={{ tintColor: "#FFFFFF" }}
+      iconStyle={{ tintColor: "#FFFFFF" }}
     />
   );
 };
