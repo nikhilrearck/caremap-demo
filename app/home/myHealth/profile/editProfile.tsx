@@ -200,7 +200,7 @@ export default function EditProfilePage() {
         <LabeledTextInput
           label="Middle Name"
           value={newPatient.middle_name ?? ""}
-          editable={!newPatient.middle_name}
+          editable={false}
           onChangeText={(text) =>
             setNewPatient((prev) =>
               prev ? { ...prev, middle_name: text } : prev

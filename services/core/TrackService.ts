@@ -447,6 +447,7 @@ export const addCustomGoal = async (params: CustomGoalParams): Promise<number> =
                 text: question.text,
                 type: question.type,
                 required: question.required ? 1 : 0,
+                summary_template: "Last response: {{answer}}",
                 created_date: now,
                 updated_date: now,
             });
