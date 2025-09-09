@@ -3,11 +3,12 @@
     { "id": 1, "name": "Meds and Treatment" },
     { "id": 2, "name": "Fitness Tracking" },
     { "id": 3, "name": "Nutrition" },
+    { "id": 4, "name": "Major Events" },
     {"id":4,"name":"Custom"}
   ],
   "sampleTrackItems": [
     { "id": 1, "category_id": 1, "name": "Emergency Medication" },
-    { "id": 2, "category_id": 1, "name": "Morning Mood" },
+    { "id": 2, "category_id": 4, "name": "Sick Visits" },
     { "id": 3, "category_id": 2, "name": "Exercise Routine" },
     { "id": 4, "category_id": 3, "name": "Meal Quality" }
   ],
@@ -71,6 +72,44 @@
       "type": "text",
       "required": false,
       "summary_template": "Food choice: {{answer}}"
+    },
+    {
+      "id": 8,
+      "item_id": 2,
+      "text": "Have you had any acute/sick visits (emergency room, urgent care, same-day clinic or telehealth for a new/acute problem) in the past month?",
+      "type": "boolean",
+      "required": true,
+      "summary_template": "Sick Visits applied: {{answer}}",
+      "parent_question_id": null,
+      "display_condition": null
+    },
+    {
+      "id": 9,
+      "item_id": 2,
+      "text": "Please indicate number of acute/sick visits",
+      "type": "numeric",
+      "required": false,
+      "summary_template": "Sick Visits taken: {{answer}}",
+      "parent_question_id": 8,
+      "display_condition": "{\"equals\": \"Yes\"}"
+    },
+    {
+      "id": 10,
+      "item_id": 2,
+      "text": "Please describe the reason(s) for your acute/sick visit(s)",
+      "type": "text",
+      "required": false,
+      "summary_template": "Reason(s) of sick visits: {{answer}}",
+      "parent_question_id": 9,
+      "display_condition": "{\"gt\": 0}"
+    },
+    {
+      "id": 11,
+      "item_id": 3,
+      "text": "How many minutes did you exercise?",
+      "type": "text",
+      "required": false,
+      "summary_template": "Workout for: {{answer}} min."
     }
   ],
   "sampleResponseOptions": [
@@ -96,6 +135,8 @@
     { "id": 12, "question_id": 3, "text": "Yes" },
     { "id": 13, "question_id": 3, "text": "No" },
     { "id": 14, "question_id": 6, "text": "Yes" },
-    { "id": 15, "question_id": 6, "text": "No" }
+    { "id": 15, "question_id": 6, "text": "No" },
+    { "id": 16, "question_id": 8, "text": "Yes" },
+    { "id": 17, "question_id": 8, "text": "No" }
   ]
 }

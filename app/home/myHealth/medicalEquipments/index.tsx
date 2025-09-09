@@ -223,7 +223,7 @@ export default function MedicalEquipmentScreen() {
           </Text>
         </TouchableOpacity> */}
         <CustomButton
-          title="Add medical equipment"
+          title="Add Medical Equipment"
           onPress={() => setShowForm(true)}
         />
       </View>

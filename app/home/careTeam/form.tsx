@@ -135,8 +135,8 @@ export default function CareTeamForm() {
   };
   const validatePhone = (val?: string) => {
     if (!val || !val.trim()) return "Phone number is required";
-    if (!phoneDigitsRegex.test(val.replace(/\D/g, "")))
-      return "Enter 10 digit phone number";
+    // if (!phoneDigitsRegex.test(val.replace(/\D/g, "")))
+    //   return "Enter 10 digit phone number";
     return undefined;
   };
 

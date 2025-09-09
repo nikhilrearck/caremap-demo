@@ -219,7 +219,7 @@ export default function EditProfilePage() {
         />
 
         <View className="mb-3">
-          <Text className="text-gray-500 text-sm mb-1">Date of Birth</Text>
+          <Text className="text-gray-700 text-sm mb-1">Date of Birth</Text>
           <TouchableOpacity
             className="border flex flex-row justify-between items-center border-gray-300 rounded-lg p-2"
             onPress={() => setDatePickerVisibility(true)}
@@ -259,7 +259,7 @@ export default function EditProfilePage() {
         />
 
         <View className="mb-3">
-          <Text className="text-gray-500 text-sm mb-1">Relationship</Text>
+          <Text className="text-gray-700 text-sm mb-1">Relationship</Text>
           <Select
             selectedValue={newPatient?.relationship}
             onValueChange={(value) =>
@@ -308,7 +308,7 @@ export default function EditProfilePage() {
 
         {/* Gender */}
         <View className="mb-6">
-          <Text className="text-gray-500 text-sm mb-1">Gender</Text>
+          <Text className="text-gray-700 text-sm mb-1">Gender</Text>
           <Select
             selectedValue={newPatient?.gender}
             onValueChange={(value) =>

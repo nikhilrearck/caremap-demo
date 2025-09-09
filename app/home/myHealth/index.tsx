@@ -51,7 +51,7 @@ useEffect(() => {
 
   const medicalTiles = [
     {
-      name: "Medical overview",
+      name: "Medical Overview",
       image: require("@/assets/images/medicalOverview.png"),
       badge: 5,
       link: ROUTES.MEDICAL_OVERVIEW,
@@ -93,7 +93,7 @@ useEffect(() => {
       link: ROUTES.MEDICAL_EQUIPMENTS,
     },
     {
-      name: "High level Goals",
+      name: "High Level Goals",
       image: require("@/assets/images/highLevelGoals.png"),
       badge: 4,
       link: ROUTES.HIGH_LEVEL_GOALS,

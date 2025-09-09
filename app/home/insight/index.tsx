@@ -9,6 +9,16 @@ import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { SafeAreaView } from "react-native-safe-area-context";
+const weeklyData0 = [
+  { value: 1, label: "Mon" },
+  { value: 0, label: "Tue" },
+  { value: 1, label: "Wed" },
+  { value: 1, label: "Thu" },
+  { value: 0, label: "Fri" },
+  { value: 1, label: "Sat" },
+  { value: 1, label: "Sun" },
+];
+
 const weeklyData1 = [
   { value: 20, label: "Mon" },
   { value: 45, label: "Tue" },
@@ -49,12 +59,12 @@ export default function Insight() {
       />
 
       <ScrollView className="flex-1 bg-white pt-5 px-4">
-        <Text
+        {/* <Text
           className="text-xl font-bold mb-4"
           style={{ color: palette.heading }}
         >
           Weekly Performance
-        </Text>
+        </Text> */}
 
         <View
           style={{
@@ -68,10 +78,10 @@ export default function Insight() {
           className="mb-6 py-3 px-0 rounded-xl"
         >
           <Text className="text-lg font-semibold text-gray-700 px-4 mb-1">
-            Exercise Frequency
+            Medication Usage (No. of times)
           </Text>
           <LineChart
-            data={weeklyData1}
+            data={weeklyData0}
             curved
             height={150}
             thickness={2}
@@ -89,8 +99,8 @@ export default function Insight() {
             xAxisColor="rgba(0,0,0,0.25)"
             // yAxisColor="transparent"
             // xAxisColor="transparent"
-            noOfSections={5}
-            // maxValue={100}
+            noOfSections={2}
+            maxValue={2}
             verticalLinesColor="rgba(0,0,0,0.06)"
             verticalLinesThickness={1}
             // focusEnabled={true}
@@ -100,6 +110,7 @@ export default function Insight() {
             // textShiftY={1}
             // showTextOnFocus={true}
             dataPointsRadius={3}
+            yAxisLabelTexts={["0", "1", "2"]}
           />
         </View>
 
@@ -115,7 +126,7 @@ export default function Insight() {
           className="mb-4 py-3 px-0 rounded-xl"
         >
           <Text className="text-lg font-semibold text-gray-700 px-4 mb-1">
-            Medication Usage
+            Exercise frequency (in mins)
           </Text>
           <LineChart
             data={weeklyData1}
@@ -159,9 +170,7 @@ export default function Insight() {
                 style={{ backgroundColor: palette.primary }}
                 className="w-3 h-3 rounded-full mr-2"
               />
-              <Text className="text-sm font-medium text-gray-700">
-                Current Week
-              </Text>
+              <Text className="text-sm font-medium text-gray-700">Cardio</Text>
             </View>
             <View className="flex-row items-center">
               <View
@@ -169,7 +178,7 @@ export default function Insight() {
                 className="w-3 h-3 rounded-full mr-2"
               />
               <Text className="text-sm font-medium text-gray-700">
-                Previous Week
+                Strength
               </Text>
             </View>
           </View>
@@ -178,3 +187,4 @@ export default function Insight() {
     </SafeAreaView>
   );
 }
+ 

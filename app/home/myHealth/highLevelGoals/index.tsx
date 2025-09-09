@@ -286,7 +286,7 @@ export default function HighLevelGoals() {
 
         {/* Add Your Goals */}
         <CustomButton
-          title="Add your goals "
+          title="Add Your Goals "
           onPress={() => setShowAddForm(true)}
         />
       </View>

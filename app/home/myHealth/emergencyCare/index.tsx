@@ -172,7 +172,7 @@ export default function EmergencyCareScreen() {
 
         <Divider className="bg-gray-300 my-2" />
         <CustomButton
-          title="Add emergency care"
+          title="Add Emergency Care"
           onPress={() => setShowForm(true)}
         />
       </View>
