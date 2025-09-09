@@ -1,16 +1,14 @@
 import Header from "@/components/shared/Header";
-import { PatientContext } from "@/context/PatientContext";
-import { InsightsRequest, InsightsResponse } from "@/services/common/types";
-import { getWeeklyInsights } from "@/services/core/InsightsService";
-import { ROUTES } from "@/utils/route";
+import InsightsCalendar from "@/components/shared/InsightsCalendar";
+import TrackCalendar from "@/components/shared/track-shared-components/TrackCalender";
+import { Divider } from "@/components/ui/divider";
 import palette from "@/utils/theme/color";
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import moment from "moment";
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 const weeklyData1 = [
   { value: 20, label: "Mon" },
   { value: 45, label: "Tue" },
@@ -20,7 +18,6 @@ const weeklyData1 = [
   { value: 43, label: "Sat" },
   { value: 50, label: "Sun" },
 ];
-
 const weeklyData2 = [
   { value: 15, label: "Mon" },
   { value: 35, label: "Tue" },
@@ -30,44 +27,10 @@ const weeklyData2 = [
   { value: 30, label: "Sat" },
   { value: 40, label: "Sun" },
 ];
-
-export default function Insights() {
-  const { patient } = useContext(PatientContext);
-
-  const currentDate: string = moment().format("MM-DD-YYYY");
-
- useFocusEffect(
-    useCallback(() => {
-    const fetchInsights = async () => {
-      if (!patient) {
-        router.replace(ROUTES.MY_HEALTH);
-        return;
-      }
-
-      try {
-        // 1. Prepare request (patientId + selectedDate)
-        const req: InsightsRequest = {
-          patientId: patient?.id,
-          selectedDate: currentDate,
-        };
-
-        // 2. Call backend service
-        const res: InsightsResponse = await getWeeklyInsights(req);
-
-        // 3. Log response for debugging
-        console.log("Weekly Insights:", JSON.stringify(res, null, 2));
-      } catch (error) {
-        console.error("Error fetching insights:", error);
-      }
-    };
-
-    fetchInsights();
-  }, [])
- );
+export default function Insight() {
+  const [currentSelectedDate, setCurrentSelectedDate] = useState(moment());
 
   return (
-
-
     <SafeAreaView className="flex-1 bg-white">
       <Header
         title="Insights"
@@ -77,6 +40,14 @@ export default function Insights() {
           </TouchableOpacity>
         }
       />
+
+      <Divider className="bg-gray-300" />
+
+      <InsightsCalendar
+        selectedDate={currentSelectedDate}
+        onDateSelected={setCurrentSelectedDate}
+      />
+
       <ScrollView className="flex-1 bg-white pt-5 px-4">
         <Text
           className="text-xl font-bold mb-4"
@@ -84,6 +55,7 @@ export default function Insights() {
         >
           Weekly Performance
         </Text>
+
         <View
           style={{
             shadowColor: "#000",
@@ -206,16 +178,3 @@ export default function Insights() {
     </SafeAreaView>
   );
 }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// import ComingSoonScreen from "@/components/shared/ComingSoonScreen";
-// import { SafeAreaView } from "react-native-safe-area-context";
-// export default function Insight() {
-//   return (
-//     <SafeAreaView className="flex-1 ">
-
-//       <ComingSoonScreen />
-//     </SafeAreaView>
-//   );
-// }
