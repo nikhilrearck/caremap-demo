@@ -52,14 +52,30 @@ export default function TrackCard({
   if (!hasAnswers) {
     return (
       <View
-        className="rounded-xl px-4 py-5 mb-4"
-        style={{ backgroundColor: palette.trackCardBackground }}
+        className="rounded-xl px-4 py-5 mb-4 "
+        style={{ backgroundColor: palette.trackCardBackground,
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    // Android shadow
+    elevation: 4, }}
       >
-        <Text
-          style={{ fontSize: 16, color: palette.secondary, marginBottom: 10 }}
-        >
-          {item_name}
-        </Text>
+        <View className="flex-row justify-between md-2">
+          <Text
+            style={{
+              fontSize: 16,
+              color: palette.secondary,
+              marginBottom: 10,
+              fontWeight: "600",
+            }}
+          >
+            {item_name}
+          </Text>
+          <Text className="">Weekly</Text>
+        </View>
+
         <TouchableOpacity
           onPress={handleOpenQuestions}
           activeOpacity={0.8}
@@ -79,7 +95,8 @@ export default function TrackCard({
       variant="filled"
       type="single"
       isCollapsible={true}
-      className="rounded-xl px-4 py-5 mb-4"
+       defaultValue={[`track-${item_id}`]}
+        className="rounded-xl mb-4" // 👈 add margin here
       style={{ backgroundColor: palette.trackCardBackground }}
     >
       <AccordionItem
@@ -89,7 +106,7 @@ export default function TrackCard({
         <AccordionHeader>
           <AccordionTrigger>
             {({ isExpanded }: { isExpanded: boolean }) => (
-              <View className="flex-row items-center justify-between w-full">
+              <View className=" flex-row items-center justify-between w-full">
                 {/* Tappable card title opens questions */}
                 <TouchableOpacity
                   onPress={handleOpenQuestions}
@@ -97,7 +114,8 @@ export default function TrackCard({
                   className="flex-1 pr-2"
                 >
                   <AccordionTitleText
-                    style={{ fontSize: 16, color: palette.secondary }}
+                    className="text-lg font-semibold"
+                    style={{ color: palette.secondary }}
                   >
                     {item_name}
                   </AccordionTitleText>

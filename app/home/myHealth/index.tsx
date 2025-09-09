@@ -86,6 +86,18 @@ useEffect(() => {
       badge: 4,
       link: ROUTES.NOTES,
     },
+    {
+      name: "Medical Equipments",
+      image: require("@/assets/images/medical-equipment.png"),
+      badge: 4,
+      link: ROUTES.MEDICAL_EQUIPMENTS,
+    },
+    {
+      name: "High level Goals",
+      image: require("@/assets/images/highLevelGoals.png"),
+      badge: 4,
+      link: ROUTES.HIGH_LEVEL_GOALS,
+    },
     // {
     //   name: "Test 1",
     //   image: require("@/assets/images/medicalOverview.png"),
