@@ -80,3 +80,17 @@ export interface InsightsResponse {
   weekEnd: string;
   series: QuestionSeries[];
 }
+export interface CustomGoalQuestion {
+  text: string;
+  type: string;
+  required: boolean;
+  options?: string[];
+}
+
+export interface CustomGoalParams {
+  name: string;
+  userId: string;
+  patientId: number;
+  date: string;
+  questions: CustomGoalQuestion[];
+}
