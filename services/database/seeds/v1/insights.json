@@ -2,7 +2,7 @@
   {
     "topic_id": 1,
     "topic": "Emergency Medication Usage",
-    "questionId": 1,
+    "questionIds": [1],
     "transform": "numeric"
   },
   {

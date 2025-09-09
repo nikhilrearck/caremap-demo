@@ -77,62 +77,131 @@ export default function Insights() {
           </TouchableOpacity>
         }
       />
-
-      <ScrollView className="flex-1 bg-white p-4">
-        <Text className="text-xl font-bold text-gray-800 mb-4">
+      <ScrollView className="flex-1 bg-white pt-5 px-4">
+        <Text
+          className="text-xl font-bold mb-4"
+          style={{ color: palette.heading }}
+        >
           Weekly Performance
         </Text>
+        <View
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.22,
+            shadowRadius: 2.22,
+            elevation: 1,
+            backgroundColor: palette.gradientStart,
+          }}
+          className="mb-6 py-3 px-0 rounded-xl"
+        >
+          <Text className="text-lg font-semibold text-gray-700 px-4 mb-1">
+            Exercise Frequency
+          </Text>
+          <LineChart
+            data={weeklyData1}
+            curved
+            height={150}
+            thickness={2}
+            color1={palette?.primary}
+            dataPointsColor1={palette?.primary}
+            hideRules
+            showVerticalLines
+            initialSpacing={15}
+            spacing={48}
+            endSpacing={0}
+            // showScrollIndicator
+            yAxisTextStyle={{ color: "#9CA3AF", fontSize: 11 }}
+            xAxisLabelTextStyle={{ color: "#6B7280", fontSize: 11 }}
+            yAxisColor="rgba(0,0,0,0.25)"
+            xAxisColor="rgba(0,0,0,0.25)"
+            // yAxisColor="transparent"
+            // xAxisColor="transparent"
+            noOfSections={5}
+            // maxValue={100}
+            verticalLinesColor="rgba(0,0,0,0.06)"
+            verticalLinesThickness={1}
+            // focusEnabled={true}
+            // focusedDataPointColor={"transparent"}
+            // textFontSize={14}
+            // textColor={"#1F2937"}
+            // textShiftY={1}
+            // showTextOnFocus={true}
+            dataPointsRadius={3}
+          />
+        </View>
 
-        {/* Single Line Chart */}
-        <LineChart
-          data={weeklyData1}
-          height={250}
-          width={350}
-          color="#4f46e5"
-          thickness={3}
-          showDataPointOnFocus
-          focusEnabled
-          dataPointsColor="#4f46e5"
-          xAxisLabelTextStyle={{ color: "gray", fontSize: 12 }}
-          yAxisTextStyle={{ color: "gray", fontSize: 12 }}
-          renderTooltip={(item: { value: number; label: string }) => (
-            <View
-              style={{ backgroundColor: palette.primary }}
-              className=" px-2 py-1 rounded-lg"
-            >
-              <Text className="text-white text-sm">{item.value}</Text>
+        <View
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.22,
+            shadowRadius: 2.22,
+            elevation: 1,
+            backgroundColor: palette.gradientStart,
+          }}
+          className="mb-4 py-3 px-0 rounded-xl"
+        >
+          <Text className="text-lg font-semibold text-gray-700 px-4 mb-1">
+            Medication Usage
+          </Text>
+          <LineChart
+            data={weeklyData1}
+            data2={weeklyData2}
+            curved
+            height={150}
+            thickness={2}
+            color1={palette?.primary}
+            color2={"#ff7b00"}
+            // dataPointsColor="green"
+            dataPointsColor1={palette?.primary}
+            dataPointsColor2={"#ff7b00"}
+            hideRules
+            showVerticalLines
+            initialSpacing={15}
+            spacing={48}
+            endSpacing={0}
+            // showScrollIndicator
+            yAxisTextStyle={{ color: "#9CA3AF", fontSize: 11 }}
+            xAxisLabelTextStyle={{ color: "#6B7280", fontSize: 11 }}
+            yAxisColor="rgba(0,0,0,0.25)"
+            xAxisColor="rgba(0,0,0,0.25)"
+            // yAxisColor="transparent"
+            // xAxisColor="transparent"
+            noOfSections={5}
+            // maxValue={100}
+            verticalLinesColor="rgba(0,0,0,0.06)"
+            verticalLinesThickness={1}
+            // focusEnabled={true}
+            // focusedDataPointColor={"transparent"}
+            // textFontSize={14}
+            // textColor={"#1F2937"}
+            // textShiftY={1}
+            // showTextOnFocus={true}
+            dataPointsRadius={3}
+          />
+          {/* Legend with circular badges */}
+          <View className="flex-row items-center mt-2 px-4">
+            <View className="flex-row items-center mr-8">
+              <View
+                style={{ backgroundColor: palette.primary }}
+                className="w-3 h-3 rounded-full mr-2"
+              />
+              <Text className="text-sm font-medium text-gray-700">
+                Current Week
+              </Text>
             </View>
-          )}
-        />
-
-        <Text className="text-xl font-bold text-gray-800 mt-8 mb-4">
-          Comparison (Two Lines)
-        </Text>
-
-        {/* Dual Line Chart */}
-        <LineChart
-          data={weeklyData1}
-          data2={weeklyData2}
-          height={250}
-          width={350}
-          color1="#4f46e5"
-          color2="#22c55e"
-          thickness={3}
-          showDataPointOnFocus
-          focusEnabled
-          dataPointsColor1="#4f46e5"
-          dataPointsColor2="#22c55e"
-          xAxisLabelTextStyle={{ color: "gray", fontSize: 12 }}
-          yAxisTextStyle={{ color: "gray", fontSize: 12 }}
-          renderTooltip={(item: { value: number; label: string }) => (
-            <View
-              style={{ backgroundColor: palette.primary }}
-              className=" px-2 py-1 rounded-lg"
-            >
-              <Text className="text-white text-sm">{item.value}</Text>
+            <View className="flex-row items-center">
+              <View
+                style={{ backgroundColor: "#ff7b00" }}
+                className="w-3 h-3 rounded-full mr-2"
+              />
+              <Text className="text-sm font-medium text-gray-700">
+                Previous Week
+              </Text>
             </View>
-          )}
-        />
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
