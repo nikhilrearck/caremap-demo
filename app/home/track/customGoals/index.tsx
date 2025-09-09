@@ -208,6 +208,7 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { addCustomGoal } from "@/services/core/TrackService";
@@ -365,7 +366,7 @@ export default function CustomGoals() {
             Questions
           </Text>
 
-          {questions.length === 0 ? (
+          {/* {questions.length === 0 ? (
             <Text className="text-gray-500 text-center mb-6">Please add questions.</Text>
           ) : (
             questions.map((q, i) => (
@@ -394,7 +395,69 @@ export default function CustomGoals() {
                 />
               </View>
             ))
-          )}
+          )} */}
+          <View className="flex-1">
+  <FlatList
+    data={questions}
+    keyExtractor={(_, index) => index.toString()}
+    scrollEnabled={false}
+    showsVerticalScrollIndicator={false}
+    renderItem={({ item, index }) => (
+      <View className="border border-gray-300 rounded-lg mb-3 px-3 py-3">
+        <View className="flex-row items-center justify-between">
+          {/* Question text */}
+          <View className="flex-row items-center space-x-2">
+            <Text className="text-lg max-w-[220px] text-left font-medium">
+              {index + 1}. {item.text}
+            </Text>
+          </View>
+
+          {/* Right side: Type + Actions */}
+          <View className="flex-row items-center">
+            <Text className="text-base text-gray-700 mr-3">
+              {item.type}
+            </Text>
+
+            <ActionPopover
+              onEdit={() =>
+                router.push({
+                  pathname: ROUTES.TRACK_CUSTOM_GOALS_ADD_QUESTIONS,
+                  params: {
+                    existing: JSON.stringify(questions),
+                    goalName,
+                    editIndex: index.toString(),
+                  },
+                })
+              }
+              onDelete={() => handleDelete(index)}
+            />
+          </View>
+        </View>
+
+        {/* Options (for MCQ/MSQ) */}
+        {item.options?.length > 0 && (
+          <View className="px-3 mt-2">
+            <Text className="text-sm text-gray-700">
+              Options: {item.options.join(", ")}
+            </Text>
+          </View>
+        )}
+
+        {/* Required toggle display */}
+        <View className="px-3 mt-1">
+          <Text className="text-sm text-gray-500">
+            {item.required ? "Required" : "Optional"}
+          </Text>
+        </View>
+      </View>
+    )}
+    ListEmptyComponent={
+      <Text className="text-gray-500 text-center">No questions added yet.</Text>
+    }
+    style={{ minHeight: 50 }}
+  />
+</View>
+
         </ScrollView>
 
         {/* Fixed Save button */}
