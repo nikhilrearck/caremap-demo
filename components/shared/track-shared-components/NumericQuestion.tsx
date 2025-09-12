@@ -21,7 +21,7 @@ export default function NumericQuestion({
   const handleInputChange = (text: string) => {
     setInputValue(text);
     // Parse the input to a number
-    const numericValue = parseFloat(text);
+    const numericValue = parseFloat(text); // convert string to number
     if (!isNaN(numericValue)) {
       onChange(numericValue);
     }
@@ -34,7 +34,7 @@ export default function NumericQuestion({
   const handleInputBlur = () => {
     // Ensure we have a valid number when input loses focus
     const numericValue = parseFloat(inputValue);
-    if (isNaN(numericValue)) {
+    if (isNaN(numericValue) || numericValue < 0) {
       setInputValue("0");
       onChange(0);
     } else {
@@ -71,7 +71,7 @@ export default function NumericQuestion({
           value={inputValue}
           onChangeText={handleInputChange}
           keyboardType="numeric"
-          className="border border-gray-300 px-3 py-2 rounded-lg text-center text-lg min-w-[80px] mx-2"
+          className="border border-gray-400 px-3 py-2 rounded-lg text-center text-lg min-w-[80px] mx-2"
           // placeholder="0"
           onBlur={handleInputBlur}
         />
