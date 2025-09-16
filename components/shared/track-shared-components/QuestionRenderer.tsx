@@ -52,9 +52,24 @@ export default function QuestionRenderer({
         />
       );
     case "numeric":
+      // Provide a default instructions JSON when missing so the UI works out of the box
+      // You can remove or change this once backend provides real instructions
+      const numericQuestion =
+        question.instructions && question.instructions.trim().length > 0
+          ? question
+          : ({
+              ...question,
+              instructions: JSON.stringify({
+                subtype: "decimal",
+                units: "kg",
+                // min: 0,
+                max: 200,
+                precision: 2,
+              }),
+            } as Question);
       return (
         <NumericQuestion
-          question={question}
+          question={numericQuestion}
           responses={responses}
           value={answer}
           onChange={setAnswer}
