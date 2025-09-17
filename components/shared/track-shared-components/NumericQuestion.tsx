@@ -78,8 +78,8 @@ export default function NumericQuestion({
 
     if (subtype === "decimal") {
       finalValue = parseFloat(clampedValue.toFixed(precision));
-      // finalValueString = finalValue.toString();
-      finalValueString = clampedValue.toFixed(precision);
+      finalValueString = finalValue.toString();
+      // finalValueString = clampedValue.toFixed(precision);
     } else {
       finalValue = Math.round(clampedValue);
       finalValueString = finalValue.toString();
@@ -120,7 +120,7 @@ export default function NumericQuestion({
           onChangeText={handleInputChange}
           // keyboardType="numeric"
           keyboardType={subtype === "integer" ? "number-pad" : "decimal-pad"}
-          className="border border-gray-400 px-3 py-2 rounded-lg text-center text-lg min-w-[80px] mx-2"
+          className="border border-gray-400 px-3 py-2 rounded-lg text-center text-lg min-w-[100px] mx-2"
           // placeholder="0"
           onBlur={handleInputBlur}
         />
