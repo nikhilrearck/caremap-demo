@@ -86,7 +86,7 @@ export default function More() {
                 size={22}
                 color="#2C7A7B"
               />
-              <Text className="ml-3 text-base text-gray-800">Profile</Text>
+              <Text className="ml-3 text-lg text-gray-800">Profile</Text>
               <View className="ml-auto">
                 <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
               </View>
@@ -99,7 +99,7 @@ export default function More() {
               className="flex-row items-center px-4 py-4 border-b border-gray-200"
             >
               <Ionicons name="lock-closed-outline" size={22} color="#2C7A7B" />
-              <Text className="ml-3 text-base text-gray-800">
+              <Text className="ml-3 text-lg text-gray-800">
                 Update Passcode
               </Text>
               <View className="ml-auto">
@@ -114,7 +114,7 @@ export default function More() {
               className="flex-row items-center px-4 py-4 border-b border-gray-200"
             >
               <Ionicons name="book-outline" size={22} color="#2C7A7B" />
-              <Text className="ml-3 text-base text-gray-800">View Consent</Text>
+              <Text className="ml-3 text-lg text-gray-800">View Consent</Text>
               <View className="ml-auto">
                 <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
               </View>
@@ -131,7 +131,7 @@ export default function More() {
                 size={22}
                 color="#2C7A7B"
               />
-              <Text className="ml-3 text-base text-gray-800">Resources</Text>
+              <Text className="ml-3 text-lg text-gray-800">Resources</Text>
               <View className="ml-auto">
                 <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
               </View>
@@ -148,7 +148,7 @@ export default function More() {
                 size={22}
                 color="#2C7A7B"
               />
-              <Text className="ml-3 text-base text-gray-800">Feedback</Text>
+              <Text className="ml-3 text-lg text-gray-800">Feedback</Text>
               <View className="ml-auto">
                 <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
               </View>
@@ -161,7 +161,7 @@ export default function More() {
               className="flex-row items-center px-4 py-4"
             >
               <Ionicons name="help-circle-outline" size={22} color="#2C7A7B" />
-              <Text className="ml-3 text-base text-gray-800">Support</Text>
+              <Text className="ml-3 text-lg text-gray-800">Support</Text>
               <View className="ml-auto">
                 <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
               </View>
