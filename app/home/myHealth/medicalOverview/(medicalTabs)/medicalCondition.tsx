@@ -27,6 +27,8 @@ import { logger } from "@/services/logging/logger";
 import { router } from "expo-router";
 import { CustomButton } from "@/components/shared/CustomButton";
 import { Divider } from "@/components/ui/divider";
+import { Icon } from "@/components/ui/icon";
+import { Link, Calendar, Plus, Lightbulb } from "lucide-react-native";
 
 const linkedHealthSystem: string[] = [
   "Attention Deficient and Hyperactivity Disorder (ADHD)",
@@ -158,13 +160,24 @@ export default function MedicalConditions() {
             Medical Conditions (Linked Health System)
           </Text>
 
-          <Divider className="bg-gray-300 my-3" />
+          <Text className="text-sm text-gray-700">
+            Automatically imported from your healthcare provider
+          </Text>
+          <Text
+            className="text-base text-gray-600 text-right mb-3"
+            style={{ textAlign: "right" }}
+          >
+            {linkedHealthSystem.length}{" "}
+            {linkedHealthSystem.length === 1 ? "item" : "items"}
+          </Text>
+
+          {/* <Divider className="bg-gray-300 my-3" /> */}
 
           <View>
             <FlatList
               data={linkedHealthSystem}
               renderItem={({ item }) => (
-                <View className="border border-gray-200 rounded-lg p-2 bg-gray-100 mb-3">
+                <View className="border border-gray-200 rounded-lg px-2 py-3 bg-gray-100 mb-3">
                   <Text className="text-lg">{item}</Text>
                 </View>
               )}
@@ -189,8 +202,17 @@ export default function MedicalConditions() {
           >
             Medical Conditions (User entered)
           </Text>
-
-          <Divider className="bg-gray-300 my-3" />
+          <Text className="text-sm text-gray-700">
+            Conditions you've added manually
+          </Text>
+          <Text
+            className="text-base text-gray-600 text-right mb-3"
+            style={{ textAlign: "right" }}
+          >
+            {userConditions.length}{" "}
+            {userConditions.length === 1 ? "item" : "items"}
+          </Text>
+          {/* <Divider className="bg-gray-300 my-3" /> */}
 
           <View className="flex-1">
             <FlatList
@@ -201,16 +223,31 @@ export default function MedicalConditions() {
               renderItem={({ item }) => {
                 const formattedDate = getFormattedConditionDate(item);
                 return (
-                  <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
-                    <View className="flex-row items-center space-x-2">
-                      <Text className="text-lg ml-3 max-w-[220px] text-left">
-                        {item.condition_name}
-                      </Text>
-                    </View>
-                    <View className="flex-row items-center">
-                      <Text className="text-lg text-gray-500 mr-3">
-                        {formattedDate}
-                      </Text>
+                  <View className="bg-white border border-gray-200 rounded-xl px-4 py-4 mb-3 shadow-sm">
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-row items-center flex-1">
+                        <View className="flex-1">
+                          <Text
+                            className="text-base font-medium"
+                            // style={{ color: palette.heading }}
+                            numberOfLines={1}
+                          >
+                            {item.condition_name}
+                          </Text>
+                          {!!formattedDate && (
+                            <View className="flex-row items-center mt-1">
+                              <Icon
+                                as={Calendar}
+                                size="sm"
+                                className="text-gray-600 mr-1"
+                              />
+                              <Text className="text-sm text-gray-600">
+                                {formattedDate}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
                       <ActionPopover
                         onEdit={() => {
                           handleEdit(item);
@@ -225,9 +262,14 @@ export default function MedicalConditions() {
                 );
               }}
               ListEmptyComponent={
-                <Text className="text-gray-500 text-lg">
-                  No Medical conditions found.
-                </Text>
+                <View className="items-center justify-center py-12">
+                  <Text className="text-gray-500 text-base text-center">
+                    No medical conditions found.
+                  </Text>
+                  <Text className="text-gray-400 text-sm text-center mt-1">
+                    Add your first condition below
+                  </Text>
+                </View>
               }
               style={{ minHeight: 50 }}
             />
@@ -288,7 +330,6 @@ function AddMedicalConditionsPage({
   const [condition, setCondition] = useState(
     editingCondition?.condition_name || ""
   );
-  // console.log(condition);
 
   const isDisabled = condition.trim().length === 0;
 
@@ -301,13 +342,28 @@ function AddMedicalConditionsPage({
     onClose(); // Go back to list
   };
 
+  // Common conditions data
+  const commonConditions = [
+    "Diabetes Type 2",
+    "High Blood Pressure",
+    "Asthma",
+    "Arthritis",
+    "Depression",
+    "Anxiety",
+  ];
+
+  // Handle selecting a common condition
+  const selectCommonCondition = (selectedCondition: string) => {
+    setCondition(selectedCondition);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <Header
         title="Medical Conditions"
         right={
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={onClose}>
             <Text className="text-white font-medium">Cancel</Text>
           </TouchableOpacity>
         }
@@ -325,29 +381,82 @@ function AddMedicalConditionsPage({
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text
-            className="text-xl font-medium mb-3"
-            style={{ color: palette.heading }}
-          >
-            {editingCondition
-              ? "Update your current medical condition"
-              : "Add your current medical condition"}
+          {/* Title with icon */}
+          <View className="flex-row items-center mb-4">
+            {/* <Icon as={Plus} size="sm" className="text-teal-600" /> */}
+            <Text
+              className="text-xl font-semibold"
+              style={{ color: palette.primary }}
+            >
+              {editingCondition
+                ? "Update your current medical condition"
+                : "Add your current medical condition"}
+            </Text>
+          </View>
+
+          {/* Input field */}
+          <View className="mb-2">
+            <Text
+              className="text-base font-medium mb-2"
+              style={{ color: palette.heading }}
+            >
+              Medical Condition *
+            </Text>
+            <View className="border border-gray-300 rounded-lg bg-gray-50">
+              <Textarea
+                size="lg"
+                isReadOnly={false}
+                isInvalid={false}
+                isDisabled={false}
+                className="w-full bg-transparent"
+              >
+                <TextareaInput
+                  placeholder="Enter condition name"
+                  textAlignVertical="top"
+                  value={condition}
+                  onChangeText={setCondition}
+                  className="min-h-[50px] bg-transparent"
+                />
+              </Textarea>
+            </View>
+          </View>
+
+          {/* Helper text */}
+          <Text className="text-sm text-gray-600 mb-6">
+            Enter a medical condition you've been diagnosed with
           </Text>
 
-          <Textarea
-            size="lg"
-            isReadOnly={false}
-            isInvalid={false}
-            isDisabled={false}
-            className="w-full"
-          >
-            <TextareaInput
-              placeholder="Enter condition..."
-              textAlignVertical="top"
-              value={condition}
-              onChangeText={setCondition}
-            />
-          </Textarea>
+          {/* Common Conditions Section */}
+          <View className="mb-6">
+            <View className="flex-row items-center mb-4">
+              <Icon as={Lightbulb} size="sm" className="text-orange-500 mr-2" />
+              <Text
+                className="text-lg font-semibold"
+                style={{ color: palette.heading }}
+              >
+                Common Conditions
+              </Text>
+            </View>
+
+            {/* Common conditions grid */}
+            <View className="flex-row flex-wrap">
+              {commonConditions.map((commonCondition, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => selectCommonCondition(commonCondition)}
+                  className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 mr-2 mb-2"
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    className="text-sm font-medium"
+                    style={{ color: palette.heading }}
+                  >
+                    {commonCondition}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
         </ScrollView>
 
         {/* Save button */}
