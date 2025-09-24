@@ -29,8 +29,8 @@ import { CustomButton } from "@/components/shared/CustomButton";
 import { Divider } from "@/components/ui/divider";
 
 const linkedHealthSystem: string[] = [
-  // "Attention Deficient and Hyperactivity Disorder (ADHD)",
-  // "Irritable Bowel Syndrome (IBS)",
+  "Attention Deficient and Hyperactivity Disorder (ADHD)",
+  "Irritable Bowel Syndrome (IBS)",
 ];
 
 export default function MedicalConditions() {

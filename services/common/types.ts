@@ -26,12 +26,12 @@ export interface TrackCategoryWithItems extends TrackCategory {
   items: TrackItemWithProgress[];
 };
 
-export interface TrackItemWithProgress{
+export interface TrackItemWithProgress {
   item: TrackItem;
-  entry_id:number;
+  entry_id: number;
   completed: number;
   total: number;
-  started: boolean;
+  summaries?: string[]; // item-level summaries
 };
 
 export interface TrackItemSelectable {
@@ -48,4 +48,19 @@ export interface QuestionWithOptions {
   question: Question;
   options: ResponseOption[];
   existingResponse?: TrackResponse;
+}
+
+export interface CustomGoalQuestion {
+  text: string;
+  type: string;
+  required: boolean;
+  options?: string[];
+}
+
+export interface CustomGoalParams {
+  name: string;
+  userId: string;
+  patientId: number;
+  date: string;
+  questions: CustomGoalQuestion[];
 }
