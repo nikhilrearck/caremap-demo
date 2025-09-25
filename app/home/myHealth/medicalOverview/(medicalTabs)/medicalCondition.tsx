@@ -28,7 +28,14 @@ import { router } from "expo-router";
 import { CustomButton } from "@/components/shared/CustomButton";
 import { Divider } from "@/components/ui/divider";
 import { Icon } from "@/components/ui/icon";
-import { Link, Calendar, Plus, Lightbulb } from "lucide-react-native";
+import {
+  Link,
+  Calendar,
+  Plus,
+  Lightbulb,
+  Stethoscope,
+} from "lucide-react-native";
+import { CustomFormInput } from "@/components/shared/CustomFormInput";
 
 const linkedHealthSystem: string[] = [
   "Attention Deficient and Hyperactivity Disorder (ADHD)",
@@ -153,16 +160,21 @@ export default function MedicalConditions() {
       <View className="px-5 pt-5 flex-1">
         {/* Linked Health System */}
         <View className="mb-6">
-          <Text
-            className="text-xl font-semibold"
-            style={{ color: palette.heading }}
-          >
-            Medical Conditions (Linked Health System)
-          </Text>
+          <View className="flex-row items-center">
+            <Icon as={Stethoscope} size="xl" color={palette.primary} />
+            <View className="ml-1 flex-1">
+              <Text
+                className="text-xl font-semibold"
+                style={{ color: palette.primary }}
+              >
+                Medical Conditions (Linked Health System)
+              </Text>
+              <Text className="text-sm text-gray-700">
+                Automatically imported from your healthcare provider
+              </Text>
+            </View>
+          </View>
 
-          <Text className="text-sm text-gray-700">
-            Automatically imported from your healthcare provider
-          </Text>
           <Text
             className="text-base text-gray-600 text-right mb-3"
             style={{ textAlign: "right" }}
@@ -196,15 +208,21 @@ export default function MedicalConditions() {
 
         {/* User Entered */}
         <View className="flex-1">
-          <Text
-            className="text-xl font-semibold"
-            style={{ color: palette.heading }}
-          >
-            Medical Conditions (User entered)
-          </Text>
-          <Text className="text-sm text-gray-700">
-            Conditions you've added manually
-          </Text>
+          <View className="flex-row items-center">
+            <Icon as={Stethoscope} size="xl" color={palette.primary} />
+            <View className="ml-1 flex-1">
+              <Text
+                className="text-xl font-semibold"
+                style={{ color: palette.primary }}
+              >
+                Medical Conditions (User entered)
+              </Text>
+              <Text className="text-sm text-gray-700">
+                Conditions you've added manually
+              </Text>
+            </View>
+          </View>
+
           <Text
             className="text-base text-gray-600 text-right mb-3"
             style={{ textAlign: "right" }}
@@ -383,9 +401,9 @@ function AddMedicalConditionsPage({
         >
           {/* Title with icon */}
           <View className="flex-row items-center mb-4">
-            {/* <Icon as={Plus} size="sm" className="text-teal-600" /> */}
+            <Icon as={Stethoscope} size="xl" color={palette.primary} />
             <Text
-              className="text-xl font-semibold"
+              className="text-xl font-semibold ml-2"
               style={{ color: palette.primary }}
             >
               {editingCondition
@@ -395,31 +413,13 @@ function AddMedicalConditionsPage({
           </View>
 
           {/* Input field */}
-          <View className="mb-2">
-            <Text
-              className="text-base font-medium mb-2"
-              style={{ color: palette.heading }}
-            >
-              Medical Condition *
-            </Text>
-            <View className="border border-gray-300 rounded-lg bg-gray-50">
-              <Textarea
-                size="lg"
-                isReadOnly={false}
-                isInvalid={false}
-                isDisabled={false}
-                className="w-full bg-transparent"
-              >
-                <TextareaInput
-                  placeholder="Enter condition name"
-                  textAlignVertical="top"
-                  value={condition}
-                  onChangeText={setCondition}
-                  className="min-h-[50px] bg-transparent"
-                />
-              </Textarea>
-            </View>
-          </View>
+          <CustomFormInput
+            className="mb-2"
+            label="Medical Condition*"
+            value={condition}
+            onChangeText={setCondition}
+            placeholder="Enter condition name"
+          />
 
           {/* Helper text */}
           <Text className="text-sm text-gray-600 mb-6">
@@ -430,30 +430,23 @@ function AddMedicalConditionsPage({
           <View className="mb-6">
             <View className="flex-row items-center mb-4">
               <Icon as={Lightbulb} size="sm" className="text-orange-500 mr-2" />
-              <Text
-                className="text-lg font-semibold"
-                style={{ color: palette.heading }}
-              >
-                Common Conditions
-              </Text>
+              <Text className="text-lg font-semibold">Common Conditions</Text>
             </View>
 
             {/* Common conditions grid */}
-            <View className="flex-row flex-wrap">
+            <View className="flex-row flex-wrap -mx-1">
               {commonConditions.map((commonCondition, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => selectCommonCondition(commonCondition)}
-                  className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 mr-2 mb-2"
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    className="text-sm font-medium"
-                    style={{ color: palette.heading }}
+                <View key={index} className="w-1/2 px-1 mb-3">
+                  <TouchableOpacity
+                    onPress={() => selectCommonCondition(commonCondition)}
+                    className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-3 w-full"
+                    activeOpacity={0.7}
                   >
-                    {commonCondition}
-                  </Text>
-                </TouchableOpacity>
+                    <Text className="text-base font-medium text-center">
+                      {commonCondition}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               ))}
             </View>
           </View>
