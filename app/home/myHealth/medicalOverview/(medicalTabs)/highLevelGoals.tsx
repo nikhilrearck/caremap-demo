@@ -30,11 +30,18 @@ import { logger } from "@/services/logging/logger";
 import { router } from "expo-router";
 import { Divider } from "@/components/ui/divider";
 import { CustomButton } from "@/components/shared/CustomButton";
+import {
+  Calendar,
+  Target,
+  Clock,
+  Lightbulb,
+  Mic,
+  HelpCircle,
+} from "lucide-react-native";
 
 const linkedGoals = [
   "Establish a consistent sleep schedule for better energy and recovery.",
   "Improve cardiovascular fitness by engaging in regular aerobic activity.",
-  "Eat more whole, unprocessed foods and cut down on added sugar.",
 ];
 
 export default function HighLevelGoals() {
@@ -163,20 +170,34 @@ export default function HighLevelGoals() {
       <View className="px-5 pt-5 flex-1">
         {/* Linked Health System */}
         <View className="">
+          <View className="flex-row items-center">
+            <Icon as={Target} size="xl" color={palette.primary} />
+            <View className="ml-1 flex-1">
+              <Text
+                className="text-xl font-semibold"
+                style={{ color: palette.primary }}
+              >
+                High level goals (Linked health system)
+              </Text>
+              <Text className="text-sm text-gray-700">
+                Automatically imported from your healthcare provider
+              </Text>
+            </View>
+          </View>
           <Text
-            className="text-xl font-semibold"
-            style={{ color: palette.heading }}
+            className="text-base text-gray-600 text-right mb-1"
+            style={{ textAlign: "right" }}
           >
-            High level goals (Linked Health System)
+            {linkedGoals.length} {linkedGoals.length === 1 ? "item" : "items"}
           </Text>
 
-          <Divider className="bg-gray-300 my-3" />
+          {/* <Divider className="bg-gray-300 my-3" /> */}
 
           <View>
             <FlatList
               data={linkedGoals}
               renderItem={({ item }) => (
-                <View className="border border-gray-300 p-3 rounded-md mb-2">
+                <View className="border border-gray-300 p-3 rounded-xl mb-3 bg-gray-100">
                   <Text className="text-lg">{item}</Text>
                 </View>
               )}
@@ -188,22 +209,35 @@ export default function HighLevelGoals() {
               }
               showsVerticalScrollIndicator={true}
               scrollEnabled={true}
-              style={{ minHeight: 50, maxHeight: 150 }}
+              style={{ minHeight: 100, maxHeight: 160 }}
             />
           </View>
         </View>
 
         {/* User Entered Goals */}
         <View className="flex-1 mt-4">
+          <View className="flex-row items-center">
+            <Icon as={Target} size="xl" color={palette.primary} />
+            <View className="ml-2 flex-1">
+              <Text
+                className="text-xl font-semibold"
+                style={{ color: palette.primary }}
+              >
+                High level goals (User entered)
+              </Text>
+              <Text className="text-sm text-gray-700">
+                Goals you have added
+              </Text>
+            </View>
+          </View>
           <Text
-            className="text-xl font-semibold"
-            style={{ color: palette.heading }}
+            className="text-base text-gray-600 text-right mb-1"
+            style={{ textAlign: "right" }}
           >
-            High level goals (User entered)
+            {userGoals.length} {userGoals.length === 1 ? "item" : "items"}
           </Text>
 
-          {/* hr */}
-          <Divider className="bg-gray-300 my-3" />
+          {/* <Divider className="bg-gray-300 my-3" /> */}
 
           <View className="flex-1">
             <FlatList
@@ -232,11 +266,11 @@ export default function HighLevelGoals() {
                   );
                 }
                 return (
-                  <View className="bg-white border border-gray-300 rounded-md px-3 py-3 mb-3">
+                  <View className="bg-white border border-gray-300 rounded-xl px-3 py-3 mb-3">
                     <View className="flex-row items-start mb-2">
                       <View className="flex-row items-center flex-1">
                         {/* Goal Title */}
-                        <Text className="text-lg text-black ml-3 flex-1">
+                        <Text className="text-lg text-black ml-3 font-normal">
                           {item.goal_description}
                         </Text>
                       </View>
@@ -253,8 +287,12 @@ export default function HighLevelGoals() {
 
                     {/* Only show days remaining if target_date exists */}
                     {item.target_date && (
-                      <View className="flex-row justify-end">
-                        <Text className="text-base text-gray-500 mr-2">
+                      <View className="flex-row items-center justify-end mb-2">
+                        <Icon
+                          as={Calendar}
+                          className="text-gray-500 mr-1 w-5 h-5"
+                        />
+                        <Text className="text-gray-500 text-sm font-medium">
                           {getDaysRemaining(item.target_date)} days remaining
                         </Text>
                       </View>
@@ -266,11 +304,11 @@ export default function HighLevelGoals() {
                         <View className="w-full px-2 py-2">
                           <Progress
                             value={progress * 100}
-                            size="xs"
+                            size="md"
                             orientation="horizontal"
                           >
                             <ProgressFilledTrack
-                              style={{ backgroundColor: palette.progressBar }}
+                              style={{ backgroundColor: palette.primary }}
                             />
                           </Progress>
                         </View>
@@ -286,7 +324,7 @@ export default function HighLevelGoals() {
 
         {/* Add Your Goals */}
         <CustomButton
-          title="Add your goals "
+          title="Add your goal"
           onPress={() => setShowAddForm(true)}
         />
       </View>
@@ -334,18 +372,34 @@ function AddYourGoalsPage({
     editingGoal?.target_date ? new Date(editingGoal.target_date) : null
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
 
-  // Helper to format date as MM-DD-YY
+  const DURATIONS = [7, 30, 60, 90];
+
   const formatDate = (date: Date) => {
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
-    // const yy = String(date.getFullYear()).slice(-2);
     const yy = String(date.getFullYear());
     return `${mm}-${dd}-${yy}`;
   };
 
+  const addDays = (days: number) => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + days);
+    return d;
+  };
+
+  const handleSelectDuration = (days: number) => {
+    setSelectedDuration(days);
+    const newDate = addDays(days);
+    setCompletionDate(newDate);
+  };
+
   const handleConfirm = (date: Date) => {
+    // Manual date overrides duration buttons
     setCompletionDate(date);
+    setSelectedDuration(null);
     setShowDatePicker(false);
   };
 
@@ -354,18 +408,17 @@ function AddYourGoalsPage({
     handleAddUpdateGoal({
       id: editingGoal?.id,
       goal_description: goalDescription.trim(),
-      target_date: completionDate ?? undefined, // Pass Date object
+      target_date: completionDate ?? undefined,
     });
-    onClose(); // Go back to list
+    onClose();
   };
 
   const isDisabled = goalDescription.trim().length === 0;
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
       <Header
-        title="High level goals"
+        title="Add Health Goal"
         right={
           <TouchableOpacity onPress={() => router.back()}>
             <Text className="text-white font-medium">Cancel</Text>
@@ -373,98 +426,134 @@ function AddYourGoalsPage({
         }
         onBackPress={onClose}
       />
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        className="bg-white"
-        // behavior={Platform.OS === "ios" ? "padding" : "height"}
-        behavior={"padding"}
-        // keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
-      >
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={"padding"}>
         <ScrollView
           className="px-5 pt-5 flex-1"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Heading */}
-          <Text
-            className="text-xl font-semibold mb-2"
-            style={{ color: palette.heading }}
-          >
-            {editingGoal ? "Update your goals" : "Add your Goal"}
-          </Text>
-
-          {/* Examples */}
-          <Text className="text-gray-600 text-base">
-            Enter high level goals for your health
-          </Text>
-          <Text className="text-gray-600 text-base mb-1">e.g.</Text>
-          <View className="mb-4 ml-2">
-            <Text className="text-gray-600 text-base mb-1">
-              • Walk two flights of stairs comfortably
-            </Text>
-            <Text className="text-gray-600 text-base mb-1">
-              • Eat solid foods and regular liquids
-            </Text>
-            <Text className="text-gray-600 text-base">
-              • keep my seizures under control
+          {/* Goal Title */}
+          <View className="flex-row items-center mb-2">
+            <View className="w-6 h-6 bg-teal-100 rounded-full items-center justify-center mr-2">
+              <Text className="text-teal-600 text-xs font-bold">⊙</Text>
+            </View>
+            <Text
+              className="text-base font-semibold"
+              style={{ color: palette.primary }}
+            >
+              Goal Title *
             </Text>
           </View>
-
-          {/* hr */}
-          <View className="h-px bg-gray-300 mb-4" />
-
-          {/* Goal Description Input */}
-          <Text className="text-gray-600 text-base mb-2">
-            Enter a goal description*
-          </Text>
           <TextInput
             value={goalDescription}
             onChangeText={setGoalDescription}
-            placeholder="Your goals"
-            className="border border-gray-300 rounded-md px-3 py-3 text-base mb-6"
+            placeholder="Enter your health goal"
+            className="border border-gray-300 rounded-md px-3 py-3 text-base mb-2"
             multiline
             numberOfLines={3}
             textAlignVertical="top"
           />
-
-          <Text className="text-gray-600 text-base mb-2">
-            Set date to complete your goal
+          <Text className="text-gray-600 text-sm mb-4">
+            Describe a specific, measurable health goal you want to achieve.
           </Text>
-          {/* Completion Date */}
-          <TouchableOpacity
-            className="border border-gray-300 rounded-md px-3"
-            onPress={() => setShowDatePicker(true)}
-          >
-            <View className="flex-row items-center">
-              <TextInput
-                value={completionDate ? formatDate(completionDate) : ""}
-                placeholder="MM-DD-YY"
-                className="flex-1 text-base"
-                editable={false}
-                pointerEvents="none"
-              />
-              <Icon
-                as={CalendarDaysIcon}
-                className="text-typography-500 m-1 w-5 h-5"
-              />
+
+          {/* Duration (Days) */}
+          <View className="mb-5">
+            <View className="flex-row items-center mb-2">
+              <View className="w-6 h-6 bg-teal-100 rounded-full items-center justify-center mr-2">
+                <Text className="text-teal-600 text-xs font-bold">🕒</Text>
+              </View>
+              <Text
+                className="text-base font-semibold"
+                style={{ color: palette.primary }}
+              >
+                Duration (Days)
+              </Text>
             </View>
-          </TouchableOpacity>
+
+            <View className="flex-row justify-between mb-3">
+              {DURATIONS.map((d) => (
+                <TouchableOpacity
+                  key={d}
+                  onPress={() => handleSelectDuration(d)}
+                  className={`flex-1 mx-1 py-3 rounded-md border ${
+                    selectedDuration === d
+                      ? "bg-teal-600 border-teal-600"
+                      : "bg-white border-gray-300"
+                  }`}
+                >
+                  <Text
+                    className={`text-center text-xs font-medium ${
+                      selectedDuration === d ? "text-white" : "text-gray-700"
+                    }`}
+                  >
+                    {d} days
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Target Date (auto-populated) */}
+            <TouchableOpacity
+              className="border border-gray-300 rounded-md px-3 py-3"
+              onPress={() => setShowDatePicker(true)}
+              activeOpacity={0.7}
+            >
+              <View className="flex-row items-center">
+                <Text className="flex-1 text-base text-gray-800">
+                  {completionDate ? formatDate(completionDate) : "MM-DD-YYYY"}
+                </Text>
+                <Icon as={Calendar} className="text-gray-500 w-5 h-5" />
+              </View>
+            </TouchableOpacity>
+            <Text className="text-gray-500 text-xs mt-1">
+              Selecting a duration auto-fills this date. You can tap to choose
+              another date.
+            </Text>
+          </View>
+
+          {/* Goal Examples */}
+          <View className="mb-6">
+            <View className="flex-row items-center mb-2">
+              <View className="w-6 h-6 bg-teal-100 rounded-full items-center justify-center mr-2">
+                <Text className="text-teal-600 text-xs font-bold">💡</Text>
+              </View>
+              <Text
+                className="text-base font-semibold"
+                style={{ color: palette.primary }}
+              >
+                Goal Examples
+              </Text>
+            </View>
+            <View className="bg-teal-50 border border-teal-100 rounded-lg p-3">
+              <Text className="text-gray-700 text-sm mb-1">
+                • Exercise 30 minutes, 3 times per week
+              </Text>
+              <Text className="text-gray-700 text-sm mb-1">
+                • Reduce blood pressure to under 130/80
+              </Text>
+              <Text className="text-gray-700 text-sm mb-1">
+                • Take medication daily for 30 days
+              </Text>
+              <Text className="text-gray-700 text-sm">
+                • Lose 5 pounds in 2 months
+              </Text>
+            </View>
+          </View>
+
           <DateTimePickerModal
             isVisible={showDatePicker}
             mode="date"
             onConfirm={handleConfirm}
             onCancel={() => setShowDatePicker(false)}
-            minimumDate={new Date()} // Prevent selecting past dates
+            minimumDate={new Date()}
           />
         </ScrollView>
 
-        {/* Save Button */}
-        <View className="px-5">
+        <View className="px-5 pb-4">
           <CustomButton
             title={editingGoal ? "Update" : "Save"}
-            onPress={() => {
-              handleSave();
-            }}
+            onPress={handleSave}
             disabled={isDisabled}
           />
         </View>
